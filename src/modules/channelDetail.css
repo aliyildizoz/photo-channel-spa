@@ -1,0 +1,54 @@
+.containerImg {
+  position: relative;
+  text-align: center;
+  color: white;
+}
+
+.bottom-left {
+  position: absolute;
+  bottom: 8px;
+  left: 16px;
+}
+
+.top-left {
+  position: absolute;
+  top: 8px;
+  left: 16px;
+}
+
+.top-right {
+  position: absolute;
+  top: 8px;
+  right: 16px;
+}
+
+.bottom-right {
+  position: absolute;
+  bottom: 8px;
+  right: 16px;
+}
+
+.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.text-ChannelName {
+  position: absolute;
+  bottom: 20px;
+  right: auto;
+  background-color: black;
+  color: white;
+  padding-left: 10px;
+  padding-right: 10px;
+  opacity: 80%;
+  margin-left: 10px;
+}
+.text-Subs {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
