@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from "react-redux"
 import { bindActionCreators } from 'redux'
-import * as categoryActions from '../../redux/actions/categoryActions'
+import * as categoryAsyncActions from '../../redux/actions/category/categoryAsyncActions'
 import { ListGroup } from 'react-bootstrap';
 
 class CategoryList extends Component {
@@ -22,6 +22,7 @@ class CategoryList extends Component {
                             <ListGroup.Item active={c.id === this.props.currentCategory.id ? true : false} onClick={() => this.selectCategory(c)} key={c.id}>{c.name}</ListGroup.Item>
                         ))
                     }
+                    
                 </ListGroup>
             </div>
         )
@@ -34,8 +35,8 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
     return {
         actions: {
-            getCategories: bindActionCreators(categoryActions.getCategories, dispatch),
-            currentCategory: bindActionCreators(categoryActions.changeCategory, dispatch),
+            getCategories: bindActionCreators(categoryAsyncActions.getCategories, dispatch),
+            currentCategory: bindActionCreators(categoryAsyncActions.changeCategory, dispatch),
         }
     }
 }

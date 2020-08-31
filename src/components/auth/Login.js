@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
 import { Container, Form, FormGroup, Row, Col, Button } from 'react-bootstrap'
-import { Link, Redirect } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import * as authActions from '../../redux/actions/authActions'
+import * as authAsyncActions from '../../redux/actions/auth/authAsyncActions'
 class Login extends Component {
     state = {
         model: {
@@ -31,12 +31,14 @@ class Login extends Component {
     }
     setValidated = (val) => this.setState({ validate: val })
 
-
+    // componentDidMount = function () {
+    //     alert("çalıştı")
+    // }
     renderLogin = () => {
         const { validate } = this.state;
         return (
             <Row className="bg-light" style={{ borderBottomLeftRadius: 50, borderBottomRightRadius: 50 }}>
-                <Col md={{ span: 4, offset: 4 }} style={{ marginTop: 50, marginBottom: 50  }} >
+                <Col md={{ span: 4, offset: 4 }} style={{ marginTop: 50, marginBottom: 50 }} >
                     <Form noValidate validated={validate} onSubmit={this.onSubmitHandler}>
                         <h3>Giriş Yap</h3>
                         <FormGroup>
@@ -62,9 +64,9 @@ class Login extends Component {
         )
     }
     apiValidate = () => {
-        if (this.props.loginRes.data) {
-            return <div className="text-danger">{this.props.loginRes.data}</div>
-        }
+        // if (this.props.loginRes.data) {
+        //     return <div className="text-danger">{this.props.loginRes.data}</div>
+        // }
         return null;
     }
 
@@ -79,18 +81,16 @@ class Login extends Component {
     }
 
 }
-
-
 function mapDispatchToProps(dispatch) {
     return {
         actions: {
-            login: bindActionCreators(authActions.loginApi, dispatch)
+            // login: bindActionCreators(authAsyncActions.loginApi, dispatch)
         }
     }
 }
 function mapStateToProps(state) {
     return {
-        loginRes: state.authReducer.loginResult
+        // loginRes: state.authReducer.loginResult
     }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

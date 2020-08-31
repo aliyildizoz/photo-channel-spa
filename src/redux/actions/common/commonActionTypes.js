@@ -1,0 +1,2 @@
+export const API_RESPONSE = "API_RESPONSE"
+export const STATE_CLEAR = "STATE_CLEAR"

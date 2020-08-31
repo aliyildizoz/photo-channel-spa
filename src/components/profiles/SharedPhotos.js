@@ -1,23 +1,30 @@
 import React, { Component } from 'react'
-import { Row, Card, Col } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
-import { Media } from 'react-bootstrap'
-import FontAwesome from 'react-fontawesome'
+import { Row,  Col } from 'react-bootstrap'
 import PhotoCard from '../photoCard/PhotoCard'
+import { connect } from 'react-redux'
+class SharedPhotos extends Component {
 
-export default class SharedPhotos extends Component {
-    //Sorun çözüldü
-    // static getDerivedStateFromProps(nextProps, nextState) {
-    //    // console.log(nextProps)
-    //   return null;
-    // }
 
     render() {
         return (
             <div>
-                <h1>Paylaşılan fotoğraflar</h1>
-                <h2>{this.props.userId}</h2>
+                <Row >
+                    <Col md={12} className="mt-5">
+                        {
+                            this.props.sharedPhotos.map(p => {
+                                return <PhotoCard noUserName width="40rem" key={p.photo.id} photoInfo={p} />
+                            })
+                        }
+                    </Col>
+
+                </Row>
             </div>
         )
     }
 }
+function mapStateToProps(state) {
+    return {
+        sharedPhotos: state.userReducer.sharedPhotos
+    }
+}
+export default connect(mapStateToProps, null)(SharedPhotos);

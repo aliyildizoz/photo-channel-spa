@@ -24,20 +24,18 @@ export default class Comments extends Component {
                 </Row>
                 <Row>
                     <Col md="12">
-                        <div className="p-3 mb-2 bg-light text-dark" style={{ borderRadius: 50 }}>
-                            <div className="d-inline-flex"><Link to="/">Engin Demiroğ</Link></div><div className="d-inline-flex float-right">01.02.2020</div>
-                            <hr style={{ margin: 5 }} />
-                            <p className="mb-0">
-                                Aww yeah, you successfully read this important alert message.
+                        {
+                            this.props.comments.map(c => {
+                                return <div className="p-3 mb-2 bg-light text-dark" key={c.commentId} style={{ borderRadius: 50 }}>
+                                    <div className="d-inline-flex"><Link to={"profile/"+c.userId}>{c.firstName + " " + c.lastName}</Link></div><div className="d-inline-flex float-right">{c.shareDate.split("T")[0]}</div>
+                                    <hr style={{ margin: 5 }} />
+                                    <p className="mb-0">
+                                        {c.description}
                                     </p>
-                        </div>
-                        <div className="p-3 mb-2 bg-light text-dark" style={{ borderRadius: 50 }}>
-                            <div className="d-inline-flex"><Link to="/">Engin Demiroğ</Link></div><div className="d-inline-flex float-right">01.02.2020</div>
-                            <hr style={{ margin: 5 }} />
-                            <p className="mb-0">
-                                Aww yeah, you successfully read this important alert message.
-                                    </p>
-                        </div>
+                                </div>
+                            })
+                        }
+
 
                     </Col>
                 </Row>

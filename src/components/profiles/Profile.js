@@ -12,7 +12,8 @@ import LikedPhotos from './LikedPhotos'
 import ChannelCreateModal from '../channel/ChannelCreateModal'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import * as userActions from '../../redux/actions/userActions'
+import * as userAsyncActions from '../../redux/actions/user/userAsyncActions'
+import UserChannels from './UserChannels'
 
 class Profile extends Component {
 
@@ -25,9 +26,9 @@ class Profile extends Component {
     }
     renderFlow = () => {
         if (this.state.index == 1) {
-            return <SharedPhotos />
+            return <SharedPhotos userId={this.props.currentUserDetail.id} />
         } else {
-            return <LikedPhotos />
+            return <LikedPhotos  userId={this.props.currentUserDetail.id} />
         }
     }
     componentDidMount = () => {
@@ -39,18 +40,18 @@ class Profile extends Component {
     render() {
 
 
-        const Settings = () => {
-            if (this.props.loggedUser.id && this.props.currentUserDetail.id) {
-                if (this.props.loggedUser.id === this.props.currentUserDetail.id) {
-                    return <Col md={{ span: 2, offset: 8 }} className="mt-3">
-                        <Link to={this.props.currentUserDetail.id + "/settings"} className="text-decoration-none"><Button variant="info" block className="btn-sm mb-2">Ayarlar</Button></Link>
-                        <Button onClick={() => this.setChannelCreateModalShow(true)} block className="btn-sm" variant="success">Yeni kanal</Button>
-                        <ChannelCreateModal isShow={this.state.isChannelCreateModalShow} onHide={this.setChannelCreateModalShow} />
-                    </Col>
-                }
-            }
-            return null;
-        }
+        // const Settings = () => {
+        //     if (this.props.loggedUser.id && this.props.currentUserDetail.id) {
+        //         if (this.props.loggedUser.id === this.props.currentUserDetail.id) {
+        //             return <Col md={{ span: 2, offset: 8 }} className="mt-3">
+        //                 <Link to={this.props.currentUserDetail.id + "/settings"} className="text-decoration-none"><Button variant="info" block className="btn-sm mb-2">Ayarlar</Button></Link>
+        //                 <Button onClick={() => this.setChannelCreateModalShow(true)} block className="btn-sm" variant="success">Yeni kanal</Button>
+        //                 <ChannelCreateModal isShow={this.state.isChannelCreateModalShow} onHide={this.setChannelCreateModalShow} />
+        //             </Col>
+        //         }
+        //     }
+        //     return null;
+        // }
 
         return (
             <div>
@@ -66,12 +67,12 @@ class Profile extends Component {
                                                 <Card.Title>{this.props.currentUserDetail.firstName + " " + this.props.currentUserDetail.lastName}</Card.Title>
                                                 <h6>{this.props.currentUserDetail.userName}</h6>
                                                 <Card.Text>
-                                                    <Button variant="danger" block className="btn-sm ">
+                                                    <Link to={"/profile/" + this.props.currentUserDetail.id + "/subscriptions"} className="btn btn-sm btn-danger block">
                                                         <Badge pill variant="secondary">{this.props.currentUserDetail.subscriptionCount}</Badge>{" "} Abonelikler
-                                                        </Button>
+                                                    </Link>
                                                 </Card.Text>
                                             </Col>
-                                            <Settings />
+                                            {/* <Settings /> */}
                                         </Row>
                                     </div>
                                 </Col>
@@ -80,70 +81,7 @@ class Profile extends Component {
                         <Col md="3" >
                             <Row>
                                 <Col md="12"  >
-                                    <ListGroup >
-                                        <ListGroup.Item style={{ borderTopLeftRadius: 0, borderTopRightRadius: 0, borderTop: 0 }}><Media>
-                                            <img
-                                                width={25}
-                                                height={25}
-                                                className="mr-3"
-                                                src="https://images.all-free-download.com/images/graphicthumb/colombia_91424.jpg"
-                                                alt="Kanal Adı"
-                                            />
-                                            <Link to="/">
-                                                Kanal Adı
-                                    </Link>
-                                        </Media></ListGroup.Item>
-                                        <ListGroup.Item><Media>
-                                            <img
-                                                width={25}
-                                                height={25}
-                                                className="mr-3"
-                                                src="https://images.all-free-download.com/images/graphicthumb/colombia_91424.jpg"
-                                                alt="Kanal Adı"
-                                            />
-                                            <Link to="/">
-                                                Kanal Adı
-                                    </Link>
-                                        </Media></ListGroup.Item>
-                                        <ListGroup.Item><Media>
-                                            <img
-                                                width={25}
-                                                height={25}
-                                                className="mr-3"
-                                                src="https://images.all-free-download.com/images/graphicthumb/colombia_91424.jpg"
-                                                alt="Kanal Adı"
-                                            />
-                                            <Link to="/">
-                                                Kanal Adı
-                                    </Link>
-                                        </Media></ListGroup.Item>
-                                        <ListGroup.Item><Media>
-                                            <img
-                                                width={25}
-                                                height={25}
-                                                className="mr-3"
-                                                src="https://images.all-free-download.com/images/graphicthumb/colombia_91424.jpg"
-                                                alt="Kanal Adı"
-                                            />
-                                            <Link to="/">
-                                                Kanal Adı
-                                    </Link>
-                                        </Media></ListGroup.Item>
-                                        <ListGroup.Item><Media>
-                                            <img
-                                                width={25}
-                                                height={25}
-                                                className="mr-3"
-                                                src="https://images.all-free-download.com/images/graphicthumb/colombia_91424.jpg"
-                                                alt="Kanal Adı"
-                                            />
-                                            <Link to="/">
-                                                Kanal Adı
-                                    </Link>
-                                        </Media></ListGroup.Item>
-                                        <ListGroup.Item><Link to="/">Daha fazla...</Link></ListGroup.Item>
-                                    </ListGroup>
-
+                                    <UserChannels userId={this.props.currentUserDetail.id}></UserChannels>
                                 </Col>
                             </Row>
                         </Col>
@@ -175,14 +113,13 @@ class Profile extends Component {
 }
 function mapStateToProps(state) {
     return {
-        currentUserDetail: state.userReducer.userDetail,
-        loggedUser: state.authReducer.loggedUser
+        currentUserDetail: state.userReducer.userDetail
     }
 }
 function mapDispatchToProps(dispatch) {
     return {
         actions: {
-            getUserDetail: bindActionCreators(userActions.getUserApi, dispatch)
+            getUserDetail: bindActionCreators(userAsyncActions.getUserApi, dispatch)
         }
     }
 }

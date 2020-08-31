@@ -7,7 +7,7 @@ import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orien
 import { Button } from 'react-bootstrap';
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import * as channelActions from '../../redux/actions/channelActions'
+import * as channelAsyncActions from '../../redux/actions/channel/channelAsyncActions'
 registerPlugin(FilePondPluginImagePreview, FilePondPluginFileValidateType, FilePondPluginImageExifOrientation);
 
 class ChannelCreateModal extends Component {
@@ -32,13 +32,18 @@ class ChannelCreateModal extends Component {
             if (Object.keys(this.state.model.file).length === 0) this.setIsBlock(true)
             else this.setIsBlock(false)
         } else {
-            console.log("valid1")
+            this.props.actions.channelCreate(this.state.model, this.props.history)
         }
         this.setValidated(true);
     }
     setValidated = (val) => this.setState({ validate: val })
     setIsBlock = (val) => this.setState({ isBlock: val })
-
+    apiValidate = () => {
+        if (this.props.createRes.data) {
+            return <div className="text-danger">{this.props.createRes.data}</div>
+        }
+        return null;
+    }
     render() {
         const { validate } = this.state;
         return (
@@ -61,6 +66,9 @@ class ChannelCreateModal extends Component {
                                 <Form.Control.Feedback type="invalid">
                                     Kanal adı boş olamaz
                                 </Form.Control.Feedback>
+                                {
+                                    this.apiValidate()
+                                }
                             </FormGroup>
                             <div className="custom-file">
                                 <FilePond
@@ -91,9 +99,14 @@ class ChannelCreateModal extends Component {
 function mapDispatchToProps(dispatch) {
     return {
         actions: {
-            channelCreateApi: bindActionCreators(channelActions.channelCreateApi, dispatch)
+            channelCreate: bindActionCreators(channelAsyncActions.channelCreateApi, dispatch)
         }
     }
 }
+function mapStateToProps(state) {
+    return {
+        createRes: state.channelCRUDReducer.channelCreateResult
+    }
+}
 
-export default connect(null, mapDispatchToProps)(ChannelCreateModal);
+export default connect(mapStateToProps, mapDispatchToProps)(ChannelCreateModal);

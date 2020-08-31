@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { ListGroup, Row } from 'react-bootstrap'
 import { Col } from 'react-bootstrap'
+import { Link } from 'react-router-dom'
 
 export default class Likes extends Component {
     render() {
@@ -11,28 +12,14 @@ export default class Likes extends Component {
                         {/*yükseklik gelen veri sayısına göre ayarlanmalı  */}
                         <div className="overflow-auto" style={{ height: 200, width: this.props.width }}>
                             <ListGroup >
-                                <ListGroup.Item >
-                                    Ali Yıldızöz
-                          </ListGroup.Item>
-                                <ListGroup.Item >
-                                    Ali Yıldızöz
-                          </ListGroup.Item>
-                                <ListGroup.Item >
-                                    Ali Yıldızöz
-                          </ListGroup.Item>
-                                <ListGroup.Item >
-                                    Ali Yıldızöz
-                          </ListGroup.Item>
-                                <ListGroup.Item >
-                                    Ali Yıldızöz
-                          </ListGroup.Item>
-                                <ListGroup.Item >
-                                    Ali Yıldızöz
-                          </ListGroup.Item>
-                                <ListGroup.Item >
-                                    Ali Yıldızöz
-                          </ListGroup.Item>
-
+                                {
+                                    this.props.likes.map(l => {
+                                        return <ListGroup.Item key={l.userId} >
+                                            <a href={"/profile/" + l.userId}>{l.firstName + " " + l.lastName}</a>
+                                            <Link ></Link>
+                                        </ListGroup.Item>
+                                    })
+                                }
                             </ListGroup>
                         </div>
                     </Col>

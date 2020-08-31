@@ -2,8 +2,8 @@ import React, { Component } from 'react'
 import { Container, Form, FormGroup, Row, Col, Button } from 'react-bootstrap'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import * as authActions from '../../redux/actions/authActions'
-import * as userActions from '../../redux/actions/userActions'
+import * as authAsyncActions from "../../redux/actions/auth/authAsyncActions"
+import * as userAsyncActions from '../../redux/actions/user/userAsyncActions'
 
 class ProfileSettings extends Component {
 
@@ -20,6 +20,10 @@ class ProfileSettings extends Component {
         isRedirect: false,
         isBlock: false
 
+    }
+    componentWillUnmount = () => {
+        console.log("UnMount")
+        this.props.actions.resClear();
     }
     onChangeHandler = (e) => {
         this.setState({ model: { ...this.state.model, [e.target.name]: e.target.value }, validate: true })
@@ -39,10 +43,7 @@ class ProfileSettings extends Component {
             else {
                 this.setIsBlock(false)
                 const { firstName, lastName, userName, email, password } = this.state.model
-                this.props.actions.userUpdate({ firstName, lastName, userName, email, password, id: this.props.loggedUser.id }, this.props.history);
-                
-                this.props.actions.getLoggedUser();
-                this.props.history.push("/profile/" + this.props.loggedUser.id)
+                this.props.actions.userUpdate({ firstName, lastName, userName, email, password }, this.props.loggedUser.id, this.props.history, this.props.actions.getLoggedUser);
 
             }
         }
@@ -50,7 +51,7 @@ class ProfileSettings extends Component {
     }
     setIsBlock = (val) => this.setState({ isBlock: val })
     setValidated = (val) => this.setState({ validate: val })
-    renderRegister = () => {
+    renderProfileSettings = () => {
         const { validate } = this.state;
         return (
             <Row className="bg-light" style={{ borderBottomLeftRadius: 50, borderBottomRightRadius: 50 }}>
@@ -111,9 +112,10 @@ class ProfileSettings extends Component {
         )
     }
     apiValidate = () => {
-        // if (this.props.registerRes.data) {
-        //     return <div className="text-danger">{this.props.registerRes.data}</div>
-        // }
+        console.log(this.props.userUpdateRes)
+        if (this.props.userUpdateRes) {
+            return <div style={{ display: "block", width: "100%", marginTop: "25", fontSize: "80%", color: "#dc3545" }}>{this.props.userUpdateRes}</div>
+        }
         return null;
     }
     render() {
@@ -123,7 +125,7 @@ class ProfileSettings extends Component {
             <div>
                 <Container>
                     {
-                        this.renderRegister()
+                        this.renderProfileSettings()
                     }
                 </Container>
             </div>
@@ -133,14 +135,16 @@ class ProfileSettings extends Component {
 function mapDispatchToProps(dispatch) {
     return {
         actions: {
-            getLoggedUser: bindActionCreators(authActions.getLoggedUserApi, dispatch),
-            userUpdate: bindActionCreators(userActions.userUpdateApi, dispatch)
+            // getLoggedUser: bindActionCreators(authAsyncActions.getCurrentUserApi, dispatch),
+            userUpdate: bindActionCreators(userAsyncActions.userUpdateApi, dispatch),
+            resClear: () => dispatch(userAsyncActions.userUpdateResClearSuccess())
         }
     }
 }
 function mapStateToProps(state) {
     return {
-        loggedUser: state.authReducer.loggedUser
+        loggedUser: state.authReducer.loggedUser,
+        userUpdateRes: state.userUpdateReducer.data
     }
 }
 

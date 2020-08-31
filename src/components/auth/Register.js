@@ -2,8 +2,7 @@ import React, { Component } from 'react'
 import { Container, Form, FormGroup, Row, Col, Button } from 'react-bootstrap'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import * as authActions from '../../redux/actions/authActions'
-
+import * as authAsyncActions from '../../redux/actions/auth/authAsyncActions'
 class Register extends Component {
 
     state = {
@@ -129,13 +128,13 @@ class Register extends Component {
 function mapDispatchToProps(dispatch) {
     return {
         actions: {
-            register: bindActionCreators(authActions.registerApi, dispatch)
+            // register: bindActionCreators(authAsyncActions.registerApi, dispatch)
         }
     }
 }
 function mapStateToProps(state) {
     return {
-        registerRes: state.authReducer.registerResult
+        // registerRes: state.authReducer.registerResult
     }
 }
 

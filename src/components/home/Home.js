@@ -4,24 +4,46 @@ import { Container, Col, Row } from 'react-bootstrap';
 import CategoryList from '../categories/CategoryList';
 import PhotoCard from '../photoCard/PhotoCard'
 import { bindActionCreators } from 'redux';
-import * as authActions from '../../redux/actions/authActions'
+import * as authAsyncActions from "../../redux/actions/auth/authAsyncActions"
+import * as localStorageHelper from "../../redux/helpers/localStorageHelper"
 import { connect } from 'react-redux'
+import PhotoCardHook from '../photoCard/photoCardHook';
 class Home extends Component {
     componentDidMount = () => {
-        if (Object.keys(this.props.loggedUser).length === 0) {
-            this.props.actions.getLoggedUser()
+        if (localStorageHelper.isExistsToken()) {
+            if (Object.keys(this.props.currentUser).length === 0) {
+                this.props.actions.getCurrentUser();
+            }
         }
+
     }
     render() {
         return (
             <div>
                 <Container className="mt-4">
                     <Row >
+
                         <Col md={2}>
                             <CategoryList />
                         </Col>
                         <Col md={6}>
-                            <PhotoCard publicId="rgjfrvw9645y6tcux2i1" />
+                            <PhotoCardHook
+                                key={1}
+
+                                photo={{
+                                    publicId: "flh9d8nejqwhfolwsugf",
+                                    likeCount: 25,
+                                    commentCount: 22,
+                                    userId: 1,
+                                    userName: "aliylzz",
+                                    shareDate: "20.04.2020 15:36",
+                                    photoId: 1,
+                                    channelId: 1,
+                                    channelName: "Araba",
+                                    channelPublicId: "ushqxs3qmzsj2w552oxv"
+                                }}
+                            />
+
                         </Col>
                         <Col md={4}>
 
@@ -32,17 +54,16 @@ class Home extends Component {
         )
     }
 }
+function mapStateToProps(state) {
+    return {
+        currentUser: state.currentUserReducer
+    }
+}
 function mapDispatchToProps(dispatch) {
     return {
         actions: {
-            logOut: bindActionCreators(authActions.logoutApi, dispatch),
-            getLoggedUser: bindActionCreators(authActions.getLoggedUserApi, dispatch)
+            getCurrentUser: bindActionCreators(authAsyncActions.getCurrentUserApi, dispatch)
         }
-    }
-}
-function mapStateToProps(state) {
-    return {
-        loggedUser: state.authReducer.loggedUser
     }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Home);

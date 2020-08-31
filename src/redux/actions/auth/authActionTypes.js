@@ -1,0 +1,4 @@
+export const CURRENT_USER = "CURRENT_USER"
+export const CURRENT_USER_CLEAR = "CURRENT_USER_CLEAR"
+export const IS_LOGGED_T = "IS_LOGGED_T"
+export const IS_LOGGED_F = "IS_LOGGED_F"

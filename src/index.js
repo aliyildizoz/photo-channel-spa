@@ -2,13 +2,15 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './components/root/App';
 import "bootstrap/dist/css/bootstrap.min.css";
+import "./index.css";
 import 'font-awesome/css/font-awesome.min.css';
 import 'filepond/dist/filepond.min.css';
 import * as serviceWorker from './serviceWorker';
 import { BrowserRouter } from "react-router-dom"
 import { Provider } from 'react-redux';
-import configureStore from "./redux/reducers/configureStore";
+import configureStore from "./redux/configureStore";
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
+import 'react-bootstrap-typeahead/css/Typeahead.css';
 const store = configureStore();
 ReactDOM.render(<BrowserRouter><Provider store={store}><App /></Provider></BrowserRouter>, document.getElementById('root'));
 

@@ -1,27 +1,26 @@
 export default {
     categories: [],
     currentCategory: {},
-    authState: {
-        loginResult: {},
-        registerResult: {},
-        logoutResult: {},
-        loggedUser: {}
-    },
-
-    currentUser: {
+    apiResponse: { message: "", status: 0 },
+    isLogged: false,
+    user: {
         subscriptions: [],
         channels: [],
         likedPhotos: [],
         sharedPhotos: [],
         userDetail: {}
     },
-
+    currentUser: {},
+    userUpdateRes: {},
 
     currentChannel: {
-        channelPhotos: [],
-        channelSubscribers: [],
-        channelAdmins: [],
-        channelDetail: {}
+        channelDetail: {},
+        categories: [],
+        isSubs: false
     },
-    channels: [],
+    // channels: [],
+    channelCRUDState: {
+        channelUpdateResult: {},
+        channelCreateResult: {}
+    }
 }

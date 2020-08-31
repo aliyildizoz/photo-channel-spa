@@ -1,0 +1,7 @@
+.dropdowncommentbutton {
+  font-size: 20px;
+  margin-left: 10px;
+}
+.dropdowncommentbutton:hover {
+    color: lightslategray;
+  }
