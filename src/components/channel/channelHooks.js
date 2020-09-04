@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from "react"
-import { Container, Row, Col, Card, Media, InputGroup, FormControl, ListGroup, Dropdown, Modal, Form, Badge, ButtonToolbar, ToggleButtonGroup, ToggleButton, Tabs, Tab, Table } from 'react-bootstrap'
+import { Container, Row, Col, ListGroup, Badge, Tabs, Tab, Table } from 'react-bootstrap'
 import { Button } from 'react-bootstrap'
 import { Link, useHistory } from 'react-router-dom'
 import axios from "axios";
 import { useSelector, useDispatch } from 'react-redux'
-import { getChannelSubscribersPath, SUBS_API_URL, deleteSubsPath } from "../../redux/actions/subscrib/subsEndPoints"
-import { getChannelPhotosPath } from "../../redux/actions/photo/photoEndPoints"
+import {  SUBS_API_URL, deleteSubsPath } from "../../redux/actions/subscrib/subsEndPoints"
 import { authHeaderObj } from "../../redux/helpers/localStorageHelper"
 import PhotoCardHook from "../photoCard/photoCardHook";
 import { getIsSubsApi } from "../../redux/actions/subscrib/subsAsyncAction";
 import { getIsSubsSuccess } from "../../redux/actions/subscrib/subsActionCreators";
-import { getChannelCategoriesApi } from "../../redux/actions/channel/channelAsyncActions";
-import { PhotoGalery } from "../photos/PhotoGalery";
+import PhotoGallery from "../photos/PhotoGallery";
 import { redirectErrPage } from "../../redux/helpers/historyHelper";
 import { getChannelOwnerPath } from "../../redux/actions/channel/channelEndPoints";
 
@@ -58,16 +56,14 @@ function JustSubsButton({ text, subsCount, variant, onClick }) {
 }
 
 export function ChannelPhotos({ channelId }) {
-
-    const [photos, setPhotos] = useState([]);
-    useEffect(() => {
-        axios.get(getChannelPhotosPath(channelId)).then(res => setPhotos(res.data))
-    }, [])
+    const history = useHistory();
+    const dispatch = useDispatch();
+    const channelPhotos = useSelector(state => state.channelReducer.channelPhotos);
     return <div className="mt-3">
         {
-            photos.map((p, i) => {
+            channelPhotos.map((p, i) => {
                 return <PhotoCardHook
-                    width="41rem"
+                    cardWidth="41rem"
                     key={i}
                     photo={{
                         publicId: p.photoPublicId,
@@ -98,7 +94,7 @@ export function Flow({ renderState, channelId }) {
                 >
                     <Tab eventKey="gallery" title="Galeri">
                         <Col >
-                            <PhotoGalery channelId={channelId} />
+                            <PhotoGallery channelId={channelId} />
                         </Col>
                     </Tab>
                     <Tab eventKey="photos" title="Fotoğraflar">
@@ -110,7 +106,6 @@ export function Flow({ renderState, channelId }) {
                         <Col>
                             <ChannelAbout channelId={channelId} />
                         </Col>
-
                     </Tab>
                 </Tabs>
             </Col>
@@ -120,12 +115,6 @@ export function Flow({ renderState, channelId }) {
 
 export function ChannelCategories({ channelId }) {
     const categories = useSelector(state => state.channelReducer.categories);
-    const dispatch = useDispatch();
-    const history = useHistory()
-    useEffect(() => {
-        dispatch(getChannelCategoriesApi(channelId, history));
-    }, [channelId])
-
     return <ListGroup>
         <ListGroup.Item>
             {
@@ -136,28 +125,19 @@ export function ChannelCategories({ channelId }) {
                 })
             }
         </ListGroup.Item>
-        <ListGroup.Item><Link className="text-decoration-none" to={channelId + "/settings"}>Kanal Ayarları</Link> </ListGroup.Item>
     </ListGroup>
 }
 
 
 export function ChannelAbout({ channelId }) {
     const channelDetail = useSelector(state => state.channelReducer.channelDetail);
-    const [subscribers, setSubscribers] = useState([])
+    const subscribers = useSelector(state => state.channelReducer.subscribers);
     const [owner, setOwner] = useState({})
     const history = useHistory()
+    const currentUserId = useSelector(state => state.currentUserReducer.id)
     useEffect(() => {
-        axios.get(getChannelOwnerPath(channelId)).then(res => {
-            setOwner(res.data);
-            console.log(res.data)
-            axios.get(getChannelSubscribersPath(channelId)).then(res => {
-
-                setSubscribers(res.data)
-            }).catch(err => {
-                console.log(err)
-                redirectErrPage(history, err)
-            })
-        }).catch(err => {
+        axios.get(getChannelOwnerPath(channelId)).then(res => setOwner(res.data)
+        ).catch(err => {
             console.log(err);
             redirectErrPage(history, err)
         })
@@ -167,7 +147,8 @@ export function ChannelAbout({ channelId }) {
         <Row className="mt-4">
             <Col>
                 <h3 className="font-weight-normal d-inline-flex ">{channelDetail.name}</h3>
-                <h6 className="font-weight-light d-inline-flex  float-right mt-4">{channelDetail.createdDate ? channelDetail.createdDate.split("T")[0] : null}</h6>
+                <h6 className="font-weight-light d-inline-flex  float-right mt-4">  {channelDetail.createdDate ? channelDetail.createdDate.split("T")[0] : null}</h6>
+
                 <hr />
             </Col>
         </Row>
@@ -193,7 +174,11 @@ export function ChannelAbout({ channelId }) {
             </Col>
 
             <Col>
-                <h4 className="text-dark">Kanal Sahibi</h4>
+                <h4 className=" d-inline-flex text-dark">Kanal Sahibi</h4>
+                {
+                    currentUserId === owner.id ?
+                        <h5 className="font-weight-light d-inline-flex  float-right mt-4">  <Link className="text-decoration-none" to={channelId + "/settings"}> <span className="fa fa-cog"></span> Ayarlara git</Link></h5> : null
+                }
                 <hr />
                 <Table striped hover>
                     <tbody>
@@ -205,6 +190,7 @@ export function ChannelAbout({ channelId }) {
                         </tr>
                     </tbody>
                 </Table>
+
             </Col>
         </Row>
     </Container>

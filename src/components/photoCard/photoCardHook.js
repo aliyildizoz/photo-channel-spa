@@ -10,9 +10,11 @@ import { authHeaderObj } from "../../redux/helpers/localStorageHelper"
 import { useSelector, useDispatch } from 'react-redux'
 import axios from "axios";
 import { redirectErrPage } from "../../redux/helpers/historyHelper";
+import { photoDeleteApi } from "../../redux/actions/photo/photoAsyncActions";
 
-export default function PhotoCardHook({ photo, width = "32rem" }) {
+export default function PhotoCardHook({ photo, cardWidth = "32rem" }) {
 
+    const [photoModalShow, setPhotoModalShow] = useState(false);
     const [cardBodyShow, setCardBodyShow] = useState(0);
     const [isOwner, setIsOwner] = useState(false);
     const currentUser = useSelector(state => state.currentUserReducer)
@@ -20,14 +22,18 @@ export default function PhotoCardHook({ photo, width = "32rem" }) {
         setIsOwner(currentUser.id === photo.userId)
     }, [photo]);
     return (
-        <Card border="light" className="shadow-lg  bg-white rounded mt-5" style={{ width: width, height: "auto" }}>
+        <Card border="light" className="shadow-lg  bg-white rounded mt-5" style={{ width: cardWidth, height: "auto" }}>
 
-            <PhotoCardHeader isOwner={isOwner} channelId={photo.channelId} channelName={photo.channelName} channelPublicId={photo.channelPublicId} />
+            <PhotoCardHeader photoId={photo.photoId} isOwner={isOwner} channelId={photo.channelId} channelName={photo.channelName} channelPublicId={photo.channelPublicId} />
 
-            <Image cloudName="dwebpzxqn" publicId={photo.publicId} className="card-img-top img-fluid">
-                <Transformation crop="fill" />
-            </Image>
-
+            <div style={{ cursor: "pointer" }} onClick={() => setPhotoModalShow(true)}> <Image cloudName="dwebpzxqn" publicId={photo.publicId} className="card-img-top img-fluid">
+                <Transformation aspectRatio="1.5" crop="crop" />
+            </Image></div>
+            <PhotoModal
+                show={photoModalShow}
+                onHide={() => setPhotoModalShow(false)}
+                publicId={photo.publicId}
+            />
             <PhotoCardBody
                 shareDate={photo.shareDate}
                 likeCount={photo.likeCount}
@@ -55,10 +61,12 @@ function PhotoCardFooter({ currentUserId, likeCount, photoId, cardBodyShow, hide
             return null;
     }
 }
-function PhotoCardHeader({ isOwner, channelId, channelPublicId, channelName }) {
+function PhotoCardHeader({ photoId, isOwner, channelId, channelPublicId, channelName }) {
     const [deleteModalShow, setDeleteModalShow] = useState(false);
+    const dispatch = useDispatch()
+    const history = useHistory()
     const deletePhotoClick = () => {
-        //to do : fotoğraf silme api çağrısı
+        dispatch(photoDeleteApi(photoId, history))
     }
     return (
         <Card.Header >
@@ -94,6 +102,7 @@ function PhotoCardBody({ photoId, likeCount, commentCount, userName, userId, sha
 
     return (
         <Card.Body style={{ paddingTop: 0 }} className="pl-2">
+
             <p style={{ fontSize: 16 }} className="text-muted d-inline-flex mb-0 mr-2">
                 <button onClick={setLikesShow} style={{ padding: 0 }} type="button" className="btn btn-link">
                     <i className="fa  fa-thumbs-up text-primary ml-2 mr-2"></i>{likeCnt} </button>
@@ -180,10 +189,10 @@ function PhotoCardComments({ currentUserId, photoId, hideCardBody }) {
         })
         setComments([...comments])
         setEditModalShow(false)
-        //todo : yorum düzeltmek için api isteği
+        //to do : yorum düzeltmek için api isteği
     }
     const deleteCommentClick = (comment) => {
-        //todo : yorum silmek için api isteği
+        //to do : yorum silmek için api isteği
         setComments([...comments.filter(c => c.commentId !== comment.commentId)])
         setDeleteModalShow(false)
 
@@ -326,7 +335,16 @@ function DeletePhotoModal(props) {
         </Modal>
     );
 }
+function PhotoModal(props) {
 
+    return (
+        <Modal {...props}>
+            <Image cloudName="dwebpzxqn" publicId={props.publicId} className="card-img-top img-fluid">
+            </Image>
+
+        </Modal>
+    );
+}
 function PhotoCardLikes({ photoId, hideCardBody }) {
 
     const [likes, setLikes] = useState([])

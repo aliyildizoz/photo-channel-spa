@@ -45,7 +45,7 @@ export default function LoginHook() {
                         <FormGroup>
                             <Form.Control type="text" name="email" onChange={onChangeHandler} placeholder="Email" />
                             {/* todo: apiden gelen yanıtları kontrol et ve uyarı varsa burada göster. */}
-                            {validator.current.message('review', model.email, 'required|email', { className: 'text-danger' })}
+                            {validator.current.message('email', model.email, 'required|email', { className: 'text-danger' })}
                             {validator.current.messageWhenPresent(apiResponse.message, { className: 'text-danger' })}
                         </FormGroup>
                         <FormGroup>

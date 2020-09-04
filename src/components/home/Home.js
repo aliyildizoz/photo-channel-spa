@@ -29,9 +29,8 @@ class Home extends Component {
                         <Col md={6}>
                             <PhotoCardHook
                                 key={1}
-
                                 photo={{
-                                    publicId: "flh9d8nejqwhfolwsugf",
+                                    publicId: "ushqxs3qmzsj2w552oxv",
                                     likeCount: 25,
                                     commentCount: 22,
                                     userId: 1,
@@ -43,7 +42,21 @@ class Home extends Component {
                                     channelPublicId: "ushqxs3qmzsj2w552oxv"
                                 }}
                             />
-
+                            <PhotoCardHook
+                                key={2}
+                                photo={{
+                                    publicId: "qevpdls37lgqif5zzyr0",
+                                    likeCount: 25,
+                                    commentCount: 22,
+                                    userId: 1,
+                                    userName: "aliylzz",
+                                    shareDate: "20.04.2020 15:36",
+                                    photoId: 1,
+                                    channelId: 2,
+                                    channelName: "Araba",
+                                    channelPublicId: "qevpdls37lgqif5zzyr0"
+                                }}
+                            />
                         </Col>
                         <Col md={4}>
 

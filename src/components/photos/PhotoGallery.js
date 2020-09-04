@@ -3,37 +3,12 @@ import Gallery from "react-photo-gallery";
 import Carousel, { Modal, ModalGateway } from "react-images";
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
-import { getPhotoGalleryPath } from '../../redux/actions/photo/photoEndPoints';
-import { redirectErrPage } from '../../redux/helpers/historyHelper';
-export class PhotoGalery extends Component {
+class PhotoGallery extends Component {
     state = {
         currentImage: 0,
-        viewerIsOpen: false,
-        photos: []
+        viewerIsOpen: false
     }
-    componentDidMount() {
-        axios.get(getPhotoGalleryPath(this.props.channelId)).then(res => {
-            res.data.forEach(element => {
-                let width = randomIntFromInterval(3, 4)
-                let height = randomIntFromInterval(3, 4)
-                this.setState({
-                    photos: [...this.state.photos, {
-                        userid: element.userId,
-                        sharedate: element.shareDate,
-                        likecount: element.likeCount,
-                        username: element.userName,
-                        src: element.photoUrl,
-                        width: width,
-                        height: height
-                    }]
-                })
-            });
-        }).catch(err => {
-            console.log(err);
-            redirectErrPage(this.props.history, err)
-        })
-    }
+   
     setCurrentImage = (i) => {
 
         this.setState({ currentImage: i })
@@ -52,14 +27,14 @@ export class PhotoGalery extends Component {
     render() {
         return (
             <div className="mt-3">
-                <Gallery photos={this.state.photos} onClick={this.openLightbox} />
+                <Gallery photos={this.props.photoGallery} onClick={this.openLightbox} />
                 {
                     this.state.viewerIsOpen ? (<ModalGateway>
 
                         <Modal onClose={this.closeLightbox}>
                             <Carousel
                                 currentIndex={this.state.currentImage}
-                                views={this.state.photos.map((x, i) => ({
+                                views={this.props.photoGallery.map((x, i) => ({
                                     ...x,
                                     srcset: x.srcSet,
                                     caption: <div key={i}>
@@ -80,6 +55,9 @@ export class PhotoGalery extends Component {
         )
     }
 }
-function randomIntFromInterval(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
+function mapStateToProps(state) {
+    return {
+        photoGallery: state.channelReducer.photoGallery
+    }
 }
+export default connect(mapStateToProps, null)(PhotoGallery);

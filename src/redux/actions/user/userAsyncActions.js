@@ -1,15 +1,9 @@
-import * as actionTypes from "../actionTypes"
 import { USER_FULL_PATH } from "../../constants/endPoints"
 import axios from "axios"
 import { bindActionCreators } from "redux";
+import { currentUserSuccess, getUserChannelsSuccess, getSharedPhotosSuccess, getLikedPhotosSuccess, getSubscriptionsSuccess } from "./userActionsCreators";
 
-const currentUserSuccess = user => ({ type: actionTypes.CURRENT_USER, payload: user });
-const getUserChannelsSuccess = channels => ({ type: actionTypes.GET_USER_CHANNELS, payload: channels });
-const userUpdateResSuccess = res => ({ type: actionTypes.USER_UPDATE_RES, payload: res });
-export const userUpdateResClearSuccess = res => ({ type: actionTypes.USER_UPDATE_RES_CLEAR });
-const getSubscriptionsSuccess = channels => ({ type: actionTypes.GET_SUBSCRIPTIONS, payload: channels });
-const getSharedPhotosSuccess = photos => ({ type: actionTypes.GET_SHARED_PHOTOS, payload: photos });
-const getLikedPhotosSuccess = photos => ({ type: actionTypes.GET_LIKED_PHOTOS, payload: photos });
+
 
 export function getUserApi(id, history) {
     return async dispatch => {
@@ -39,14 +33,14 @@ export function userUpdateApi(user, userId, history, setLoggedUser) {
 
         }).catch(err => {
             console.error(err)
-            if (err.response.status === 400) {
-                dispatch(userUpdateResSuccess(err.response))
-            } else {
-                history.push({
-                    pathname: '/rrorpage',
-                    state: { message: err.response.data, status: err.response.status }
-                })
-            }
+            // if (err.response.status === 400) {
+            //     dispatch(userUpdateResSuccess(err.response))
+            // } else {
+            //     history.push({
+            //         pathname: '/rrorpage',
+            //         state: { message: err.response.data, status: err.response.status }
+            //     })
+            // }
         })
     }
 }

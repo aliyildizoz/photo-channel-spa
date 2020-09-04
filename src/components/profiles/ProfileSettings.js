@@ -97,7 +97,7 @@ class ProfileSettings extends Component {
                                 </FormGroup>
                                 <FormGroup>
                                     {
-                                        this.apiValidate()
+                                        // this.apiValidate()
                                     }
                                 </FormGroup>
                                 <Button type="submit" block className="" >Kaydet</Button>
@@ -136,15 +136,13 @@ function mapDispatchToProps(dispatch) {
     return {
         actions: {
             // getLoggedUser: bindActionCreators(authAsyncActions.getCurrentUserApi, dispatch),
-            userUpdate: bindActionCreators(userAsyncActions.userUpdateApi, dispatch),
-            resClear: () => dispatch(userAsyncActions.userUpdateResClearSuccess())
+            userUpdate: bindActionCreators(userAsyncActions.userUpdateApi, dispatch)
         }
     }
 }
 function mapStateToProps(state) {
     return {
-        loggedUser: state.authReducer.loggedUser,
-        userUpdateRes: state.userUpdateReducer.data
+        loggedUser: state.authReducer.loggedUser
     }
 }
 

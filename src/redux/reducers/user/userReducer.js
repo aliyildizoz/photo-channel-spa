@@ -1,9 +1,9 @@
-import * as actionTypes from "../../actions/actionTypes"
+import * as actionTypes from "../../actions/user/userActionTypes"
 import initialState from "../initialState"
 
 export default function userReducer(state = initialState.user, action) {
     switch (action.type) {
-        case actionTypes.CURRENT_USER:
+        case actionTypes.GET_USER_DETAIL:
             return { ...state, userDetail: action.payload };
         case actionTypes.GET_USER_CHANNELS:
             return { ...state, channels: action.payload };

@@ -99,7 +99,7 @@ class ChannelCreateModal extends Component {
 function mapDispatchToProps(dispatch) {
     return {
         actions: {
-            channelCreate: bindActionCreators(channelAsyncActions.channelCreateApi, dispatch)
+            // channelCreate: bindActionCreators(channelAsyncActions.channelCreateApi, dispatch)
         }
     }
 }

@@ -3,5 +3,13 @@
   margin-left: 10px;
 }
 .dropdowncommentbutton:hover {
-    color: lightslategray;
-  }
+  color: lightslategray;
+}
+
+.removeSubsSpan:hover {
+  color: rgb(136, 62, 62);
+}
+.removeSubsSpan {
+  cursor: pointer;
+  color: red;
+}

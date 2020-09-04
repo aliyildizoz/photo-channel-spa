@@ -16,6 +16,9 @@ export default {
     currentChannel: {
         channelDetail: {},
         categories: [],
+        channelPhotos: [],
+        photoGallery: [],
+        subscribers: [],
         isSubs: false
     },
     // channels: [],

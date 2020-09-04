@@ -1,7 +1,5 @@
 import React, { Component } from 'react'
-import { Container, Row, Col, Button, Badge, DropdownButton, Dropdown, ButtonToolbar, ToggleButtonGroup, ToggleButton, FormGroup, Form, ListGroup } from 'react-bootstrap'
-import Navi from '../navi/Navi'
-import { Link } from 'react-router-dom'
+import { Container, Row, Col, Button, FormGroup, Form } from 'react-bootstrap'
 import { Image, Transformation } from 'cloudinary-react';
 import "../../modules/channelDetail.css"
 import { FilePond, registerPlugin } from 'react-filepond';
@@ -10,29 +8,38 @@ import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as photoAsyncActions from "../../redux/actions/photo/photoAsyncActions"
-import * as channelAsyncActions from "../../redux/actions/channel/channelAsyncActions"
-import { SubsButton, ChannelPhotos, Flow, ChannelCategories } from './channelHooks';
+import { getSubscribersApi, getChannelDetailApi, getChannelCategoriesApi } from "../../redux/actions/channel/channelAsyncActions"
+import { photoCreateApi, channelPhotosApi } from "../../redux/actions/photo/photoAsyncActions"
+import { SubsButton, Flow, ChannelCategories } from './channelHooks';
+import SimpleReactValidator from 'simple-react-validator';
+
 registerPlugin(FilePondPluginImagePreview, FilePondPluginFileValidateType, FilePondPluginImageExifOrientation);
 
 class ChannelDetail extends Component {
     state = {
         firsRenderFlow: "photos",
         model: {
-            file: {},
-            channelId: 1
-        }
+            files: []
+        },
+        validMessage: "Lütfen bir fotoğraf seçiniz."
     }
+    validator = new SimpleReactValidator({ locale: 'tr' });
     componentDidMount() {
-        this.props.actions.getChannelDetail(this.props.match.params.id, this.props.history)
-
+        var channelId = this.props.match.params.id;
+        this.props.actions.getChannelDetail(channelId, this.props.history)
+        this.props.actions.getChannelPhotos(channelId, this.props.history)
+        this.props.actions.getSubscribers(channelId, this.props.history)
+        this.props.actions.getCategories(channelId, this.props.history)
     }
     onSubmitHandler = (e) => {
         e.preventDefault();
-        console.log(this.state.model.file)
-        if (Object.keys(this.state.model.file).length === 0) this.setIsBlock(true)
+        if (Object.keys(this.state.model.file).length === 0) {
+            this.validator.showMessages();
+            this.forceUpdate();
+        }
         else {
-            //fotoğraf yükleme
+            this.props.actions.addPhoto({ file: this.state.model.file[0], channelId: this.props.match.params.id }, this.props.history)
+            this.setState({ ...this.state, model: { ...this.state.model, file: [] } })
         }
     }
     render() {
@@ -57,20 +64,21 @@ class ChannelDetail extends Component {
                         <Col md="3">
                             <ChannelCategories channelId={this.props.match.params.id}></ChannelCategories>
                             {
-                                this.props.isSubs ? <Form className="mt-3" noValidate onSubmit={this.onSubmitHandler}>
+                                this.props.isSubs ? <Form className="mt-3" onSubmit={this.onSubmitHandler}>
 
                                     <FormGroup>
                                         <FilePond
                                             allowMultiple={false}
                                             onupdatefiles={imageFile => {
-                                                var file = imageFile.map(f => f.file)[0] ? imageFile.map(f => f.file)[0] : {}
-                                                this.setState({ model: { ...this.state.model, file: file }, isBlock: false })
+                                                var file = imageFile.map(f => f.file)
+                                                this.setState({ model: { ...this.state.model, file: file } })
                                             }}
                                             labelIdle='Fotoğrafını sürükle bırak veya <strong class="filepond--label-action">seç</strong>'
                                             acceptedFileTypes={['image/*']}
-                                            required
+                                            files={this.state.model.file}
                                         />
 
+                                        {this.validator.messageWhenPresent(this.state.validMessage, { className: 'text-danger' })}
                                     </FormGroup>
                                     <Button type="submit" block variant="outline-secondary">Yükle</Button>
                                 </Form> : null
@@ -89,15 +97,18 @@ class ChannelDetail extends Component {
 function mapDispatchToProps(dispatch) {
     return {
         actions: {
-            // photoCreateApi: bindActionCreators(photoAsyncActions.photoCreateApi, dispatch),
-            getChannelDetail: bindActionCreators(channelAsyncActions.getChannelDetailApi, dispatch)
+            addPhoto: bindActionCreators(photoCreateApi, dispatch),
+            getChannelDetail: bindActionCreators(getChannelDetailApi, dispatch),
+            getChannelPhotos: bindActionCreators(channelPhotosApi, dispatch),
+            getSubscribers: bindActionCreators(getSubscribersApi, dispatch),
+            getCategories: bindActionCreators(getChannelCategoriesApi, dispatch)
         }
     }
 }
 function mapStateToProps(state) {
     return {
         channelDetail: state.channelReducer.channelDetail,
-        isSubs: state.isSubsReducer
+        isSubs: state.isSubsReducer,
 
     }
 }
