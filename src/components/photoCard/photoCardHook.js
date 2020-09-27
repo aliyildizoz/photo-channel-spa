@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { Container, Row, Col, Card, Media, InputGroup, FormControl, ListGroup, Dropdown, Modal, Form } from 'react-bootstrap'
 import { Button } from 'react-bootstrap'
 import { Link, useHistory } from 'react-router-dom'
 import Image from 'cloudinary-react/lib/components/Image/Image';
 import { Transformation } from 'cloudinary-react';
-import { getPhotoCommentsUrl } from "../../redux/actions/comment/commentEndPoints"
+import { COMMENT_PATH, getPhotoCommentsUrl, getCommentPathById } from "../../redux/actions/comment/commentEndPoints"
 import { getPhotoLikesUrl, getIsLikePath, deleteLikePath, LIKE_API_URL } from "../../redux/actions/like/likeEndPoints"
 import { authHeaderObj } from "../../redux/helpers/localStorageHelper"
 import { useSelector, useDispatch } from 'react-redux'
 import axios from "axios";
 import { redirectErrPage } from "../../redux/helpers/historyHelper";
 import { photoDeleteApi } from "../../redux/actions/photo/photoAsyncActions";
-
+import { getChannelPhotosSuccess } from "../../redux/actions/photo/photoActionCreators";
+import moment from 'moment';
 export default function PhotoCardHook({ photo, cardWidth = "32rem" }) {
 
     const [photoModalShow, setPhotoModalShow] = useState(false);
@@ -20,7 +21,10 @@ export default function PhotoCardHook({ photo, cardWidth = "32rem" }) {
     const currentUser = useSelector(state => state.currentUserReducer)
     useEffect(() => {
         setIsOwner(currentUser.id === photo.userId)
+        setCommentCount(photo.commentCount)
     }, [photo]);
+    const [commentCount, setCommentCount] = useState(photo.commentCount);
+
     return (
         <Card border="light" className="shadow-lg  bg-white rounded mt-5" style={{ width: cardWidth, height: "auto" }}>
 
@@ -37,7 +41,7 @@ export default function PhotoCardHook({ photo, cardWidth = "32rem" }) {
             <PhotoCardBody
                 shareDate={photo.shareDate}
                 likeCount={photo.likeCount}
-                commentCount={photo.commentCount}
+                commentCount={commentCount}
                 userName={photo.userName}
                 userId={photo.userId}
                 setCommentShow={() => setCardBodyShow(1)}
@@ -46,15 +50,24 @@ export default function PhotoCardHook({ photo, cardWidth = "32rem" }) {
             />
 
 
-            <PhotoCardFooter currentUserId={currentUser.id} likeCount={photo.likeCount} photoId={photo.photoId} cardBodyShow={cardBodyShow} hideCardBody={() => setCardBodyShow(0)} />
+            <PhotoCardFooter
+                currentUserId={currentUser.id}
+                likeCount={photo.likeCount}
+                photoId={photo.photoId}
+                cardBodyShow={cardBodyShow}
+                hideCardBody={() => setCardBodyShow(0)}
+                commentCountDec={() => setCommentCount(commentCount - 1)}
+                commentCountInc={() => setCommentCount(commentCount + 1)}
+            />
 
         </Card>
     )
 }
-function PhotoCardFooter({ currentUserId, likeCount, photoId, cardBodyShow, hideCardBody }) {
+function PhotoCardFooter({ currentUserId, likeCount, photoId, cardBodyShow, hideCardBody, commentCountDec, commentCountInc }) {
+
     switch (cardBodyShow) {
         case 1:
-            return <Card.Footer><PhotoCardComments currentUserId={currentUserId} photoId={photoId} hideCardBody={hideCardBody} /> </Card.Footer >
+            return <Card.Footer><PhotoCardComments countDec={commentCountDec} countInc={commentCountInc} currentUserId={currentUserId} photoId={photoId} hideCardBody={hideCardBody} /> </Card.Footer >
         case 2:
             return likeCount > 0 ? <Card.Footer > <PhotoCardLikes photoId={photoId} hideCardBody={hideCardBody} /></Card.Footer > : null
         default:
@@ -65,8 +78,14 @@ function PhotoCardHeader({ photoId, isOwner, channelId, channelPublicId, channel
     const [deleteModalShow, setDeleteModalShow] = useState(false);
     const dispatch = useDispatch()
     const history = useHistory()
+    const channelPhotos = useSelector(state => state.channelReducer.channelPhotos);
+
     const deletePhotoClick = () => {
         dispatch(photoDeleteApi(photoId, history))
+        setDeleteModalShow(false);
+        if (channelPhotos.length !== 0) {
+            dispatch(getChannelPhotosSuccess([...channelPhotos.filter(p => p.photoId !== photoId)]))
+        }
     }
     return (
         <Card.Header >
@@ -122,7 +141,7 @@ function PhotoCardBody({ photoId, likeCount, commentCount, userName, userId, sha
             <LikeButton photoId={photoId} setlikeCount={setlikeCount} />
             <Button variant="dark" onClick={setCommentShow} className="btn-sm ml-2" style={{ borderRadius: 0 }}>
                 <i className="fa  fa-comment" style={{ fontSize: 16 }}></i>&nbsp;&nbsp;Yorum Yap</Button>
-            <div className="d-inline-flex float-right">{shareDate}</div>
+            <div className="d-inline-flex font-weight-light float-right">{moment(shareDate).format("DD.MM.YYYY - HH:MM")}</div>
         </Card.Body>
     )
 }
@@ -164,12 +183,15 @@ function LikeButton({ photoId, setlikeCount }) {
     )
 }
 
-function PhotoCardComments({ currentUserId, photoId, hideCardBody }) {
+function PhotoCardComments({ currentUserId, photoId, hideCardBody, countDec, countInc }) {
 
     const [comments, setComments] = useState([]);
+    const [newComment, setNewComment] = useState("");
+    const [showValid, setShowValid] = useState(false);
     const [editModalShow, setEditModalShow] = useState(false);
     const [deleteModalShow, setDeleteModalShow] = useState(false);
     const [currentComment, setCurrentComment] = useState({});
+
     useEffect(() => {
 
         axios.get(getPhotoCommentsUrl(photoId)).then(res => { setComments(res.data) })
@@ -178,23 +200,41 @@ function PhotoCardComments({ currentUserId, photoId, hideCardBody }) {
     const history = useHistory()
     const createCommentClick = () => {
         if (!isLogged) history.push("/login")
-        //to do: yorum yapmak için api isteği
+
+        if (newComment !== "" && newComment !== undefined) {
+            setShowValid(false);
+
+            axios.post(COMMENT_PATH, { photoId: photoId, description: newComment }, { headers: authHeaderObj() }).then((res => {
+                setComments([res.data, ...comments]);
+                countInc();
+            })).catch(err => redirectErrPage(history, err))
+        } else {
+            setShowValid(true);
+        }
+
     }
 
     const editCommentClick = () => {
-        comments.forEach((c, i, arr) => {
-            if (c.commentId === currentComment.commentId) {
-                arr[i].description = currentComment.description;
-            }
-        })
-        setComments([...comments])
-        setEditModalShow(false)
-        //to do : yorum düzeltmek için api isteği
+        if (currentComment.description !== "" && currentComment.description !== undefined) {
+            axios.put(getCommentPathById(currentComment.commentId), { description: currentComment.description }, { headers: authHeaderObj() }).then((res => {
+                comments.forEach((c, i, arr) => {
+                    if (c.commentId === currentComment.commentId) {
+                        arr[i].description = currentComment.description;
+                    }
+                })
+                setComments([...comments]);
+                setEditModalShow(false);
+            })).catch(err => redirectErrPage(history, err))
+
+        }
     }
     const deleteCommentClick = (comment) => {
-        //to do : yorum silmek için api isteği
-        setComments([...comments.filter(c => c.commentId !== comment.commentId)])
-        setDeleteModalShow(false)
+
+        axios.delete(getCommentPathById(comment.commentId), { headers: authHeaderObj() }).then((res => {
+            setComments([...comments.filter(c => c.commentId !== comment.commentId)])
+            setDeleteModalShow(false)
+            countDec();
+        })).catch(err => redirectErrPage(history, err))
 
     }
     const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
@@ -208,16 +248,20 @@ function PhotoCardComments({ currentUserId, photoId, hideCardBody }) {
         <div>
             <Row>
                 <Col>
-                    <InputGroup className="mb-3">
+                    <InputGroup>
                         <FormControl
                             placeholder="Recipient's username"
                             aria-label="Recipient's username"
                             aria-describedby="basic-addon2"
+                            onChange={(e) => setNewComment(e.target.value)}
+                            name="newComment"
                         />
                         <InputGroup.Append>
                             <Button variant="success" onClick={createCommentClick} style={{ borderRadius: 0 }}>Yorum yap</Button>
                         </InputGroup.Append>
                     </InputGroup>
+
+                    <h6 className="text-danger font-weight-light mb-3">{showValid ? "Lütfen bir yorum yazınız." : ""}</h6>
                 </Col>
             </Row>
             <Row>
@@ -243,7 +287,7 @@ function PhotoCardComments({ currentUserId, photoId, hideCardBody }) {
                                     </Dropdown> : null
                                 }
 
-                                <div className="d-inline-flex float-right">{c.shareDate}</div>
+                                <div className="d-inline-flex font-weight-light float-right">{moment(c.shareDate).format("DD.MM.YYYY - HH:MM")}</div>
 
                                 <hr style={{ margin: 5 }} />
                                 <p className="mb-0">
@@ -289,6 +333,8 @@ function EditCommentModal(props) {
                 <Form>
                     <Form.Group>
                         <Form.Control onChange={onChangeCommentHandler} as="textarea" placeholder="yorum" defaultValue={props.comment.description} />
+                        {props.comment.description === "" || props.comment.description === undefined ? <h6 className="text-danger font-weight-light mb-3">Lütfen bir yorum yazınız.</h6> : null}
+
                     </Form.Group>
                 </Form>
             </Modal.Body>

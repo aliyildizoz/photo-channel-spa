@@ -1,58 +1,51 @@
-import React, { Component } from 'react'
 import { Container, Form, FormGroup, Row, Col, Button } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
+import SimpleReactValidator from 'simple-react-validator';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link,useHistory } from 'react-router-dom'
+import { useSelector, useDispatch } from 'react-redux'
+
 import * as authAsyncActions from '../../redux/actions/auth/authAsyncActions'
-class Login extends Component {
-    state = {
-        model: {
-            email: "",
-            password: ""
-        },
-        validate: false,
-        isRedirect: false
+export default function Login() {
+
+    const [, forceUpdate] = useState()
+    const validator = useRef(new SimpleReactValidator({ locale:"tr",autoForceUpdate: { forceUpdate: forceUpdate }}))
+
+    const apiResponse = useSelector(state => state.apiResponseReducer);
+    const dispatch = useDispatch();
+
+    const history = useHistory()
+    const login = () => {
+        dispatch(authAsyncActions.loginApi(model,history))
     }
 
-    onChangeHandler = (e) => {
-        this.setState({ model: { ...this.state.model, [e.target.name]: e.target.value }, validate: true })
+    const [model, setModel] = useState({ email: "", password: "" });
+
+    const onChangeHandler = (e) => {
+        setModel({ ...model, [e.target.name]: e.target.value })
+        validator.current.showMessages()
     }
-    onSubmitHandler = (event) => {
+    const onSubmitHandler = (event) => {
         event.preventDefault();
-        const form = event.currentTarget;
-        if (form.checkValidity() === false) {
-            event.preventDefault();
-            event.stopPropagation();
+        if (validator.current.allValid()) {
+            login();
         } else {
-            // console.log("valid1")
-            this.props.actions.login(this.state.model, this.props.history);
+            validator.current.showMessages();
         }
-        this.setValidated(true);
     }
-    setValidated = (val) => this.setState({ validate: val })
-
-    // componentDidMount = function () {
-    //     alert("çalıştı")
-    // }
-    renderLogin = () => {
-        const { validate } = this.state;
-        return (
+    return (
+        <Container>
             <Row className="bg-light" style={{ borderBottomLeftRadius: 50, borderBottomRightRadius: 50 }}>
                 <Col md={{ span: 4, offset: 4 }} style={{ marginTop: 50, marginBottom: 50 }} >
-                    <Form noValidate validated={validate} onSubmit={this.onSubmitHandler}>
+                    <Form onSubmit={onSubmitHandler}>
                         <h3>Giriş Yap</h3>
                         <FormGroup>
-                            <Form.Control type="email" name="email" required onChange={this.onChangeHandler} placeholder="Email" />
-                            <Form.Control.Feedback type="invalid">
-                                E-mail alanı boş geçilemez
-                            </Form.Control.Feedback>
+                            <Form.Control type="text" name="email" onChange={onChangeHandler} placeholder="Email" />
+                            {validator.current.message('email', model.email, 'required|email', { className: 'text-danger' })}
+                            {validator.current.messageWhenPresent(apiResponse.message, { className: 'text-danger' })}
                         </FormGroup>
                         <FormGroup>
-                            <Form.Control type="password" name="password" onChange={this.onChangeHandler} required placeholder="Şifre" />
-                            <Form.Control.Feedback type="invalid">
-                                Şifre alanı boş geçilemez
-                            </Form.Control.Feedback>
-                            {this.apiValidate()}
+                            <Form.Control type="password" name="password" onChange={onChangeHandler} placeholder="Şifre" />
+                            {validator.current.message('password', model.password, 'required|min:1|max:50', { className: 'text-danger' })}
                         </FormGroup>
                         <Button type="submit" block className="col-6">Giriş</Button>
                         <p className="text-right">
@@ -61,36 +54,6 @@ class Login extends Component {
                     </Form>
                 </Col>
             </Row >
-        )
-    }
-    apiValidate = () => {
-        // if (this.props.loginRes.data) {
-        //     return <div className="text-danger">{this.props.loginRes.data}</div>
-        // }
-        return null;
-    }
-
-    render() {
-        return (
-            <div>
-                <Container>
-                    {this.renderLogin()}
-                </Container>
-            </div>
-        )
-    }
-
+        </Container>
+    )
 }
-function mapDispatchToProps(dispatch) {
-    return {
-        actions: {
-            // login: bindActionCreators(authAsyncActions.loginApi, dispatch)
-        }
-    }
-}
-function mapStateToProps(state) {
-    return {
-        // loginRes: state.authReducer.loginResult
-    }
-}
-export default connect(mapStateToProps, mapDispatchToProps)(Login);

@@ -1,31 +1,12 @@
-import React, { Component } from 'react'
+import React, { Component, useEffect } from 'react'
 import { Navbar, Nav, Container, Form, FormControl, Button } from "react-bootstrap"
 import { Link } from 'react-router-dom'
-import { connect } from 'react-redux'
+import { connect, useSelector, useDispatch } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import * as authAsyncActions from '../../redux/actions/auth/authAsyncActions'
-class Navi extends Component {
-    logOutOnclick = () => {
-        this.props.actions.logOut(this.props.history);
-    }
-    ioRedirect = () => {
-        if (this.props.isLogged) {
-            return (
-                <Nav className="mr-auto">
-                    <Link to="/login" onClick={this.logOutOnclick} className="nav-link">Çıkış</Link>
-                    {/* <Link to={"/profile/" + this.props.currentUser.id} className="nav-link">Profil</Link> */}
-                </Nav>
-            )
-        } else {
-            return (
-                <Nav className="mr-auto">
-                    <Link to="/login" className="nav-link ">Giriş</Link>
-                    <Link to="/register" className="nav-link ">Üye ol</Link>
-                </Nav>
-            )
-        }
-    }
+import { isExistsToken } from '../../redux/helpers/localStorageHelper'
 
+export default class Navi extends Component {
     render() {
         return (
             <div>
@@ -40,9 +21,7 @@ class Navi extends Component {
                                     <Button variant="outline-light">Search</Button>
                                 </Form>
                             </Nav>
-                            {
-                                this.ioRedirect()
-                            }
+                            <NaviAuthButtons />
                         </Navbar.Collapse>
                     </Container>
                 </Navbar>
@@ -50,16 +29,25 @@ class Navi extends Component {
         )
     }
 }
-function mapDispatchToProps(dispatch) {
-    return {
-        actions: {
-            logOut: bindActionCreators(authAsyncActions.logoutApi, dispatch)
+
+function NaviAuthButtons() {
+    const isLogged = useSelector(state => state.isLoggedReducer);
+    const currentUser = useSelector(state => state.currentUserReducer);
+    const dispatch = useDispatch()
+    useEffect(() => {
+        if (isExistsToken()) {
+            if (!isLogged) {
+                dispatch(authAsyncActions.getCurrentUserApi())
+            }
         }
-    }
+
+    }, [isLogged])
+
+    return isLogged ? <Nav className="mr-auto">
+        <Link to="/login" onClick={() => dispatch(authAsyncActions.logoutApi())} className="nav-link">Çıkış</Link>
+        <Link to={"/profile/" + currentUser.id} className="nav-link">Profil</Link>
+    </Nav> : <Nav className="mr-auto">
+            <Link to="/login" className="nav-link ">Giriş</Link>
+            <Link to="/register" className="nav-link ">Üye ol</Link>
+        </Nav>;
 }
-function mapStateToProps(state) {
-    return {
-        isLogged: state.isLoggedReducer
-    }
-}
-export default connect(mapStateToProps, mapDispatchToProps)(Navi);

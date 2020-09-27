@@ -9,7 +9,7 @@ import * as userAsyncActions from '../../redux/actions/user/userAsyncActions'
 class Subscriptions extends Component {
     componentDidMount = () => {
         if (Object.keys(this.props.subscriptions).length === 0) {
-            this.props.actions.getSubscriptions(this.props.match.params.id, this.props.history);
+            // this.props.actions.getSubscriptions(this.props.match.params.id, this.props.history);
         }
     }
     render() {
@@ -61,7 +61,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
     return {
         actions: {
-            getSubscriptions: bindActionCreators(userAsyncActions.getSubscriptionsApi, dispatch)
+            // getSubscriptions: bindActionCreators(userAsyncActions.getSubscriptionsApi, dispatch)
         }
     }
 }

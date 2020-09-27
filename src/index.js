@@ -10,7 +10,6 @@ import { BrowserRouter } from "react-router-dom"
 import { Provider } from 'react-redux';
 import configureStore from "./redux/configureStore";
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
-import 'react-bootstrap-typeahead/css/Typeahead.css';
 const store = configureStore();
 ReactDOM.render(<BrowserRouter><Provider store={store}><App /></Provider></BrowserRouter>, document.getElementById('root'));
 

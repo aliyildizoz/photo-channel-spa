@@ -8,5 +8,7 @@ export const CHANNEL_PATH = MAIN_URL + API_URL;
 
 export const getChannelPathById = (channelId) => CHANNEL_PATH + channelId;
 export const getChannelOwnerPath = (channelId) => CHANNEL_PATH + channelId + "/owner";
+export const getIsOwnerPath = (channelId) => CHANNEL_PATH + channelId + "/isowner" ;
 
 export const getChannelCategoriesPath = (channelId) => CHANNEL_CATEGORIES_API_URL + channelId + "/channel-categories";
+export const channelCategoriesPathById = (channelId) => CHANNEL_CATEGORIES_API_URL + channelId;

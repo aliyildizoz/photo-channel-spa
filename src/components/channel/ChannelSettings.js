@@ -1,27 +1,29 @@
 import React, { Component } from 'react'
-import { Container, Row, Col, Form, FormGroup, Button, ListGroup, Badge } from 'react-bootstrap'
-import { FilePond, registerPlugin } from 'react-filepond'
-import { Link } from 'react-router-dom'
-import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
-import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
-import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation';
-import { Typeahead } from 'react-bootstrap-typeahead';
-import { getSubscribersApi, getChannelDetailApi, getChannelCategoriesApi } from "../../redux/actions/channel/channelAsyncActions"
+import { Container, Row, Col, Button, Accordion, Card, Alert } from 'react-bootstrap'
+import { getSubscribersApi, getChannelDetailApi, getChannelCategoriesApi, getIsOwnerApi } from "../../redux/actions/channel/channelAsyncActions"
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as categoryAsyncActions from '../../redux/actions/category/categoryAsyncActions'
-import { ChannelUpdate, CategoryUpdate, Subscribers } from './channelSettingsHooks'
-registerPlugin(FilePondPluginImagePreview, FilePondPluginFileValidateType, FilePondPluginImageExifOrientation);
+import { ChannelUpdate, CategoryUpdate, Subscribers, ChannelDelete } from './channelSettingsHooks'
+import { Image, Transformation } from 'cloudinary-react';
+import moment from "moment"
 class ChannelSettings extends Component {
     componentDidMount() {
+
+        var channelId = this.props.match.params.id;
+        var history = this.props.history;
+
         if (Object.keys(this.props.channelDetail).length === 0) {
-            var channelId = this.props.match.params.id;
-            this.props.actions.getChannelDetail(channelId, this.props.history)
-            this.props.actions.getSubscribers(channelId, this.props.history)
-            this.props.actions.getChannelCategories(channelId, this.props.history)
+            this.props.actions.getIsOwner(channelId, history)
         }
-        if (Object.keys(this.props.categories).length === 0) {
-            this.props.actions.getCategories()
+
+        if (!this.props.isOwner) {
+            this.props.actions.getChannelDetail(channelId, history)
+            this.props.actions.getSubscribers(channelId, history)
+            this.props.actions.getChannelCategories(channelId, history)
+            if (Object.keys(this.props.categories).length === 0) {
+                this.props.actions.getCategories()
+            }
         }
     }
 
@@ -31,11 +33,19 @@ class ChannelSettings extends Component {
         return (
             <div>
                 <Container>
-                    <Row className="mt-4">
-                        <Col>
-                            <h3 className="font-weight-normal d-inline-flex ">{this.props.channelDetail.name}</h3>
-                            <h6 className="font-weight-light d-inline-flex  float-right mt-4">{this.props.channelDetail.createdDate ? this.props.channelDetail.createdDate.split("T")[0] : null}</h6>
-                            <hr />
+                    <Row>
+                        <Col md="12">
+                            <div className="containerImg" >
+                                <Image cloudName="dwebpzxqn" publicId={this.props.channelDetail.publicId} className="img-fluid"  >
+                                    <Transformation width="1102" height="250" crop="pad" background="auto:predominant" />
+                                </Image>
+                            </div>
+
+                            <h6 className="font-weight-light mr-3 mb-3 bottom-right "> {moment(this.props.channelDetail.createdDate).format("DD.MM.YYYY")}</h6>
+
+                            <div className="text-ChannelName">
+                                <h4>{this.props.channelDetail.name}</h4>
+                            </div>
                         </Col>
                     </Row>
                     <Row className="mt-3">
@@ -46,9 +56,12 @@ class ChannelSettings extends Component {
                             <Row>
                                 <CategoryUpdate channelId={this.props.match.params.id} />
                             </Row>
+                            <Row>
+                                <ChannelDelete channelId={this.props.match.params.id} />
+                            </Row>
                         </Col>
                         <Col>
-                            <Subscribers/>
+                            <Subscribers channelId={this.props.match.params.id} />
                         </Col>
                     </Row>
                 </Container>
@@ -63,6 +76,8 @@ function mapDispatchToProps(dispatch) {
             getSubscribers: bindActionCreators(getSubscribersApi, dispatch),
             getChannelCategories: bindActionCreators(getChannelCategoriesApi, dispatch),
             getCategories: bindActionCreators(categoryAsyncActions.getCategories, dispatch),
+            getIsOwner: bindActionCreators(getIsOwnerApi, dispatch)
+
         }
     }
 }
@@ -70,7 +85,8 @@ function mapStateToProps(state) {
     return {
         channelDetail: state.channelReducer.channelDetail,
         subscribers: state.channelReducer.subscribers,
-        categories: state.categoryListReducer
+        categories: state.categoryListReducer,
+        isOwner: state.isOwnerReducer,
     }
 }
 

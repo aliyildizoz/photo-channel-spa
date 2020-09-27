@@ -6,6 +6,7 @@ import currentUserReducer from "./reducers/auth/currentUserReducer"
 import isLoggedReducer from "./reducers/auth/isLoggedReducer"
 import userReducer from "./reducers/user/userReducer"
 import channelReducer from "./reducers/channel/channelReducer"
+import isOwnerReducer from "./reducers/channel/isOwnerReducer"
 import apiResponseReducer from "./reducers/common/apiResponseReducer"
 
 const rootReducer = combineReducers({
@@ -16,7 +17,8 @@ const rootReducer = combineReducers({
     channelReducer,
     apiResponseReducer,
     isLoggedReducer,
-    isSubsReducer
+    isSubsReducer,
+    isOwnerReducer
 });
 
 export default rootReducer;

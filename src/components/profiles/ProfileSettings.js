@@ -136,7 +136,7 @@ function mapDispatchToProps(dispatch) {
     return {
         actions: {
             // getLoggedUser: bindActionCreators(authAsyncActions.getCurrentUserApi, dispatch),
-            userUpdate: bindActionCreators(userAsyncActions.userUpdateApi, dispatch)
+            // userUpdate: bindActionCreators(userAsyncActions.userUpdateApi, dispatch)
         }
     }
 }

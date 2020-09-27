@@ -8,10 +8,14 @@ import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { getSubscribersApi, getChannelDetailApi, getChannelCategoriesApi } from "../../redux/actions/channel/channelAsyncActions"
+import { getSubscribersApi, getChannelDetailApi, getChannelCategoriesApi, getIsOwnerApi } from "../../redux/actions/channel/channelAsyncActions"
 import { photoCreateApi, channelPhotosApi } from "../../redux/actions/photo/photoAsyncActions"
 import { SubsButton, Flow, ChannelCategories } from './channelHooks';
 import SimpleReactValidator from 'simple-react-validator';
+import { getIsSubsApi } from '../../redux/actions/subscrib/subsAsyncAction';
+import Switch from 'react-bootstrap/esm/Switch';
+import { Route } from 'react-router-dom';
+import ChannelSettings from './ChannelSettings';
 
 registerPlugin(FilePondPluginImagePreview, FilePondPluginFileValidateType, FilePondPluginImageExifOrientation);
 
@@ -25,11 +29,13 @@ class ChannelDetail extends Component {
     }
     validator = new SimpleReactValidator({ locale: 'tr' });
     componentDidMount() {
+
         var channelId = this.props.match.params.id;
         this.props.actions.getChannelDetail(channelId, this.props.history)
         this.props.actions.getChannelPhotos(channelId, this.props.history)
         this.props.actions.getSubscribers(channelId, this.props.history)
         this.props.actions.getCategories(channelId, this.props.history)
+        this.props.actions.getIsSub(channelId, this.props.history)
     }
     onSubmitHandler = (e) => {
         e.preventDefault();
@@ -101,7 +107,9 @@ function mapDispatchToProps(dispatch) {
             getChannelDetail: bindActionCreators(getChannelDetailApi, dispatch),
             getChannelPhotos: bindActionCreators(channelPhotosApi, dispatch),
             getSubscribers: bindActionCreators(getSubscribersApi, dispatch),
-            getCategories: bindActionCreators(getChannelCategoriesApi, dispatch)
+            getCategories: bindActionCreators(getChannelCategoriesApi, dispatch),
+            getIsSub: bindActionCreators(getIsSubsApi, dispatch),
+            getIsOwner: bindActionCreators(getIsOwnerApi, dispatch)
         }
     }
 }

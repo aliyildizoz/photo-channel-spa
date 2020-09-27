@@ -8,3 +8,5 @@ export const getIsSubsPath = (channelId) => SUBS_API_URL + "issub/" + channelId
 export const getChannelSubscribersPath = (channelId) => SUBS_API_URL + channelId + "/subscribers";
 
 export const deleteSubsPath = (channelId) => SUBS_API_URL + channelId;
+
+export const deleteSubsByOwnerPath = (channelId, userId) => deleteSubsPath(channelId) + "/byowner/" + userId;

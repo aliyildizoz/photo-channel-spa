@@ -5,7 +5,6 @@ export default function apiResponseReducer(state = initialState.apiResponse, act
     switch (action.type) {
         case actionTypes.API_RESPONSE:
             return action.payload;
-
         case actionTypes.STATE_CLEAR:
             return {};
         default:

@@ -1,141 +1,70 @@
-import React, { Component } from 'react'
 import { Container, Form, FormGroup, Row, Col, Button } from 'react-bootstrap'
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
+import SimpleReactValidator from 'simple-react-validator';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link,useHistory } from 'react-router-dom'
+import { useSelector, useDispatch } from 'react-redux'
+
 import * as authAsyncActions from '../../redux/actions/auth/authAsyncActions'
-class Register extends Component {
+export default function Register() {
 
-    state = {
-        model: {
-            firstName: "",
-            lastName: "",
-            userName: "",
-            email: "",
-            password: "",
-            rePassword: ""
-        },
-        validate: false,
-        isRedirect: false,
-        isBlock: false
+    const [, forceUpdate] = useState()
+    const validator = useRef(new SimpleReactValidator({ locale:"tr",autoForceUpdate: { forceUpdate: forceUpdate }}))
 
+    const apiResponse = useSelector(state => state.apiResponseReducer);
+    const dispatch = useDispatch();
+
+    const history = useHistory()
+    const register = () => {
+        dispatch(authAsyncActions.registerApi(model,history))
     }
-    onChangeHandler = (e) => {
-        this.setState({ model: { ...this.state.model, [e.target.name]: e.target.value }, validate: true })
+
+    const [model, setModel] = useState({ email: "", password: "",firstName:"",lastName:"",userName:"" });
+
+    const onChangeHandler = (e) => {
+        setModel({ ...model, [e.target.name]: e.target.value })
+        validator.current.showMessages()
     }
-    onSubmitHandler = (event) => {
+    const onSubmitHandler = (event) => {
         event.preventDefault();
-        const form = event.currentTarget;
-        if (form.checkValidity() === false) {
-            event.stopPropagation();
-            console.log(this.state.model.password)
-            console.log(this.state.model.rePassword)
-            if (this.state.model.password !== this.state.model.rePassword) this.setIsBlock(true)
-            else this.setIsBlock(false)
+        if (validator.current.allValid()) {
+            register();
         } else {
-            console.log("valid1")
-            if (this.state.model.password !== this.state.model.rePassword) {
-                this.setIsBlock(true)
-            }
-            else {
-                this.setIsBlock(false)
-                console.log("valid1")
-                const { firstName, lastName, userName, email, password } = this.state.model
-                //this.props.actions.register({ firstName, lastName, userName, email, password }, this.props.history);
-            }
+            validator.current.showMessages();
         }
-        this.setValidated(true);
     }
-    setIsBlock = (val) => this.setState({ isBlock: val })
-    setValidated = (val) => this.setState({ validate: val })
-    renderRegister = () => {
-        const { validate } = this.state;
-        return (
+    return (
+        <Container>
             <Row className="bg-light" style={{ borderBottomLeftRadius: 50, borderBottomRightRadius: 50 }}>
-                <Col md={{ span: 4, offset: 4 }} style={{ marginTop: 50, marginBottom: 50 }}>
-                    <Form noValidate validated={validate} onSubmit={this.onSubmitHandler}>
-                        <h3>Üye Ol</h3>
+                <Col md={{ span: 4, offset: 4 }} style={{ marginTop: 50, marginBottom: 50 }} >
+                    <Form onSubmit={onSubmitHandler}>
+                        <h3>Kayıt Ol</h3>
                         <FormGroup>
-                            {
-                                this.apiValidate()
-                            }
+                            <Form.Control type="text" name="firstName" required onChange={onChangeHandler} placeholder="İsim" />
+                            {validator.current.message('firstName', model.firstName, 'required', { className: 'text-danger' })}
                         </FormGroup>
                         <FormGroup>
-                            <Form.Control type="text" name="firstName" required onChange={this.onChangeHandler} placeholder="İsim" />
-                            <Form.Control.Feedback type="invalid">
-                                Isim alanı boş geçilemez
-                            </Form.Control.Feedback>
+                            <Form.Control type="text" name="lastName" required onChange={onChangeHandler} placeholder="Soyisim" />
+                            {validator.current.message('lastName', model.lastName, 'required', { className: 'text-danger' })}</FormGroup>
+                        <FormGroup>
+                            <Form.Control type="text" name="userName" required onChange={onChangeHandler} placeholder="Kullanıcı adı" />
+                            {validator.current.message('userName', model.userName, 'required', { className: 'text-danger' })}
                         </FormGroup>
                         <FormGroup>
-                            <Form.Control type="text" name="lastName" required onChange={this.onChangeHandler} placeholder="Soyisim" />
-                            <Form.Control.Feedback type="invalid">
-                                Soyisim alanı boş geçilemez
-                            </Form.Control.Feedback>
+                            <Form.Control type="text" name="email" onChange={onChangeHandler} placeholder="Email" />
+                            {validator.current.message('email', model.email, 'required|email', { className: 'text-danger' })}
+                            {validator.current.messageWhenPresent(apiResponse.message, { className: 'text-danger' })}
                         </FormGroup>
                         <FormGroup>
-                            <Form.Control type="text" name="userName" required onChange={this.onChangeHandler} placeholder="Kullanıcı adı" />
-                            <Form.Control.Feedback type="invalid">
-                                Kullanıcı adı alanı boş geçilemez
-                            </Form.Control.Feedback>
+                            <Form.Control type="password" name="password" onChange={onChangeHandler} placeholder="Şifre" />
+                            {validator.current.message('password', model.password, 'required|min:1|max:50', { className: 'text-danger' })}
                         </FormGroup>
-                        <FormGroup>
-                            <Form.Control type="email" name="email" required onChange={this.onChangeHandler} placeholder="Email" />
-                            <Form.Control.Feedback type="invalid">
-                                E-mail alanı boş geçilemez
-                            </Form.Control.Feedback>
-                        </FormGroup>
-                        <FormGroup>
-                            <Form.Control type="password" name="password" required onChange={this.onChangeHandler} placeholder="Şifre" />
-                            <Form.Control.Feedback type="invalid">
-                                Şifre alanı boş geçilemez
-                            </Form.Control.Feedback>
-                        </FormGroup>
-                        <FormGroup>
-                            <Form.Control type="password" name="rePassword" required onChange={this.onChangeHandler} placeholder="Şifre onayla" />
-                            <Form.Control.Feedback type="invalid">
-                                Şifre onayla alanı boş geçilemez
-                            </Form.Control.Feedback>
-                            <Form.Control.Feedback type="invalid" style={{ display: this.state.isBlock ? "block" : "none" }}>
-                                Şifreler uyuşmuyor
-                            </Form.Control.Feedback>
-                        </FormGroup>
-
-                        <Button type="submit" block>Kayıt Ol</Button>
+                        <Button type="submit" block className="col-6">Giriş</Button>
+                        <p className="text-right">
+                            Forgot <Link to="#">password?</Link>
+                        </p>
                     </Form>
                 </Col>
             </Row >
-        )
-    }
-    apiValidate = () => {
-        if (this.props.registerRes.data) {
-            return <div className="text-danger">{this.props.registerRes.data}</div>
-        }
-        return null;
-    }
-    render() {
-
-        return (
-
-            <div>
-                <Container>
-                    {
-                        this.renderRegister()
-                    }
-                </Container>
-            </div>
-        )
-    }
+        </Container>
+    )
 }
-function mapDispatchToProps(dispatch) {
-    return {
-        actions: {
-            // register: bindActionCreators(authAsyncActions.registerApi, dispatch)
-        }
-    }
-}
-function mapStateToProps(state) {
-    return {
-        // registerRes: state.authReducer.registerResult
-    }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Register);

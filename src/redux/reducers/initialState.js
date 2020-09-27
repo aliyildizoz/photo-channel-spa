@@ -19,7 +19,8 @@ export default {
         channelPhotos: [],
         photoGallery: [],
         subscribers: [],
-        isSubs: false
+        isSubs: false,
+        isOwner: false
     },
     // channels: [],
     channelCRUDState: {

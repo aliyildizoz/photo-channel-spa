@@ -1,21 +1,47 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { useSelector, useDispatch } from 'react-redux'
-import { Col, Form, FormGroup, Button, ListGroup, Modal } from "react-bootstrap"
-import { FilePond } from "react-filepond"
-import { Typeahead } from "react-bootstrap-typeahead"
-import { Link } from "react-router-dom"
+import { Col, Form, FormGroup, Button, ListGroup, Modal, Image, Accordion, Alert } from "react-bootstrap"
+import { Multiselect } from 'multiselect-react-dropdown';
+import { Link, useHistory } from "react-router-dom"
+import { ChannelCategories } from "./channelHooks"
+import axios from "axios";
+import { deleteSubsByOwnerPath } from "../../redux/actions/subscrib/subsEndPoints";
+import { authHeaderObj } from "../../redux/helpers/localStorageHelper";
+import { getSubscribersApi, channelUpdateApi, addChannelCategoriesApi } from "../../redux/actions/channel/channelAsyncActions";
+import { getChannelPathById } from "../../redux/actions/channel/channelEndPoints";
+import { redirectErrPage } from "../../redux/helpers/historyHelper";
+import SimpleReactValidator from "simple-react-validator";
+
+import { FilePond, registerPlugin } from 'react-filepond';
+import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
+import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
+import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation';
+
+registerPlugin(FilePondPluginImagePreview, FilePondPluginFileValidateType, FilePondPluginImageExifOrientation);
 
 export function ChannelUpdate({ channelId }) {
 
     const channelDetail = useSelector(state => state.channelReducer.channelDetail)
-    const [model, setModel] = useState({})
-    const [isChange, setisChange] = useState(false)
-    const onChangeHandler = (e) => {
-        setModel({ ...model, name: e.target.value, channelId: channelId })
-        setisChange(true)
-    }
-    const onSubmitHandler = () => {
+    const apiResponse = useSelector(state => state.apiResponseReducer)
+    const dispatch = useDispatch()
+    const history = useHistory()
 
+    const [, forceUpdate] = useState()
+    const validator = useRef(new SimpleReactValidator({ locale: "tr", autoForceUpdate: { forceUpdate: forceUpdate } }))
+
+    const [name, setName] = useState("")
+    const [files, setFiles] = useState([])
+
+    const onChangeHandler = (e) => {
+        setName(e.target.value)
+        validator.current.showMessages();
+    }
+    const onSubmitHandler = (e) => {
+        e.preventDefault();
+        if ((name !== channelDetail.name && validator.current.allValid()) || files.length > 0) {
+            dispatch(channelUpdateApi({ name: name, file: files[0] }, channelId, history));
+            history.push("/channel/" + channelId);
+        }
     }
     return <Col>
         <h5>Kanalı güncelle</h5>
@@ -23,13 +49,17 @@ export function ChannelUpdate({ channelId }) {
         <Form onSubmit={onSubmitHandler} className="mb-3">
 
             <FormGroup>
-                <Form.Control type="text" name="name" onChange={onChangeHandler} required placeholder="Kanal adı" defaultValue={channelDetail.name} />
+                <Form.Control type="text" name="name" onChange={onChangeHandler} placeholder="Kanal adı" defaultValue={channelDetail.name} />
+                {validator.current.message('name', name, 'required', { className: 'text-danger' })}
+                {validator.current.messageWhenPresent(apiResponse.message, { className: 'text-danger' })}
             </FormGroup>
+
             <FilePond
                 allowMultiple={false}
-                onupdatefiles={imageFile => setModel({ ...model, files: imageFile.map(f => f.file), channelId: channelId })}
+                onupdatefiles={imageFile => setFiles(imageFile.map(f => f.file))}
                 labelIdle='Kanal fotoğrafını değiştirmek için fotoğrafı sürükle bırak veya <strong class="filepond--label-action">seç</strong>'
                 acceptedFileTypes={['image/*']}
+                files={files}
             />
             <Button type="submit" className="mt-2" block>Kaydet</Button>
         </Form>
@@ -39,51 +69,69 @@ export function ChannelUpdate({ channelId }) {
 export function CategoryUpdate({ channelId }) {
     const channelCategories = useSelector(state => state.channelReducer.categories)
     const allCategories = useSelector(state => state.categoryListReducer)
-    const [model, setModel] = useState({})
-    const [isChange, setisChange] = useState(false)
-    const onChangeHandler = (e) => {
-        console.log(e)
-        setModel({ channelId: channelId, categoryIds: e.map(c => c.id) })
-        setisChange(true)
-    }
-    const onSubmitHandler = () => {
-        //
-    }
+    const [selectedCategories, setSelectedCategories] = useState([])
+    const dispatch = useDispatch()
+    const history = useHistory()
 
+    const onChange = (e) => {
+        setSelectedCategories(e)
+    }
+    const onClickHandler = (e) => {
+        if (selectedCategories.length > 0) {
+            dispatch(addChannelCategoriesApi(selectedCategories, channelId, history))
+        }
+    }
     return <Col >
         <h5>Kategori seç</h5>
-        <hr />
-        {console.log(channelCategories)}
-        <Form onSubmit={onSubmitHandler}>
-            <FormGroup>
-                <Typeahead
-                    clearButton
-                    defaultSelected={channelCategories}
-                    id="selections-example"
-                    labelKey="name"
-                    multiple
-                    options={allCategories}
-                    placeholder="Kategori seç"
-                    className="mb-3"
-                    onChange={onChangeHandler}
-                    required
+        <hr className="mb-2" />
+        <Multiselect
+            options={allCategories}
+            selectedValues={channelCategories}
+            displayValue="name"
+            closeIcon="circle"
+            style={{ chips: { background: "#5bc0de" } }}
+            onSelect={onChange}
+            onRemove={onChange}
+            placeholder="Kategori seç"
+        />
+        <Button type="submit" onClick={onClickHandler} className="mt-2" block>Kaydet</Button>
 
-                />
-            </FormGroup>
-            <Button type="submit" block>Kaydet</Button>
-        </Form>
     </Col>
 }
+export function ChannelDelete({ channelId }) {
 
-export function Subscribers() {
+    const history = useHistory()
+    const onClickHandler = () => {
+        axios.delete(getChannelPathById(channelId), {
+            headers: authHeaderObj()
+        }).then(() => history.push("/")).catch(err => redirectErrPage(history, err))
+    }
+    return <Col className="mt-2">
+        <Accordion>
+            <Accordion.Toggle as={Button} variant="link" eventKey="0">
+                <h5 className="text-danger"> Kanalı Sil <span className="far fa-trash-alt  "></span></h5>
+            </Accordion.Toggle>
+            <Accordion.Collapse eventKey="0">
+                <Alert variant="danger">Kanalı silmek istediğinden emin misin ? <Button variant="danger" onClick={onClickHandler} className="ml-2">Evet</Button></Alert>
+            </Accordion.Collapse>
+        </Accordion>
+    </Col>
+}
+export function Subscribers({ channelId }) {
     const subscribers = useSelector(state => state.channelReducer.subscribers)
     const [modalShow, setModalShow] = useState(false)
-    const removeSubs = () => {
-
+    const [deleteId, setDeleteId] = useState(0)
+    const dispatch = useDispatch()
+    const history = useHistory()
+    const removeSubs = (userId) => {
+        axios.delete(deleteSubsByOwnerPath(channelId, userId), {
+            headers: authHeaderObj()
+        }).then(() => dispatch(getSubscribersApi(channelId, history))).then(() => setModalShow(false)).catch((err) => redirectErrPage(history, err))
     }
 
     return <div>
-        <h5>Aboneler</h5>
+        <h3 className="font-weight-normal mt-2 d-inline-flex">Aboneler</h3>
+        <h6 className="font-weight-light d-inline-flex  float-right mt-4">Abone sayısı: <b>{subscribers.length}</b></h6>
         <hr />
         <div className="overflow-auto" style={{ height: 500 }}>
             <ListGroup >
@@ -92,20 +140,20 @@ export function Subscribers() {
                         return <ListGroup.Item key={subs.id}>
 
                             <Link to={"/profile/" + subs.id} className="text-primary text-decoration-none"><span>{subs.firstName + " " + subs.lastName}</span></Link>
-                            <span onClick={() => setModalShow(true)} className="removeSubsSpan float-right fas fa-user-minus"></span>
+                            <span onClick={() => { setModalShow(true); setDeleteId(subs.id); }} className="removeSubsSpan float-right fas fa-user-minus"></span>
 
                         </ListGroup.Item>
                     })
                 }
             </ListGroup>
         </div>
-        <RemoveSubsModal show={modalShow} onHide={() => setModalShow(false)} removeSubs={() => removeSubs()} />
+        <RemoveSubsModal show={modalShow} onHide={() => setModalShow(false)} removeSubs={() => removeSubs(deleteId)} />
     </div>
 }
 
-function RemoveSubsModal(props) {
+function RemoveSubsModal({ onHide, removeSubs, show }) {
 
-    return <Modal {...props}>
+    return <Modal show={show} onHide={onHide}>
         <Modal.Header closeButton>
             <Modal.Title><span className="fas fa-user-minus text-danger mr-2"></span></Modal.Title>
         </Modal.Header>
@@ -113,8 +161,8 @@ function RemoveSubsModal(props) {
             <h5>Aboneyi silmek istediğinden emin misin ?</h5>
         </Modal.Body>
         <Modal.Footer>
-            <Button variant="secondary" onClick={props.onHide}>İptal</Button>
-            <Button variant="danger" onClick={props.removeSubs}>Sil</Button>
+            <Button variant="secondary" onClick={onHide}>İptal</Button>
+            <Button variant="danger" onClick={removeSubs}>Sil</Button>
         </Modal.Footer>
     </Modal>
 }
