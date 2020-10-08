@@ -3,21 +3,22 @@ import axios from "axios"
 import * as localStorageHelper from "../../helpers/localStorageHelper"
 import * as commonActionsCreators from "../common/commonActionsCreators"
 import * as authActionsCreators from "../auth/authActionsCreators"
+import {isLoadingTSuccess,isLoadingFSuccess} from "../common/commonActionsCreators"
 import { bindActionCreators } from "redux";
 import { redirectErrPage } from "../../helpers/historyHelper"
 
 
 export function loginApi(user, history) {
     return async dispatch => {
-        await axios.post(LOGIN_PATH, user).then(async res => {
+        await axios.post(LOGIN_PATH, user).then(res => {
             localStorageHelper.setToken(res.data)
-            dispatch(authActionsCreators.isLoggedTSuccess())
+            var getCurrentUser = bindActionCreators(getCurrentUserApi, dispatch)
+            getCurrentUser()
             history.push("/")
-
         }).catch(err => {
             console.log(err.response)
             if (err.response === undefined) {
-                redirectErrPage(history, err) ;
+                redirectErrPage(history, err);
                 return;
             }
             if (err.response.status === 400) {
@@ -53,7 +54,7 @@ export function registerApi(user, history) {
         }).catch(err => {
             console.log(err.response)
             if (err.response === undefined) {
-                redirectErrPage(history, err) ;
+                redirectErrPage(history, err);
                 return;
             }
             if (err.response.status === 400) {
@@ -66,20 +67,27 @@ export function registerApi(user, history) {
 }
 
 export function getCurrentUserApi() {
-    return async dispatch => {
-
-        await axios.get(CURRENT_USER_PATH, {
-            headers: localStorageHelper.authHeaderObj()
-        }).then(res => {
-            dispatch(authActionsCreators.currentUserSuccess(res.data))
-            dispatch(authActionsCreators.isLoggedTSuccess())
-        }).catch(err => {
-            if (err.response.status === 401) {
-                var refreshToken = bindActionCreators(refreshTokenApi, dispatch)
-                refreshToken();
+    return async (dispatch, getState) => {
+        dispatch(isLoadingTSuccess());
+        if (localStorageHelper.isExistsToken()) {
+            if (Object.keys(getState().currentUserReducer).length == 0) {
+                await axios.get(CURRENT_USER_PATH, {
+                    headers: localStorageHelper.authHeaderObj()
+                }).then(res => {
+                    dispatch(authActionsCreators.currentUserSuccess(res.data))
+                }).then(() => {
+                    dispatch(authActionsCreators.isLoggedTSuccess())
+                }).then(() => {
+                    dispatch(isLoadingFSuccess());
+                }).catch(err => {
+                    if (err.response.status === 401) {
+                        var refreshToken = bindActionCreators(refreshTokenApi, dispatch)
+                        refreshToken();
+                    }
+                })
             }
-        })
-    }
+        }
+    }   
 }
 
 function refreshTokenApi() {
@@ -89,9 +97,10 @@ function refreshTokenApi() {
             headers: {
                 refreshToken: localStorageHelper.getRefreshToken()
             }
-        }).then(async res => {
+        }).then(res => {
             localStorageHelper.setToken(res.data)
-            dispatch(authActionsCreators.isLoggedTSuccess())
+            var getCurrentUser = bindActionCreators(getCurrentUserApi, dispatch)
+            getCurrentUser();
         });
     }
 }

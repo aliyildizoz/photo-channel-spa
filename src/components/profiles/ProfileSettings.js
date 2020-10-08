@@ -1,150 +1,174 @@
-import React, { Component } from 'react'
-import { Container, Form, FormGroup, Row, Col, Button } from 'react-bootstrap'
-import { connect } from 'react-redux'
+import axios from 'axios'
+import React, { Component, useEffect, useRef, useState } from 'react'
+import { Container, Form, FormGroup, Row, Col, Button, Accordion, Alert, InputGroup } from 'react-bootstrap'
+import { connect, useDispatch, useSelector } from 'react-redux'
+import { useHistory } from 'react-router-dom/cjs/react-router-dom'
 import { bindActionCreators } from 'redux'
+import SimpleReactValidator from 'simple-react-validator'
 import * as authAsyncActions from "../../redux/actions/auth/authAsyncActions"
+import { getUserDetailSuccess } from '../../redux/actions/user/userActionsCreators'
 import * as userAsyncActions from '../../redux/actions/user/userAsyncActions'
+import { getUserUrlById, getUpdatePasswordUrl } from '../../redux/actions/user/userEndPoints'
+import { authHeaderObj } from '../../redux/helpers/localStorageHelper'
+import * as localStorageHelper from "../../redux/helpers/localStorageHelper"
+import { stateClear } from '../../redux/actions/common/commonActionsCreators'
+import { redirectErrPage } from '../../redux/helpers/historyHelper'
+import { currentUserClearSuccess, isLoggedFSuccess } from '../../redux/actions/auth/authActionsCreators'
 
-class ProfileSettings extends Component {
-
-    state = {
-        model: {
-            firstName: "",
-            lastName: "",
-            userName: "",
-            email: "",
-            password: "",
-            rePassword: ""
-        },
-        validate: false,
-        isRedirect: false,
-        isBlock: false
-
-    }
-    componentWillUnmount = () => {
-        console.log("UnMount")
-        this.props.actions.resClear();
-    }
-    onChangeHandler = (e) => {
-        this.setState({ model: { ...this.state.model, [e.target.name]: e.target.value }, validate: true })
-    }
-    onSubmitHandler = (event) => {
-        event.preventDefault();
-        const form = event.currentTarget;
-        if (form.checkValidity() === false) {
-            event.stopPropagation();
-            if (this.state.model.password !== this.state.model.rePassword) this.setIsBlock(true)
-            else this.setIsBlock(false)
-        } else {
-            console.log("valid1")
-            if (this.state.model.password !== this.state.model.rePassword) {
-                this.setIsBlock(true)
-            }
-            else {
-                this.setIsBlock(false)
-                const { firstName, lastName, userName, email, password } = this.state.model
-                this.props.actions.userUpdate({ firstName, lastName, userName, email, password }, this.props.loggedUser.id, this.props.history, this.props.actions.getLoggedUser);
-
-            }
-        }
-        this.setValidated(true);
-    }
-    setIsBlock = (val) => this.setState({ isBlock: val })
-    setValidated = (val) => this.setState({ validate: val })
-    renderProfileSettings = () => {
-        const { validate } = this.state;
-        return (
-            <Row className="bg-light" style={{ borderBottomLeftRadius: 50, borderBottomRightRadius: 50 }}>
-                <Col style={{ marginTop: 50, marginBottom: 50 }}>
-                    <Form noValidate validated={validate} onSubmit={this.onSubmitHandler}>
-
-                        <Row>
-
-                            <Col md={{ span: 4, offset: 2 }}>
-                                <h3>Profili güncelle</h3>
-
-                                <FormGroup>
-                                    <Form.Control type="text" name="firstName" required onChange={this.onChangeHandler} placeholder="İsim" defaultValue={this.props.loggedUser.firstName} />
-                                    <Form.Control.Feedback type="invalid">
-                                        Isim alanı boş geçilemez
-                            </Form.Control.Feedback>
-                                </FormGroup>
-                                <FormGroup>
-                                    <Form.Control type="text" name="lastName" required onChange={this.onChangeHandler} placeholder="Soyisim" defaultValue={this.props.loggedUser.lastName} />
-                                    <Form.Control.Feedback type="invalid">
-                                        Soyisim alanı boş geçilemez
-                            </Form.Control.Feedback>
-                                </FormGroup>
-                                <FormGroup>
-                                    <Form.Control type="email" name="email" required onChange={this.onChangeHandler} placeholder="Email" defaultValue={this.props.loggedUser.email} />
-                                    <Form.Control.Feedback type="invalid">
-                                        E-mail alanı boş geçilemez
-                            </Form.Control.Feedback>
-                                </FormGroup>
-
-                            </Col>
-                            <Col md={{ span: 4 }}>
-                                <h3>Şifre değiştir</h3>
-                                <FormGroup>
-                                    <Form.Control type="password" name="password" onChange={this.onChangeHandler} placeholder="Şifre" />
-                                </FormGroup>
-                                <FormGroup>
-                                    <Form.Control type="password" name="rePassword" onChange={this.onChangeHandler} placeholder="Şifre onayla" />
-
-                                    <Form.Control.Feedback type="invalid" style={{ display: this.state.isBlock ? "block" : "none" }}>
-                                        Şifreler uyuşmuyor
-                            </Form.Control.Feedback>
-                                </FormGroup>
-                                <FormGroup>
-                                    {
-                                        // this.apiValidate()
-                                    }
-                                </FormGroup>
-                                <Button type="submit" block className="" >Kaydet</Button>
-
-                            </Col>
-                        </Row>
-
-
-                    </Form>
-                </Col>
-            </Row >
-        )
-    }
-    apiValidate = () => {
-        console.log(this.props.userUpdateRes)
-        if (this.props.userUpdateRes) {
-            return <div style={{ display: "block", width: "100%", marginTop: "25", fontSize: "80%", color: "#dc3545" }}>{this.props.userUpdateRes}</div>
-        }
-        return null;
+export default class ProfileSettings extends Component {
+    componentDidMount() {
+        // alert("currentUser" + this.props.currentUser.id)
+        // alert("params" + this.props.match.params.id)
     }
     render() {
-
         return (
-
             <div>
                 <Container>
-                    {
-                        this.renderProfileSettings()
-                    }
+                    <Settings />
                 </Container>
             </div>
         )
     }
 }
-function mapDispatchToProps(dispatch) {
-    return {
-        actions: {
-            // getLoggedUser: bindActionCreators(authAsyncActions.getCurrentUserApi, dispatch),
-            // userUpdate: bindActionCreators(userAsyncActions.userUpdateApi, dispatch)
+
+function Settings() {
+    const [, forceUpdate] = useState()
+    const userValidator = useRef(new SimpleReactValidator({ locale: "tr", autoForceUpdate: { forceUpdate: forceUpdate } }))
+    const passwordValidator = useRef(new SimpleReactValidator({ locale: "tr", autoForceUpdate: { forceUpdate: forceUpdate } }))
+
+    const dispatch = useDispatch();
+    const history = useHistory()
+
+    const currentUser = useSelector(state => state.currentUserReducer)
+
+    const [userModel, setUserModel] = useState({});
+    const [userResponse, setUserResponse] = useState("");
+    const [isChange, setIsChange] = useState(false);
+
+    const [passwordModel, setPasswordModel] = useState({ oldPasword: "", newPassword: "", newRePassword: "", equalMessage: "" });
+    const [passwordResponse, setPasswordResponse] = useState("")
+
+    useEffect(() => { setUserModel({ ...currentUser }) }, [setUserModel, currentUser])
+
+    const onChangeHandlerUser = (e) => {
+        setUserModel({ ...userModel, [e.target.name]: e.target.value })
+        setIsChange(true)
+        userValidator.current.showMessages()
+    }
+    const setEqualMessage = (equalMessage = "Şifreler eşleşmiyor") => setPasswordModel({ ...passwordModel, equalMessage })
+    const onChangeHandlerPassword = (e) => {
+        setPasswordModel({ ...passwordModel, [e.target.name]: e.target.value })
+        passwordValidator.current.showMessages()
+
+    }
+    const onSubmitHandlerUser = async (event) => {
+        event.preventDefault();
+        if (userValidator.current.allValid() && isChange) {
+
+            await axios.put(getUserUrlById(currentUser.id), userModel, { headers: authHeaderObj() }).then(res => {
+                dispatch(getUserDetailSuccess(currentUser));
+                localStorageHelper.setToken(res.data)
+            }).catch((err) => setUserResponse(err.response.data))
+
+        } else {
+            userValidator.current.showMessages();
         }
     }
-}
-function mapStateToProps(state) {
-    return {
-        loggedUser: state.authReducer.loggedUser
+    const onSubmitHandlerPassword = async (event) => {
+        event.preventDefault();
+        if (passwordValidator.current.allValid()) {
+            if (passwordModel.newPassword === passwordModel.newRePassword) {
+                await axios.put(getUpdatePasswordUrl(currentUser.id), {
+                    oldPassword: passwordModel.oldPasword,
+                    newPassword: passwordModel.newPassword
+                }, { headers: authHeaderObj() }).
+                    catch((err) => setPasswordResponse(err.response.data))
+                setEqualMessage("");
+            }
+            else {
+                setEqualMessage()
+            }
+        } else {
+            passwordValidator.current.showMessages();
+        }
     }
-}
+    const deleteAccount = async () => {
+        await axios.delete(getUserUrlById(currentUser.id), { headers: authHeaderObj() }).then(() => {
+            localStorageHelper.removeToken();
+            dispatch(isLoggedFSuccess());
+            dispatch(currentUserClearSuccess());
+            history.push("/")
+        }).catch((err) => redirectErrPage(err, history))
+    }
+    return <Row className="bg-light" style={{ borderBottomLeftRadius: 50, borderBottomRightRadius: 50 }}>
+        <Col style={{ marginTop: 50, marginBottom: 50 }}>
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProfileSettings);
+            <Row className="mb-3">
+                <Col md={{ span: 6, offset: 3 }}>
+                    <Form onSubmit={onSubmitHandlerUser}>
+                        <h3>Profili güncelle</h3>
+                        <FormGroup>
+                            <Form.Control type="text" name="firstName" onChange={onChangeHandlerUser} placeholder="İsim" defaultValue={userModel.firstName} />
+                            {userValidator.current.message('firstName', userModel.firstName, 'required|min:1|max:50', { className: 'text-danger' })}
+                        </FormGroup>
+                        <FormGroup>
+                            <Form.Control type="text" name="lastName" onChange={onChangeHandlerUser} placeholder="Soyisim" defaultValue={userModel.lastName} />
+                            {userValidator.current.message('lastName', userModel.lastName, 'required|min:1|max:50', { className: 'text-danger' })}
+                        </FormGroup>
+                        <FormGroup>
+                            <Form.Control type="text" name="userName" onChange={onChangeHandlerUser} placeholder="Kullanıcı adı" defaultValue={userModel.userName} />
+                            {userValidator.current.message('userName', userModel.userName, 'required|min:1|max:50', { className: 'text-danger' })}
+                        </FormGroup>
+                        <FormGroup>
+                            <Form.Control type="text" name="email" onChange={onChangeHandlerUser} placeholder="Email" defaultValue={userModel.email} />
+                            {userValidator.current.message('email', userModel.email, 'required|email|min:1|max:50', { className: 'text-danger' })}
+                            {userValidator.current.messageWhenPresent(userResponse, { className: 'text-danger' })}
+
+
+                        </FormGroup>
+                        <Button type="submit" block className="" >Kaydet</Button>
+                    </Form>
+                </Col>
+            </Row><Row>
+                <Col md={{ span: 6, offset: 3 }}>
+                    <Accordion>
+                        <Accordion.Toggle as="a" className="text-decoration-none cursorPointer" variant="link" eventKey="0">
+                            <h3 className="text-dark"> Şifre değiştir &nbsp;<i className="fas fa-exchange-alt text-info fa-lg"></i></h3>
+                        </Accordion.Toggle>
+                        <Accordion.Collapse eventKey="0">
+                            <Alert variant="dark">
+                                <Form onSubmit={onSubmitHandlerPassword}>
+                                    <FormGroup>
+                                        <Form.Control type="password" name="oldPasword" onChange={onChangeHandlerPassword} placeholder="Eski şifre" />
+                                        {passwordValidator.current.message('oldPasword', passwordModel.oldPasword, 'required', { className: 'text-danger' })}
+                                        {passwordValidator.current.messageWhenPresent(passwordResponse, { className: 'text-danger' })}
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Form.Control type="password" name="newPassword" onChange={onChangeHandlerPassword} placeholder="Yeni şifre" />
+                                        {passwordValidator.current.message('newPassword', passwordModel.newPassword, 'required|min:6', { className: 'text-danger' })}
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Form.Control type="password" name="newRePassword" onChange={onChangeHandlerPassword} placeholder="Yeni şifre tekrar" />
+                                        {passwordValidator.current.messageWhenPresent(passwordModel.equalMessage, { className: 'text-danger' })}
+                                        {passwordValidator.current.message('newRePassword', passwordModel.newRePassword, 'required|min:6', { className: 'text-danger' })}
+                                    </FormGroup>
+                                    <Button type="submit" variant="success" block className="" >Onayla</Button>
+                                </Form>
+                            </Alert>
+                        </Accordion.Collapse>
+
+                        <Accordion.Toggle as="a" className="text-decoration-none cursorPointer" variant="link" eventKey="1">
+                            <h3 className="text-dark"> Hesabı sil &nbsp;<i className="fas fa-minus-circle text-danger fa-lg"></i></h3>
+                        </Accordion.Toggle>
+                        <Accordion.Collapse eventKey="1">
+                            <Alert variant="danger">Hesabını silmek istediğinden emin misin ? <Button variant="danger" onClick={deleteAccount} className="ml-2">Evet</Button></Alert>
+                        </Accordion.Collapse>
+                    </Accordion>
+
+                </Col>
+            </Row>
+
+        </Col>
+    </Row >
+}
 

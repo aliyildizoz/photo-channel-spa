@@ -8,14 +8,11 @@ import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { getSubscribersApi, getChannelDetailApi, getChannelCategoriesApi, getIsOwnerApi } from "../../redux/actions/channel/channelAsyncActions"
+import { getSubscribersApi, getChannelDetailApi, getChannelCategoriesApi, getChannelIsOwnerApi } from "../../redux/actions/channel/channelAsyncActions"
 import { photoCreateApi, channelPhotosApi } from "../../redux/actions/photo/photoAsyncActions"
 import { SubsButton, Flow, ChannelCategories } from './channelHooks';
 import SimpleReactValidator from 'simple-react-validator';
 import { getIsSubsApi } from '../../redux/actions/subscrib/subsAsyncAction';
-import Switch from 'react-bootstrap/esm/Switch';
-import { Route } from 'react-router-dom';
-import ChannelSettings from './ChannelSettings';
 
 registerPlugin(FilePondPluginImagePreview, FilePondPluginFileValidateType, FilePondPluginImageExifOrientation);
 
@@ -39,13 +36,14 @@ class ChannelDetail extends Component {
     }
     onSubmitHandler = (e) => {
         e.preventDefault();
-        if (Object.keys(this.state.model.file).length === 0) {
+        
+        if (this.state.model.files.length === 0) {
             this.validator.showMessages();
             this.forceUpdate();
         }
         else {
             this.props.actions.addPhoto({ file: this.state.model.file[0], channelId: this.props.match.params.id }, this.props.history)
-            this.setState({ ...this.state, model: { ...this.state.model, file: [] } })
+            this.setState({ ...this.state, model: { ...this.state.model, files: [] } })
         }
     }
     render() {
@@ -82,6 +80,8 @@ class ChannelDetail extends Component {
                                             labelIdle='Fotoğrafını sürükle bırak veya <strong class="filepond--label-action">seç</strong>'
                                             acceptedFileTypes={['image/*']}
                                             files={this.state.model.file}
+
+
                                         />
 
                                         {this.validator.messageWhenPresent(this.state.validMessage, { className: 'text-danger' })}
@@ -108,15 +108,14 @@ function mapDispatchToProps(dispatch) {
             getChannelPhotos: bindActionCreators(channelPhotosApi, dispatch),
             getSubscribers: bindActionCreators(getSubscribersApi, dispatch),
             getCategories: bindActionCreators(getChannelCategoriesApi, dispatch),
-            getIsSub: bindActionCreators(getIsSubsApi, dispatch),
-            getIsOwner: bindActionCreators(getIsOwnerApi, dispatch)
+            getIsSub: bindActionCreators(getIsSubsApi, dispatch)
         }
     }
 }
 function mapStateToProps(state) {
     return {
         channelDetail: state.channelReducer.channelDetail,
-        isSubs: state.isSubsReducer,
+        isSubs: state.isSubsReducer
 
     }
 }

@@ -1,5 +1,5 @@
-import { getChannelPathById, getChannelCategoriesPath, channelCategoriesPathById, getIsOwnerPath } from "../../actions/channel/channelEndPoints"
-import { getChannelDetailSuccess, getChannelCategoriesSuccess, getIsOwnerSuccess } from "../../actions/channel/channelActionCreators"
+import { getChannelPathById, getChannelCategoriesPath, channelCategoriesPathById, getChannelIsOwnerPath, getUserChannelUrl } from "../../actions/channel/channelEndPoints"
+import { getChannelDetailSuccess, getChannelCategoriesSuccess, getChannelIsOwnerSuccess } from "../../actions/channel/channelActionCreators"
 import axios from "axios"
 import { bindActionCreators } from "redux"
 import { authHeaderObj } from "../../helpers/localStorageHelper"
@@ -7,13 +7,14 @@ import { redirectErrPage } from "../../helpers/historyHelper"
 import { getPhotoGalleryPath } from "../photo/photoEndPoints"
 import { getChannelSubscribersPath } from "../subscrib/subsEndPoints"
 import { getSubscribersSuccess } from "../subscrib/subsActionCreators"
-import { apiResponse } from "../common/commonActionsCreators"
+import { apiResponse, isLoadingFSuccess, isLoadingTSuccess } from "../common/commonActionsCreators"
+import { getUserChannelsSuccess } from "../user/userActionsCreators"
+import { isLoggedFSuccess, isLoggedTSuccess } from "../auth/authActionsCreators"
 
 export function getChannelDetailApi(channelId, history) {
     return async dispatch => {
         await axios.get(getChannelPathById(channelId)).then(res => {
             dispatch(getChannelDetailSuccess(res.data))
-
         }).catch(err => {
             console.log(err)
             redirectErrPage(history, err)
@@ -64,41 +65,32 @@ export function channelUpdateApi(channel, channelId, history) {
 export function addChannelCategoriesApi(categories, channelId, history) {
     return async dispatch => {
         await axios.put(channelCategoriesPathById(channelId), { categoryIds: categories.map(c => c.id) }).
-            then(() => dispatch(getChannelCategoriesSuccess(categories))).catch(err => {
-                redirectErrPage(history, err);
-            })
-    }
-}
-
-export function getIsOwnerApi(channelId, history) {
-    return async dispatch => {
-        await axios.get(getIsOwnerPath(channelId), {
-            headers: authHeaderObj()
-        }).then(res => {
-                dispatch(getIsOwnerSuccess(res.data))
-               if (!res.data) {
-                   history.push('/forbidden')
-               } 
+            then(() => {
+                dispatch(getChannelCategoriesSuccess(categories));
+                history.push("/channel/" + channelId);
             }).catch(err => {
                 redirectErrPage(history, err);
             })
     }
 }
-// export function channelCreateApi(channel, history) {
 
-//     return async dispatch => {
-//         const fd = new FormData();
-//         fd.append("file", channel.file);
-//         fd.append("name", channel.name);
-//         await axios.post(CHANNEL_PATH, fd, {
-//             headers: authHeaderObj()
-//         }).catch(err => {
-//             console.log(err)
-//             if (err.response.status === 400) {
-//                 dispatch(channelCreateSuccess(err.response))
-//             } else {
-//                 redirectErrPage(history, err)
-//             }
-//         })
-//     }
-// }
+export function getChannelIsOwnerApi(channelId, history) {
+    return async dispatch => {
+        dispatch(isLoadingTSuccess())
+        await axios.get(getChannelIsOwnerPath(channelId), {
+            headers: authHeaderObj()
+        }).then(res => {
+            dispatch(getChannelIsOwnerSuccess(res.data))
+        }).then(() => dispatch(isLoadingFSuccess())).catch(err => {
+            redirectErrPage(history, err);
+        })
+    }
+}
+
+export function getUserChannelsApi(userId, history) {
+    return async dispatch => {
+        await axios.get(getUserChannelUrl(userId)).
+            then(res => dispatch(getUserChannelsSuccess(res.data)))
+            .catch(err => redirectErrPage(err, history))
+    }
+}

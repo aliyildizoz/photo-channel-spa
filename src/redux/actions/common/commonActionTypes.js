@@ -1,2 +1,4 @@
 export const API_RESPONSE = "API_RESPONSE"
 export const STATE_CLEAR = "STATE_CLEAR"
+export const IS_LOADING_FALSE = "IS_LOADING_FALSE"
+export const IS_LOADING_TRUE = "IS_LOADING_TRUE"

@@ -1,23 +1,23 @@
 import React, { Component } from 'react'
 import { Container, Row, Col, Button, Accordion, Card, Alert } from 'react-bootstrap'
-import { getSubscribersApi, getChannelDetailApi, getChannelCategoriesApi, getIsOwnerApi } from "../../redux/actions/channel/channelAsyncActions"
+import { getSubscribersApi, getChannelDetailApi, getChannelCategoriesApi, getChannelIsOwnerApi } from "../../redux/actions/channel/channelAsyncActions"
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as categoryAsyncActions from '../../redux/actions/category/categoryAsyncActions'
 import { ChannelUpdate, CategoryUpdate, Subscribers, ChannelDelete } from './channelSettingsHooks'
 import { Image, Transformation } from 'cloudinary-react';
 import moment from "moment"
+import Loading from '../common/Loading';
+import { Redirect } from 'react-router-dom/cjs/react-router-dom';
 class ChannelSettings extends Component {
     componentDidMount() {
 
         var channelId = this.props.match.params.id;
         var history = this.props.history;
 
-        if (Object.keys(this.props.channelDetail).length === 0) {
-            this.props.actions.getIsOwner(channelId, history)
-        }
+        this.props.actions.getChannelIsOwner(channelId, history)
 
-        if (!this.props.isOwner) {
+        if (!this.props.channelIsOwner) {
             this.props.actions.getChannelDetail(channelId, history)
             this.props.actions.getSubscribers(channelId, history)
             this.props.actions.getChannelCategories(channelId, history)
@@ -32,7 +32,7 @@ class ChannelSettings extends Component {
 
         return (
             <div>
-                <Container>
+                {this.props.isLoading ? <Loading /> : this.props.channelIsOwner ? <Container>
                     <Row>
                         <Col md="12">
                             <div className="containerImg" >
@@ -64,7 +64,7 @@ class ChannelSettings extends Component {
                             <Subscribers channelId={this.props.match.params.id} />
                         </Col>
                     </Row>
-                </Container>
+                </Container> : <Redirect to={"/channel/" + this.props.match.params.id} />}
             </div>
         )
     }
@@ -75,8 +75,8 @@ function mapDispatchToProps(dispatch) {
             getChannelDetail: bindActionCreators(getChannelDetailApi, dispatch),
             getSubscribers: bindActionCreators(getSubscribersApi, dispatch),
             getChannelCategories: bindActionCreators(getChannelCategoriesApi, dispatch),
-            getCategories: bindActionCreators(categoryAsyncActions.getCategories, dispatch),
-            getIsOwner: bindActionCreators(getIsOwnerApi, dispatch)
+            getChannelIsOwner: bindActionCreators(getChannelIsOwnerApi, dispatch),
+            getCategories: bindActionCreators(categoryAsyncActions.getCategories, dispatch)
 
         }
     }
@@ -86,7 +86,8 @@ function mapStateToProps(state) {
         channelDetail: state.channelReducer.channelDetail,
         subscribers: state.channelReducer.subscribers,
         categories: state.categoryListReducer,
-        isOwner: state.isOwnerReducer,
+        channelIsOwner: state.channelIsOwnerReducer,
+        isLoading: state.isLoadingReducer,
     }
 }
 

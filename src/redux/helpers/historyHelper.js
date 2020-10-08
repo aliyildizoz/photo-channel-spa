@@ -1,6 +1,6 @@
 export function redirectErrPage(history, err) {
     console.log(err)
-    if (err.status === undefined) {
+    if (err.response === undefined) {
         history.push({
             pathname: "/errorpage",
             state: { message: "Hata oluştu", status:  500 }

@@ -1,40 +1,23 @@
 import React, { Component } from 'react'
-import { Container, Row, Col, Card, ListGroup, Modal, Badge } from 'react-bootstrap'
-import Navi from '../navi/Navi'
-import { Button } from 'react-bootstrap'
-import { Media } from 'react-bootstrap'
+import { Container, Row, Col, Card, Badge } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
-import { ButtonToolbar } from 'react-bootstrap'
-import { ToggleButton } from 'react-bootstrap'
-import { ToggleButtonGroup } from 'react-bootstrap'
-import SharedPhotos from './SharedPhotos'
-import LikedPhotos from './LikedPhotos'
-import ChannelCreateModal from '../channel/ChannelCreateModal'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import * as userAsyncActions from '../../redux/actions/user/userAsyncActions'
-import UserChannels from './UserChannels'
-import { Flow } from './profileHooks'
+import { getIsOwnerSuccess } from '../../redux/actions/user/userActionsCreators'
+import { Flow, Subscriptions } from './profileHooks'
+import Loading from '../common/Loading'
 
 class Profile extends Component {
 
     state = {
-        renderState:"likes",
-        isChannelCreateModalShow: false
+        renderState: "likes"
     }
 
-    componentDidMount = () => {
-        this.props.actions.getUserDetail(this.props.match.params.id, this.props.history)
-    }
-    setChannelCreateModalShow = (val) => {
-        this.setState({ isChannelCreateModalShow: val })
-    }
+
     render() {
-
-
         return (
             <div>
-
                 <Container>
                     <Row>
                         <Col md="12">
@@ -43,33 +26,41 @@ class Profile extends Component {
                                     <div className="card-block">
                                         <Row>
                                             <Col md={{ span: 2 }} className="mt-3 mb-4">
-                                                <Card.Title>{this.props.currentUserDetail.firstName + " " + this.props.currentUserDetail.lastName}</Card.Title>
-                                                <h6>{this.props.currentUserDetail.userName}</h6>
+                                                <Card.Title>{this.props.userDetail.firstName + " " + this.props.userDetail.lastName}</Card.Title>
+                                                <h6>{this.props.userDetail.userName}</h6>
                                                 <Card.Text>
-                                                    <Link to={"/profile/" + this.props.currentUserDetail.id + "/subscriptions"} className="btn btn-sm btn-danger block">
-                                                        <Badge pill variant="secondary">{this.props.currentUserDetail.subscriptionCount}</Badge>{" "} Abonelikler
+                                                    <Link to={"/profile/" + this.props.match.params.id + "/channels"} className="btn btn-sm btn-danger block">
+                                                        Kanallar
                                                     </Link>
                                                 </Card.Text>
+                                            </Col>
+                                            <Col>
+                                                {this.props.isOwner ?
+                                                    <Link id="settingLink" className="float-right mt-3" to={this.props.match.params.id + "/settings"}>
+                                                        <span aria-hidden="true" className="far fa-edit fa-2x"></span>
+                                                    </Link>
+                                                    : null}
                                             </Col>
                                         </Row>
                                     </div>
                                 </Col>
                             </Card>
                         </Col>
-                        <Col md="3" >
+                        <Col md="4" >
                             <Row>
                                 <Col md="12"  >
-                                    <UserChannels userId={this.props.currentUserDetail.id}></UserChannels>
+                                    <Subscriptions subsCount={this.props.userDetail.subscriptionCount} userId={this.props.match.params.id} />
                                 </Col>
                             </Row>
                         </Col>
-                        <Col md="9" >
+                        <Col md="8" >
 
-                            <Flow renderState={this.state.renderState}></Flow>
+                            <Flow renderState={this.state.renderState} userId={this.props.match.params.id} />
 
                         </Col>
 
                     </Row>
+
                 </Container>
             </div>
         )
@@ -77,7 +68,10 @@ class Profile extends Component {
 }
 function mapStateToProps(state) {
     return {
-        currentUserDetail: state.userReducer.userDetail
+        userDetail: state.userReducer.userDetail,
+        isOwner: state.userReducer.isOwner,
+        currentUser: state.currentUserReducer,
+        isLoading: state.isLoadingReducer,
     }
 }
 function mapDispatchToProps(dispatch) {

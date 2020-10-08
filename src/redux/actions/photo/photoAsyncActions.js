@@ -1,8 +1,9 @@
-import { PHOTO_API_URL, deletePhotoPath, getChannelPhotosPath } from "../../actions/photo/photoEndPoints"
+import { PHOTO_API_URL, deletePhotoPath, getChannelPhotosPath, getUserPhotosUrl } from "../../actions/photo/photoEndPoints"
 import { getChannelPhotosSuccess, getChannelGallerySuccess } from "../../actions/photo/photoActionCreators"
 import axios from "axios"
 import { redirectErrPage } from "../../helpers/historyHelper";
 import { authHeaderObj } from "../../helpers/localStorageHelper";
+import { getUserPhotosSuccess } from "../user/userActionsCreators";
 
 export function photoCreateApi(photo, history) {
     return async dispatch => {
@@ -74,6 +75,13 @@ export function channelPhotosApi(channelId, history) {
                 });
                 dispatch(getChannelGallerySuccess(photos))
             }).catch(err => redirectErrPage(history, err))
+    }
+}
+export function getUserPhotosApi(userId, history) {
+    return async dispatch => {
+        await axios.get(getUserPhotosUrl(userId)).
+            then(res => dispatch(getUserPhotosSuccess(res.data))).
+            catch(err => redirectErrPage(err, history))
     }
 }
 function randomIntFromInterval(min, max) {

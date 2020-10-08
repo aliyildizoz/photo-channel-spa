@@ -1,12 +1,13 @@
 import React, { Component, useEffect } from 'react'
 import { Navbar, Nav, Container, Form, FormControl, Button } from "react-bootstrap"
-import { Link } from 'react-router-dom'
+import { Link, useHistory, useLocation, useParams, useRouteMatch } from 'react-router-dom'
 import { connect, useSelector, useDispatch } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import * as authAsyncActions from '../../redux/actions/auth/authAsyncActions'
-import { isExistsToken } from '../../redux/helpers/localStorageHelper'
+import Loading from '../common/Loading'
 
-export default class Navi extends Component {
+class Navi extends Component {
+
     render() {
         return (
             <div>
@@ -21,7 +22,7 @@ export default class Navi extends Component {
                                     <Button variant="outline-light">Search</Button>
                                 </Form>
                             </Nav>
-                            <NaviAuthButtons />
+                            <NaviAuthButtons logoutEvent={this.props.actions.logoutApi} />
                         </Navbar.Collapse>
                     </Container>
                 </Navbar>
@@ -29,22 +30,26 @@ export default class Navi extends Component {
         )
     }
 }
+function mapStateToProps(state) {
+    return {
+        isLogged: state.isLoggedReducer
+    }
+}
+function mapDispatchToProps(dispatch) {
+    return {
+        actions: {
+            logoutApi: bindActionCreators(authAsyncActions.logoutApi, dispatch)
+        }
+    }
+}
+export default connect(mapStateToProps, mapDispatchToProps)(Navi);
 
-function NaviAuthButtons() {
+function NaviAuthButtons({ logoutEvent }) {
     const isLogged = useSelector(state => state.isLoggedReducer);
     const currentUser = useSelector(state => state.currentUserReducer);
-    const dispatch = useDispatch()
-    useEffect(() => {
-        if (isExistsToken()) {
-            if (!isLogged) {
-                dispatch(authAsyncActions.getCurrentUserApi())
-            }
-        }
-
-    }, [isLogged])
 
     return isLogged ? <Nav className="mr-auto">
-        <Link to="/login" onClick={() => dispatch(authAsyncActions.logoutApi())} className="nav-link">Çıkış</Link>
+        <Link to="/login" onClick={logoutEvent} className="nav-link">Çıkış</Link>
         <Link to={"/profile/" + currentUser.id} className="nav-link">Profil</Link>
     </Nav> : <Nav className="mr-auto">
             <Link to="/login" className="nav-link ">Giriş</Link>

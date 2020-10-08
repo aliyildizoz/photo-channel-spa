@@ -6,6 +6,7 @@ export const SUBS_API_URL = MAIN_URL + API_URL;
 export const getIsSubsPath = (channelId) => SUBS_API_URL + "issub/" + channelId
 
 export const getChannelSubscribersPath = (channelId) => SUBS_API_URL + channelId + "/subscribers";
+export const getSubscriptionsUrl = (userId) => SUBS_API_URL + userId + "/subscriptions";
 
 export const deleteSubsPath = (channelId) => SUBS_API_URL + channelId;
 

@@ -5,14 +5,16 @@ export default {
     isLogged: false,
     user: {
         subscriptions: [],
-        channels: [],
+        userChannels: [],
         likedPhotos: [],
-        sharedPhotos: [],
-        userDetail: {}
+        userPhotos: [],
+        userDetail: {},
+        commentsPhotos: [],
+        isOwner: false
     },
     currentUser: {},
+    isLoading: true,
     userUpdateRes: {},
-
     currentChannel: {
         channelDetail: {},
         categories: [],
@@ -26,5 +28,6 @@ export default {
     channelCRUDState: {
         channelUpdateResult: {},
         channelCreateResult: {}
-    }
+    },
+    isStateEmpty: false
 }

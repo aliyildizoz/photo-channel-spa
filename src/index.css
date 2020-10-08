@@ -13,3 +13,22 @@
   cursor: pointer;
   color: red;
 }
+.cursorPointer {
+  cursor: pointer;
+}
+#settingLink:hover {
+  color: gray;
+}
+
+.hoverBlue:hover {
+  color: blue;
+}
+.category:hover {
+  background-color: #5bc0de;
+}
+.category:active {
+  background-color: #0275d8;
+}
+.hoverGreen:hover {
+  color: green;
+}

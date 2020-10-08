@@ -6,13 +6,13 @@ import axios from "axios";
 import { useSelector, useDispatch } from 'react-redux'
 import { SUBS_API_URL, deleteSubsPath } from "../../redux/actions/subscrib/subsEndPoints"
 import { authHeaderObj } from "../../redux/helpers/localStorageHelper"
-import PhotoCardHook from "../photoCard/photoCardHook";
+import PhotoCardHook, { MapPhotoCard } from "../photoCard/photoCardHook";
 import { getIsSubsApi } from "../../redux/actions/subscrib/subsAsyncAction";
 import { getIsSubsSuccess, getSubscribersSuccess } from "../../redux/actions/subscrib/subsActionCreators";
 import PhotoGallery from "../photos/PhotoGallery";
 import { redirectErrPage } from "../../redux/helpers/historyHelper";
 import { getChannelOwnerPath } from "../../redux/actions/channel/channelEndPoints";
-import { getIsOwnerSuccess } from "../../redux/actions/channel/channelActionCreators";
+import { getChannelIsOwnerSuccess } from "../../redux/actions/channel/channelActionCreators";
 import moment from 'moment';
 export function SubsButton({ channelId, subsCount }) {
     const subscribers = useSelector(state => state.channelReducer.subscribers);
@@ -22,46 +22,43 @@ export function SubsButton({ channelId, subsCount }) {
     const history = useHistory()
     const isLogged = useSelector(state => state.isLoggedReducer);
     const dispatch = useDispatch();
-
-    useEffect(() => {
-        setSubsCnt(subsCount);
-        if (isLogged) {
-            dispatch(getIsSubsApi(channelId));
-        }
-    }, [subsCount])
-    const subs = () => {
-        var fd = new FormData();
-        fd.append("channelId", channelId)
-        axios.post(SUBS_API_URL, fd, { headers: authHeaderObj() }).then(() => {
-            setSubsCnt(prevState => prevState + 1)
-            dispatch(getIsSubsSuccess(true))
-            console.log("subs")
-            console.log(subscribers)
-            console.log(currentUser)
-            dispatch(getSubscribersSuccess([...subscribers, { firstName: currentUser.firstName, lastName: currentUser.lastName, id: currentUser.id, userName: currentUser.userName }]))
-        }).catch(err => redirectErrPage(history, err));
-    }
-    const unsubs = () => {
-        axios.delete(deleteSubsPath(channelId), { headers: authHeaderObj() }).then(() => {
-            setSubsCnt(prevState => prevState - 1);
-            dispatch(getIsSubsSuccess(false));
-            console.log("unsubs")
-
-            console.log(subscribers)
-            console.log(currentUser)
-            dispatch(getSubscribersSuccess([...subscribers.filter(s => s.id !== currentUser.id)]))
-
-        }).catch(err => redirectErrPage(history, err));
-    }
+    useEffect(() => setSubsCnt(subsCount), [subsCount])
     if (!isLogged) {
         return (<JustSubsButton variant="outline-primary" subsCount={subsCnt} onClick={() => history.push('/login')} text="Abone ol" />)
     }
+    const subsThen = () => {
+        setSubsCnt(prevState => prevState + 1)
+        dispatch(getIsSubsSuccess(true))
+        dispatch(getSubscribersSuccess([...subscribers, { firstName: currentUser.firstName, lastName: currentUser.lastName, id: currentUser.id, userName: currentUser.userName }]))
+    }
+    const unSubsThen = () => {
+        setSubsCnt(prevState => prevState - 1);
+        dispatch(getIsSubsSuccess(false));
+        dispatch(getSubscribersSuccess([...subscribers.filter(s => s.id !== currentUser.id)]))
+    }
+    const [subs, unSubs] = SubsApi(channelId, subsThen, unSubsThen, history)
 
-    return isSubs ? <JustSubsButton variant="primary" subsCount={subsCnt} onClick={unsubs} text="Abone olundu" /> :
+    return isSubs ? <JustSubsButton variant="primary" subsCount={subsCnt} onClick={unSubs} text="Abone olundu" /> :
         <JustSubsButton variant="outline-primary" subsCount={subsCnt} onClick={subs} text="Abone ol" />
 
 }
 
+export function SubsApi(channelId, subsThen, unSubsThen, history) {
+    const subs = () => {
+        var fd = new FormData()
+        fd.append("channelId", channelId)
+        axios.post(SUBS_API_URL, fd, { headers: authHeaderObj() }).then(() => {
+            subsThen()
+        }).catch(err => redirectErrPage(history, err));
+    }
+    const unSubs = () => {
+        axios.delete(deleteSubsPath(channelId), { headers: authHeaderObj() }).then(() => {
+            unSubsThen()
+        }).catch(err => redirectErrPage(history, err));
+    }
+
+    return [subs, unSubs];
+}
 
 function JustSubsButton({ text, subsCount, variant, onClick }) {
     return <Button variant={variant} onClick={onClick} className="btn-lg mb-3 bottom-right ">
@@ -70,29 +67,9 @@ function JustSubsButton({ text, subsCount, variant, onClick }) {
 }
 
 export function ChannelPhotos({ channelId }) {
-    const history = useHistory();
-    const dispatch = useDispatch();
     const channelPhotos = useSelector(state => state.channelReducer.channelPhotos);
     return <div className="mt-3">
-        {
-            channelPhotos.map((p, i) => {
-                return <PhotoCardHook
-                    cardWidth="41rem"
-                    key={i}
-                    photo={{
-                        publicId: p.photoPublicId,
-                        likeCount: p.likeCount,
-                        commentCount: p.commentCount,
-                        userId: p.userId,
-                        userName: p.userName,
-                        shareDate: p.shareDate,
-                        photoId: p.photoId,
-                        channelId: p.channelId,
-                        channelName: p.channelName,
-                        channelPublicId: p.channelPublicId
-                    }} />
-            })
-        }
+        <MapPhotoCard photos={channelPhotos} />
     </div>
 }
 export function Flow({ renderState, channelId }) {
@@ -149,18 +126,18 @@ export function ChannelAbout({ channelId }) {
     const [owner, setOwner] = useState({})
     const history = useHistory()
     const currentUserId = useSelector(state => state.currentUserReducer.id)
-    const isOwner = useSelector(state => state.isOwnerReducer)
+    const isOwner = useSelector(state => state.channelIsOwnerReducer)
     const dispatch = useDispatch();
     useEffect(() => {
         axios.get(getChannelOwnerPath(channelId)).then(res => {
             setOwner(res.data)
-            dispatch(getIsOwnerSuccess(currentUserId === res.data.id))
+            dispatch(getChannelIsOwnerSuccess(currentUserId === res.data.id))
         }
         ).catch(err => {
             console.log(err);
             redirectErrPage(history, err)
         })
-    }, [channelId, currentUserId])
+    }, [channelId, currentUserId, history, dispatch])
 
     return <Container>
         <Row className="mt-4">
@@ -196,7 +173,9 @@ export function ChannelAbout({ channelId }) {
                 <h4 className=" d-inline-flex text-dark">Kanal Sahibi</h4>
                 {
                     isOwner ?
-                        <h5 className="font-weight-light d-inline-flex  float-right mt-4">  <Link className="text-decoration-none" to={channelId + "/settings"}> <span className="fa fa-cog"></span> Ayarlara git</Link></h5> : null
+                        <h5 className="font-weight-light d-inline-flex  float-right mt-4">
+                            <Link className="text-decoration-none" to={channelId + "/settings"}> <span className="fa fa-cog"></span> Ayarlara git</Link>
+                        </h5> : null
                 }
                 <hr />
                 <Table striped hover>

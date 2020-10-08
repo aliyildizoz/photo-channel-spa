@@ -13,20 +13,22 @@ import { redirectErrPage } from "../../redux/helpers/historyHelper";
 import { photoDeleteApi } from "../../redux/actions/photo/photoAsyncActions";
 import { getChannelPhotosSuccess } from "../../redux/actions/photo/photoActionCreators";
 import moment from 'moment';
-export default function PhotoCardHook({ photo, cardWidth = "32rem" }) {
+
+export default function PhotoCardHook({ photo, cardWidth = "41rem", bodyShowIndex = 0, className = "mt-5" }) {
 
     const [photoModalShow, setPhotoModalShow] = useState(false);
-    const [cardBodyShow, setCardBodyShow] = useState(0);
+    const [cardBodyShow, setCardBodyShow] = useState(bodyShowIndex);
     const [isOwner, setIsOwner] = useState(false);
     const currentUser = useSelector(state => state.currentUserReducer)
     useEffect(() => {
         setIsOwner(currentUser.id === photo.userId)
         setCommentCount(photo.commentCount)
-    }, [photo]);
+        setCardBodyShow(bodyShowIndex)
+    }, [photo, bodyShowIndex, currentUser]);
     const [commentCount, setCommentCount] = useState(photo.commentCount);
 
     return (
-        <Card border="light" className="shadow-lg  bg-white rounded mt-5" style={{ width: cardWidth, height: "auto" }}>
+        <Card border="light" className={"shadow-lg  bg-white rounded " + className} style={{ width: cardWidth, height: "auto" }}>
 
             <PhotoCardHeader photoId={photo.photoId} isOwner={isOwner} channelId={photo.channelId} channelName={photo.channelName} channelPublicId={photo.channelPublicId} />
 
@@ -63,6 +65,33 @@ export default function PhotoCardHook({ photo, cardWidth = "32rem" }) {
         </Card>
     )
 }
+
+export function MapPhotoCard({ photos, cardWidth = "41rem", bodyShowIndex = 0, notFoundText = "Herhangi bir fotoğraf bulunmamaktadır." }) {
+    return <div>{
+        photos.length > 0 ? photos.map((p, i) => {
+            return <PhotoCardHook
+                cardWidth={cardWidth}
+                key={i}
+                photo={{
+                    publicId: p.photoPublicId,
+                    likeCount: p.likeCount,
+                    commentCount: p.commentCount,
+                    userId: p.userId,
+                    userName: p.userName,
+                    shareDate: p.shareDate,
+                    photoId: p.photoId,
+                    channelId: p.channelId,
+                    channelName: p.channelName,
+                    channelPublicId: p.channelPublicId
+                }}
+                bodyShowIndex={bodyShowIndex}
+                className={i !== 0 ? "mt-5" : ""}
+            />
+
+        }) : <h6 className="font-weight-normal"><i>{notFoundText}</i></h6>
+    }</div>
+}
+
 function PhotoCardFooter({ currentUserId, likeCount, photoId, cardBodyShow, hideCardBody, commentCountDec, commentCountInc }) {
 
     switch (cardBodyShow) {
@@ -141,7 +170,7 @@ function PhotoCardBody({ photoId, likeCount, commentCount, userName, userId, sha
             <LikeButton photoId={photoId} setlikeCount={setlikeCount} />
             <Button variant="dark" onClick={setCommentShow} className="btn-sm ml-2" style={{ borderRadius: 0 }}>
                 <i className="fa  fa-comment" style={{ fontSize: 16 }}></i>&nbsp;&nbsp;Yorum Yap</Button>
-            <div className="d-inline-flex font-weight-light float-right">{moment(shareDate).format("DD.MM.YYYY - HH:MM")}</div>
+            <div className="d-inline-flex font-weight-lighter float-right">{moment(shareDate).format("DD.MM.YYYY - HH:MM")}</div>
         </Card.Body>
     )
 }
@@ -172,7 +201,7 @@ function LikeButton({ photoId, setlikeCount }) {
         if (isLogged) {
             axios.get(getIsLikePath(photoId), { headers: authHeaderObj() }).then(res => setIsLike(res.data))
         }
-    }, [])
+    }, [isLogged, photoId])
     if (!isLogged) {
         return <Button onClick={() => history.push("/login")} variant="outline-primary" style={{ borderRadius: 0 }} className="btn-sm">
             <i className="fa  fa-thumbs-up" style={{ fontSize: 16 }}></i>&nbsp;&nbsp;Beğen</Button>
@@ -195,7 +224,7 @@ function PhotoCardComments({ currentUserId, photoId, hideCardBody, countDec, cou
     useEffect(() => {
 
         axios.get(getPhotoCommentsUrl(photoId)).then(res => { setComments(res.data) })
-    }, []);
+    }, [photoId]);
     const isLogged = useSelector(state => state.isLoggedReducer);
     const history = useHistory()
     const createCommentClick = () => {
@@ -397,7 +426,7 @@ function PhotoCardLikes({ photoId, hideCardBody }) {
     useEffect(() => {
         axios.get(getPhotoLikesUrl(photoId)).then(res => { setLikes(res.data); })
 
-    }, []);
+    }, [photoId]);
     return (
         <div>
             <Row>

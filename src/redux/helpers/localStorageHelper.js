@@ -17,7 +17,6 @@ export function removeToken() {
     localStorage.removeItem("tokenExpiration");
     localStorage.removeItem("refreshToken");
 }
-
 export function authHeaderObj() {
     return {
         authorization: getJwtToken(),
