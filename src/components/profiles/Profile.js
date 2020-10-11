@@ -37,7 +37,7 @@ class Profile extends Component {
                                             <Col>
                                                 {this.props.isOwner ?
                                                     <Link id="settingLink" className="float-right mt-3" to={this.props.match.params.id + "/settings"}>
-                                                        <span aria-hidden="true" className="far fa-edit fa-2x"></span>
+                                                        <i class="fas fa-user-edit fa-2x"></i>
                                                     </Link>
                                                     : null}
                                             </Col>

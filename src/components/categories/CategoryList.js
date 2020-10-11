@@ -15,9 +15,9 @@ class CategoryList extends Component {
     }
     render() {
         return (
-            <div>
-                <ListGroup>
-                    <ListGroupItem>
+            <div >
+                <ListGroup className="shadow-lg">
+                    <ListGroupItem   >
                         <Multiselect
                             options={this.props.categories}
                             displayValue="name"
@@ -28,7 +28,7 @@ class CategoryList extends Component {
                             placeholder="Kategori ara"
                         /><Button className="mt-2" block>Kanalları bul</Button>
                     </ListGroupItem>
-                    <ListGroupItem>
+                    <ListGroupItem >
                         <h5>
                             {
 

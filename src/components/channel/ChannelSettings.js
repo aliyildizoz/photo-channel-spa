@@ -32,7 +32,7 @@ class ChannelSettings extends Component {
 
         return (
             <div>
-                {this.props.isLoading ? <Loading /> : this.props.channelIsOwner ? <Container>
+                {this.props.channelIsLoading ? <Loading /> : this.props.channelIsOwner ? <Container>
                     <Row>
                         <Col md="12">
                             <div className="containerImg" >
@@ -84,6 +84,7 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
     return {
         channelDetail: state.channelReducer.channelDetail,
+        channelIsLoading: state.channelReducer.channelIsLoading,
         subscribers: state.channelReducer.subscribers,
         categories: state.categoryListReducer,
         channelIsOwner: state.channelIsOwnerReducer,

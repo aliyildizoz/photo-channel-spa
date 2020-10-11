@@ -32,3 +32,6 @@
 .hoverGreen:hover {
   color: green;
 }
+.stayPosition {
+  position: fixed;
+}

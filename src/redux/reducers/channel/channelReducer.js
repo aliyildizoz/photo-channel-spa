@@ -13,6 +13,10 @@ export default function channelReducer(state = initialState.currentChannel, acti
             return { ...state, photoGallery: action.payload };
         case actionTypes.GET_SUBSCRIBERS:
             return { ...state, subscribers: action.payload };
+        case actionTypes.CHANNEL_IS_LOADING_T:
+            return { ...state, channelIsLoading: true };
+        case actionTypes.CHANNEL_IS_LOADING_F:
+            return { ...state, channelIsLoading: false };
         default:
             return state;
     }

@@ -10,11 +10,14 @@ export default {
         userPhotos: [],
         userDetail: {},
         commentsPhotos: [],
-        isOwner: false
+        isOwner: false,
+        userIsLoading: true
     },
-    currentUser: {},
+    currentUser: {
+        currentUserIsLoading: true
+    },
     isLoading: true,
-    userUpdateRes: {},
+    //--> currentUSer objesinin içine
     currentChannel: {
         channelDetail: {},
         categories: [],
@@ -22,12 +25,7 @@ export default {
         photoGallery: [],
         subscribers: [],
         isSubs: false,
-        isOwner: false
-    },
-    // channels: [],
-    channelCRUDState: {
-        channelUpdateResult: {},
-        channelCreateResult: {}
-    },
-    isStateEmpty: false
+        isOwner: false,
+        channelIsLoading: true
+    }
 }

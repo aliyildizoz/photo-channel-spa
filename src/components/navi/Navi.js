@@ -10,8 +10,8 @@ class Navi extends Component {
 
     render() {
         return (
-            <div>
-                <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
+            <div style={{ marginBottom: 55 }}>
+                <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark" className="fixed-top" >
                     <Container>
                         <Link to="/"><Navbar.Brand>PhotoChannel</Navbar.Brand></Link>
                         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
@@ -48,11 +48,11 @@ function NaviAuthButtons({ logoutEvent }) {
     const isLogged = useSelector(state => state.isLoggedReducer);
     const currentUser = useSelector(state => state.currentUserReducer);
 
-    return isLogged ? <Nav className="mr-auto">
-        <Link to="/login" onClick={logoutEvent} className="nav-link">Çıkış</Link>
-        <Link to={"/profile/" + currentUser.id} className="nav-link">Profil</Link>
-    </Nav> : <Nav className="mr-auto">
-            <Link to="/login" className="nav-link ">Giriş</Link>
-            <Link to="/register" className="nav-link ">Üye ol</Link>
+    return isLogged ? <Nav >
+        <Link to="/login" onClick={logoutEvent} className="nav-link"><i class="fas fa-sign-out-alt"></i> Çıkış</Link>
+        <Link to={"/profile/" + currentUser.id} className="nav-link"><i class="fas fa-user"></i> Profil</Link>
+    </Nav> : <Nav >
+            <Link to="/login" className="nav-link "><i class="fas fa-sign-in-alt"></i> Giriş</Link>
+            <Link to="/register" className="nav-link "><i class="fas fa-user-plus"></i> Üye ol</Link>
         </Nav>;
 }

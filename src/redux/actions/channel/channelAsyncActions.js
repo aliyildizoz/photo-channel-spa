@@ -1,8 +1,8 @@
 import { getChannelPathById, getChannelCategoriesPath, channelCategoriesPathById, getChannelIsOwnerPath, getUserChannelUrl } from "../../actions/channel/channelEndPoints"
-import { getChannelDetailSuccess, getChannelCategoriesSuccess, getChannelIsOwnerSuccess } from "../../actions/channel/channelActionCreators"
+import { getChannelDetailSuccess, getChannelCategoriesSuccess, getChannelIsOwnerSuccess ,channelIsLoadingFSuccess,channelIsLoadingTSuccess} from "../../actions/channel/channelActionCreators"
 import axios from "axios"
 import { bindActionCreators } from "redux"
-import { authHeaderObj } from "../../helpers/localStorageHelper"
+import { authHeaderObj, isExistsToken } from "../../helpers/localStorageHelper"
 import { redirectErrPage } from "../../helpers/historyHelper"
 import { getPhotoGalleryPath } from "../photo/photoEndPoints"
 import { getChannelSubscribersPath } from "../subscrib/subsEndPoints"
@@ -76,14 +76,18 @@ export function addChannelCategoriesApi(categories, channelId, history) {
 
 export function getChannelIsOwnerApi(channelId, history) {
     return async dispatch => {
-        dispatch(isLoadingTSuccess())
-        await axios.get(getChannelIsOwnerPath(channelId), {
-            headers: authHeaderObj()
-        }).then(res => {
-            dispatch(getChannelIsOwnerSuccess(res.data))
-        }).then(() => dispatch(isLoadingFSuccess())).catch(err => {
-            redirectErrPage(history, err);
-        })
+        dispatch(channelIsLoadingTSuccess())
+        if (isExistsToken()) {
+            await axios.get(getChannelIsOwnerPath(channelId), {
+                headers: authHeaderObj()
+            }).then(res => {
+                dispatch(getChannelIsOwnerSuccess(res.data))
+            }).then(() => dispatch(isLoadingFSuccess())).catch(err => {
+                redirectErrPage(history, err);
+            })
+        }else{
+            dispatch(channelIsLoadingFSuccess())
+        }
     }
 }
 
