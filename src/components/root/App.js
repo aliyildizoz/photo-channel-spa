@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Home from '../home/Home';
-import { Switch, Route, Router, Redirect, Link } from 'react-router-dom';
+import { Switch, Route,  Redirect, Link } from 'react-router-dom';
 import ErrorPage from '../common/ErrorPage';
 import { connect } from 'react-redux'
 import Profile from '../profiles/Profile';
@@ -18,15 +18,13 @@ import UserChannels from '../profiles/UserChannels';
 import * as authAsyncActions from '../../redux/actions/auth/authAsyncActions'
 import { getUserIsOwnerSuccess } from '../../redux/actions/user/userActionsCreators'
 import Loading from '../common/Loading';
-import { getChannelIsOwnerApi } from '../../redux/actions/channel/channelAsyncActions';
-import { Col, Container, ListGroup, Row } from 'react-bootstrap';
+import { Col, Container,  Row } from 'react-bootstrap';
 
 class App extends Component {
 
   componentDidMount() {
     this.props.actions.getCurrentUser()
   }
-  // asyncGetChannelIsOwner = async (channelId, history) => await this.props.actions.getChannelIsOwner(channelId, history)
   render() {
 
     return (

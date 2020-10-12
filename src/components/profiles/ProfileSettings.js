@@ -1,25 +1,18 @@
 import axios from 'axios'
 import React, { Component, useEffect, useRef, useState } from 'react'
-import { Container, Form, FormGroup, Row, Col, Button, Accordion, Alert, InputGroup } from 'react-bootstrap'
-import { connect, useDispatch, useSelector } from 'react-redux'
+import { Container, Form, FormGroup, Row, Col, Button, Accordion, Alert } from 'react-bootstrap'
+import {  useDispatch, useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom/cjs/react-router-dom'
-import { bindActionCreators } from 'redux'
 import SimpleReactValidator from 'simple-react-validator'
-import * as authAsyncActions from "../../redux/actions/auth/authAsyncActions"
 import { getUserDetailSuccess } from '../../redux/actions/user/userActionsCreators'
-import * as userAsyncActions from '../../redux/actions/user/userAsyncActions'
 import { getUserUrlById, getUpdatePasswordUrl } from '../../redux/actions/user/userEndPoints'
 import { authHeaderObj } from '../../redux/helpers/localStorageHelper'
 import * as localStorageHelper from "../../redux/helpers/localStorageHelper"
-import { stateClear } from '../../redux/actions/common/commonActionsCreators'
 import { redirectErrPage } from '../../redux/helpers/historyHelper'
 import { currentUserClearSuccess, isLoggedFSuccess } from '../../redux/actions/auth/authActionsCreators'
 
 export default class ProfileSettings extends Component {
-    componentDidMount() {
-        // alert("currentUser" + this.props.currentUser.id)
-        // alert("params" + this.props.match.params.id)
-    }
+    
     render() {
         return (
             <div>
@@ -81,8 +74,7 @@ function Settings() {
                 await axios.put(getUpdatePasswordUrl(currentUser.id), {
                     oldPassword: passwordModel.oldPasword,
                     newPassword: passwordModel.newPassword
-                }, { headers: authHeaderObj() }).
-                    catch((err) => setPasswordResponse(err.response.data))
+                }, { headers: authHeaderObj() }).catch((err) => setPasswordResponse(err.response.data))
                 setEqualMessage("");
             }
             else {

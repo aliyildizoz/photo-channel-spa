@@ -2,15 +2,14 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './components/root/App';
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./index.css";
+import "../public/css/index.css";
+import "../public/css/channelDetail.css";
 import 'font-awesome/css/font-awesome.min.css';
 import 'filepond/dist/filepond.min.css';
 import * as serviceWorker from './serviceWorker';
 import { BrowserRouter } from "react-router-dom"
 import { Provider } from 'react-redux';
 import configureStore from "./redux/configureStore";
-import * as localStorageHelper from "../../photo-channel-spa/src/redux/helpers/localStorageHelper"
-import * as authActionsCreators from "../../photo-channel-spa/src/redux/actions/auth/authActionsCreators"
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
 const store = configureStore();
 

@@ -1,14 +1,13 @@
 import React, { Component } from 'react'
 import { Container, Row, Col, Button, FormGroup, Form } from 'react-bootstrap'
 import { Image, Transformation } from 'cloudinary-react';
-import "../../modules/channelDetail.css"
 import { FilePond, registerPlugin } from 'react-filepond';
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { getSubscribersApi, getChannelDetailApi, getChannelCategoriesApi, getChannelIsOwnerApi } from "../../redux/actions/channel/channelAsyncActions"
+import { getSubscribersApi, getChannelDetailApi, getChannelCategoriesApi } from "../../redux/actions/channel/channelAsyncActions"
 import { photoCreateApi, channelPhotosApi } from "../../redux/actions/photo/photoAsyncActions"
 import { SubsButton, Flow, ChannelCategories } from './channelHooks';
 import SimpleReactValidator from 'simple-react-validator';
@@ -36,7 +35,7 @@ class ChannelDetail extends Component {
     }
     onSubmitHandler = (e) => {
         e.preventDefault();
-        
+
         if (this.state.model.files.length === 0) {
             this.validator.showMessages();
             this.forceUpdate();

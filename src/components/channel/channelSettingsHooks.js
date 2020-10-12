@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState,  useRef } from "react"
 import { useSelector, useDispatch } from 'react-redux'
-import { Col, Form, FormGroup, Button, ListGroup, Modal, Image, Accordion, Alert } from "react-bootstrap"
+import { Col, Form, FormGroup, Button, ListGroup, Modal,  Accordion, Alert } from "react-bootstrap"
 import { Multiselect } from 'multiselect-react-dropdown';
 import { Link, useHistory } from "react-router-dom"
-import { ChannelCategories } from "./channelHooks"
 import axios from "axios";
 import { deleteSubsByOwnerPath } from "../../redux/actions/subscrib/subsEndPoints";
 import { authHeaderObj } from "../../redux/helpers/localStorageHelper";

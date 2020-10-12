@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Container, Row, Col, Button, Accordion, Card, Alert } from 'react-bootstrap'
+import { Container, Row, Col} from 'react-bootstrap'
 import { getSubscribersApi, getChannelDetailApi, getChannelCategoriesApi, getChannelIsOwnerApi } from "../../redux/actions/channel/channelAsyncActions"
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
