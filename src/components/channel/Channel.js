@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Container, Row, Col, Button, FormGroup, Form } from 'react-bootstrap'
 import { Image, Transformation } from 'cloudinary-react';
-import "../../../public/css/channelDetail.css"
+import "../../modules/channelDetail.css"
 import { FilePond, registerPlugin } from 'react-filepond';
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
