@@ -35,3 +35,6 @@
 .stayPosition {
   position: fixed;
 }
+.body{
+  background-color: white;
+}

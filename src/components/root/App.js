@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Home from '../home/Home';
-import { Switch, Route,  Redirect, Link } from 'react-router-dom';
+import { Switch, Route, Redirect, Link } from 'react-router-dom';
 import ErrorPage from '../common/ErrorPage';
 import { connect } from 'react-redux'
 import Profile from '../profiles/Profile';
@@ -18,7 +18,7 @@ import UserChannels from '../profiles/UserChannels';
 import * as authAsyncActions from '../../redux/actions/auth/authAsyncActions'
 import { getUserIsOwnerSuccess } from '../../redux/actions/user/userActionsCreators'
 import Loading from '../common/Loading';
-import { Col, Container,  Row } from 'react-bootstrap';
+import { Col, Container, Row } from 'react-bootstrap';
 
 class App extends Component {
 
@@ -29,7 +29,7 @@ class App extends Component {
 
     return (
       <div className="App" >
-        
+
         <Navi />
 
 
@@ -76,7 +76,7 @@ class App extends Component {
         <footer className="bg-dark text-light mt-5">
           <Container>
             <Row className="pb-5 pt-5">
-              <Col md={{span:4,offset:2}}>
+              <Col md={{ span: 4, offset: 2 }}>
                 <ul>
                   <h3>Site haritası</h3><hr className="bg-light" />
                   <li><Link className="text-decoration-none"> Giriş</Link></li>
@@ -84,14 +84,14 @@ class App extends Component {
                   <li><Link className="text-decoration-none">Ana sayfa</Link></li>
                 </ul>
               </Col>
-              <Col md={{span:4}}>
+              <Col md={{ span: 4 }}>
                 <ul >
                   <h3>En popüler</h3><hr className="bg-light" />
                   <li><i class="fas fa-star "></i> Kanallar</li>
                   <li><i class="fas fa-star "></i> Fotoğraflar</li>
                 </ul>
               </Col>
-             
+
             </Row>
           </Container>
         </footer>

@@ -2,10 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './components/root/App';
 import "bootstrap/dist/css/bootstrap.min.css";
-import "../public/css/index.css";
-import "../public/css/channelDetail.css";
 import 'font-awesome/css/font-awesome.min.css';
 import 'filepond/dist/filepond.min.css';
+import './public/css/channelDetail.css';
+import './public/css/index.css';
 import * as serviceWorker from './serviceWorker';
 import { BrowserRouter } from "react-router-dom"
 import { Provider } from 'react-redux';
