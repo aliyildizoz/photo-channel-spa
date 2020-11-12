@@ -12,6 +12,7 @@ import { photoCreateApi, channelPhotosApi } from "../../redux/actions/photo/phot
 import { SubsButton, Flow, ChannelCategories } from './channelHooks';
 import SimpleReactValidator from 'simple-react-validator';
 import { getIsSubsApi } from '../../redux/actions/subscrib/subsAsyncAction';
+import Loading from '../common/Loading';
 
 registerPlugin(FilePondPluginImagePreview, FilePondPluginFileValidateType, FilePondPluginImageExifOrientation);
 
@@ -21,27 +22,29 @@ class ChannelDetail extends Component {
         model: {
             files: []
         },
-        validMessage: "Lütfen bir fotoğraf seçiniz."
+        validMessage: "Lütfen bir fotoğraf seçiniz.",
+        isLoading: true
     }
     validator = new SimpleReactValidator({ locale: 'tr' });
     componentDidMount() {
-
         var channelId = this.props.match.params.id;
-        this.props.actions.getChannelDetail(channelId, this.props.history)
-        this.props.actions.getChannelPhotos(channelId, this.props.history)
-        this.props.actions.getSubscribers(channelId, this.props.history)
-        this.props.actions.getCategories(channelId, this.props.history)
-        this.props.actions.getIsSub(channelId, this.props.history)
+        var history = this.props.history;
+        this.props.actions.getChannelDetail(channelId, history, () =>
+            this.props.actions.getIsSub(channelId, history, () =>
+                this.props.actions.getChannelPhotos(channelId, history, () =>
+                    this.props.actions.getSubscribers(channelId, history, () =>
+                        this.props.actions.getCategories(channelId, history, () =>
+                            this.setState({ ...this.state, isLoading: false }))))))
+
     }
     onSubmitHandler = (e) => {
         e.preventDefault();
-
         if (this.state.model.files.length === 0) {
             this.validator.showMessages();
             this.forceUpdate();
         }
         else {
-            this.props.actions.addPhoto({ file: this.state.model.file[0], channelId: this.props.match.params.id }, this.props.history)
+            this.props.actions.addPhoto({ file: this.state.model.files[0], channelId: this.props.match.params.id }, this.props.history)
             this.setState({ ...this.state, model: { ...this.state.model, files: [] } })
         }
     }
@@ -49,7 +52,7 @@ class ChannelDetail extends Component {
 
         return (
             <div>
-                <Container>
+                { this.state.isLoading ? <Loading /> : <Container >
                     <Row >
                         <Col md="12">
                             <div className="containerImg" >
@@ -73,8 +76,9 @@ class ChannelDetail extends Component {
                                         <FilePond
                                             allowMultiple={false}
                                             onupdatefiles={imageFile => {
+
                                                 var file = imageFile.map(f => f.file)
-                                                this.setState({ model: { ...this.state.model, file: file } })
+                                                this.setState({ ...this.state, model: { ...this.state.model, files: file } })
                                             }}
                                             labelIdle='Fotoğrafını sürükle bırak veya <strong class="filepond--label-action">seç</strong>'
                                             acceptedFileTypes={['image/*']}
@@ -94,7 +98,7 @@ class ChannelDetail extends Component {
                             <Flow renderState={this.state.firsRenderFlow} channelId={this.props.match.params.id} />
                         </Col>
                     </Row>
-                </Container>
+                </Container>}
             </div>
         )
     }

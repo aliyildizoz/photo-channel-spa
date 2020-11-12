@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from "react-redux"
 import { bindActionCreators } from 'redux'
+import * as categoryActionCreators from '../../redux/actions/category/categoryActionCreators'
 import * as categoryAsyncActions from '../../redux/actions/category/categoryAsyncActions'
 import { Badge, Button, ListGroup, ListGroupItem } from 'react-bootstrap';
 import { Multiselect } from 'multiselect-react-dropdown';
@@ -55,7 +56,7 @@ function mapDispatchToProps(dispatch) {
     return {
         actions: {
             getCategories: bindActionCreators(categoryAsyncActions.getCategories, dispatch),
-            currentCategory: bindActionCreators(categoryAsyncActions.changeCategory, dispatch),
+            currentCategory: bindActionCreators(categoryActionCreators.changeCategory, dispatch),
         }
     }
 }

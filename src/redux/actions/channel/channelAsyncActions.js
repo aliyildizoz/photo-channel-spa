@@ -11,10 +11,14 @@ import { apiResponse, isLoadingFSuccess, isLoadingTSuccess } from "../common/com
 import { getUserChannelsSuccess } from "../user/userActionsCreators"
 import { isLoggedFSuccess, isLoggedTSuccess } from "../auth/authActionsCreators"
 
-export function getChannelDetailApi(channelId, history) {
+export function getChannelDetailApi(channelId, history,callBack) {
     return async dispatch => {
         await axios.get(getChannelPathById(channelId)).then(res => {
             dispatch(getChannelDetailSuccess(res.data))
+        }).then(()=>{
+            if (typeof callBack == "function") {
+                callBack()
+            }
         }).catch(err => {
             console.log(err)
             redirectErrPage(history, err)
@@ -22,10 +26,14 @@ export function getChannelDetailApi(channelId, history) {
     }
 }
 
-export function getChannelCategoriesApi(channelId, history) {
+export function getChannelCategoriesApi(channelId, history,callBack) {
     return async dispatch => {
         await axios.get(getChannelCategoriesPath(channelId)).then(res => {
             dispatch(getChannelCategoriesSuccess(res.data))
+        }).then(()=>{
+            if (typeof callBack == "function") {
+                callBack()
+            }
         }).catch(err => {
             console.log(err)
             redirectErrPage(history, err)
@@ -33,9 +41,13 @@ export function getChannelCategoriesApi(channelId, history) {
     }
 }
 
-export function getSubscribersApi(channelId, history) {
+export function getSubscribersApi(channelId, history,callBack) {
     return async dispatch => {
-        axios.get(getChannelSubscribersPath(channelId)).then(res => dispatch(getSubscribersSuccess(res.data))).catch(err => {
+        axios.get(getChannelSubscribersPath(channelId)).then(res => dispatch(getSubscribersSuccess(res.data))).then(()=>{
+            if (typeof callBack == "function") {
+                callBack()
+            }
+        }).catch(err => {
             console.log(err)
             redirectErrPage(history, err)
         });

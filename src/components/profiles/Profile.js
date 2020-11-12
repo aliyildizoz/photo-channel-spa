@@ -11,8 +11,13 @@ import Loading from '../common/Loading'
 class Profile extends Component {
 
     state = {
-        renderState: "likes"
+        renderState: "photos",
+        isLoading: true
     }
+    componentDidMount() {
+        this.props.actions.getUserDetail(this.props.match.params.id, this.props.history, () => this.setState({ ...this.state, isLoading: false }))
+    }
+
 
 
     render() {
@@ -24,7 +29,7 @@ class Profile extends Component {
                             <Card className="card-inverse rounded-0" style={{ borderWidth: 1, marginTop: 20 }}>
                                 <Col>
                                     <div className="card-block">
-                                        <Row>
+                                        {this.state.isLoading ? <Loading /> : <Row>
                                             <Col md={{ span: 2 }} className="mt-3 mb-4">
                                                 <Card.Title>{this.props.userDetail.firstName + " " + this.props.userDetail.lastName}</Card.Title>
                                                 <h6>{this.props.userDetail.userName}</h6>
@@ -37,11 +42,12 @@ class Profile extends Component {
                                             <Col>
                                                 {this.props.isOwner ?
                                                     <Link id="settingLink" className="float-right mt-3" to={this.props.match.params.id + "/settings"}>
-                                                        <i class="fas fa-user-edit fa-2x"></i>
+                                                        <i className="fas fa-user-edit fa-2x"></i>
                                                     </Link>
                                                     : null}
                                             </Col>
-                                        </Row>
+
+                                        </Row>}
                                     </div>
                                 </Col>
                             </Card>
@@ -70,7 +76,7 @@ function mapStateToProps(state) {
     return {
         userDetail: state.userReducer.userDetail,
         isOwner: state.userReducer.isOwner,
-        currentUser: state.currentUserReducer,
+        currentUser: state.currentUserReducer.detail,
         isLoading: state.isLoadingReducer,
     }
 }

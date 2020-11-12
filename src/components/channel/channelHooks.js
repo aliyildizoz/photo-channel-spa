@@ -13,7 +13,6 @@ import PhotoGallery from "../photos/PhotoGallery";
 import { redirectErrPage } from "../../redux/helpers/historyHelper";
 import { getChannelOwnerPath } from "../../redux/actions/channel/channelEndPoints";
 import { getChannelIsOwnerSuccess } from "../../redux/actions/channel/channelActionCreators";
-import moment from 'moment';
 export function SubsButton({ channelId, subsCount }) {
     const subscribers = useSelector(state => state.channelReducer.subscribers);
     const currentUser = useSelector(state => state.currentUserReducer)
@@ -125,7 +124,7 @@ export function ChannelAbout({ channelId }) {
     const subscribers = useSelector(state => state.channelReducer.subscribers);
     const [owner, setOwner] = useState({})
     const history = useHistory()
-    const currentUserId = useSelector(state => state.currentUserReducer.id)
+    const currentUserId = useSelector(state => state.currentUserReducer.detail.id)
     const isOwner = useSelector(state => state.channelIsOwnerReducer)
     const dispatch = useDispatch();
     useEffect(() => {
@@ -143,7 +142,7 @@ export function ChannelAbout({ channelId }) {
         <Row className="mt-4">
             <Col>
                 <h3 className="font-weight-normal d-inline-flex ">{channelDetail.name}</h3>
-                <h6 className="font-weight-light d-inline-flex  float-right mt-4">  {moment(channelDetail.createdDate).format("DD.MM.YYYY")}</h6>
+                <h6 className="font-weight-light d-inline-flex  float-right mt-4">  {new Date(channelDetail.createdDate).toLocaleDateString()}</h6>
 
                 <hr />
             </Col>

@@ -1,7 +1,7 @@
 import axios from 'axios'
 import React, { Component, useEffect, useRef, useState } from 'react'
 import { Container, Form, FormGroup, Row, Col, Button, Accordion, Alert } from 'react-bootstrap'
-import {  useDispatch, useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom/cjs/react-router-dom'
 import SimpleReactValidator from 'simple-react-validator'
 import { getUserDetailSuccess } from '../../redux/actions/user/userActionsCreators'
@@ -9,10 +9,11 @@ import { getUserUrlById, getUpdatePasswordUrl } from '../../redux/actions/user/u
 import { authHeaderObj } from '../../redux/helpers/localStorageHelper'
 import * as localStorageHelper from "../../redux/helpers/localStorageHelper"
 import { redirectErrPage } from '../../redux/helpers/historyHelper'
-import { currentUserClearSuccess, isLoggedFSuccess } from '../../redux/actions/auth/authActionsCreators'
+import { currentUserClearSuccess, currentUserSuccess, isLoggedFSuccess } from '../../redux/actions/auth/authActionsCreators'
+import { getCurrentUserApi } from '../../redux/actions/auth/authAsyncActions'
 
 export default class ProfileSettings extends Component {
-    
+
     render() {
         return (
             <div>
@@ -32,7 +33,7 @@ function Settings() {
     const dispatch = useDispatch();
     const history = useHistory()
 
-    const currentUser = useSelector(state => state.currentUserReducer)
+    const currentUser = useSelector(state => state.currentUserReducer.detail)
 
     const [userModel, setUserModel] = useState({});
     const [userResponse, setUserResponse] = useState("");
@@ -61,7 +62,7 @@ function Settings() {
             await axios.put(getUserUrlById(currentUser.id), userModel, { headers: authHeaderObj() }).then(res => {
                 dispatch(getUserDetailSuccess(currentUser));
                 localStorageHelper.setToken(res.data)
-            }).catch((err) => setUserResponse(err.response.data))
+            }).then(() => history.push("/profile/" + currentUser.id)).then(() =>   dispatch(currentUserSuccess(userModel))).catch((err) => setUserResponse(err.response.data))
 
         } else {
             userValidator.current.showMessages();

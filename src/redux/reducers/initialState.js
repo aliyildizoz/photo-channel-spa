@@ -14,10 +14,10 @@ export default {
         userIsLoading: true
     },
     currentUser: {
-        currentUserIsLoading: true
+        isLoading: true,
+        detail: {}
     },
     isLoading: true,
-    //--> currentUSer objesinin içine
     currentChannel: {
         channelDetail: {},
         categories: [],

@@ -3,7 +3,7 @@ import axios from "axios"
 import * as localStorageHelper from "../../helpers/localStorageHelper"
 import * as commonActionsCreators from "../common/commonActionsCreators"
 import * as authActionsCreators from "../auth/authActionsCreators"
-import {isLoadingTSuccess,isLoadingFSuccess} from "../common/commonActionsCreators"
+import { isLoadingTSuccess, isLoadingFSuccess } from "../common/commonActionsCreators"
 import { bindActionCreators } from "redux";
 import { redirectErrPage } from "../../helpers/historyHelper"
 
@@ -39,8 +39,7 @@ export function logoutApi(history) {
         }).then(res => {
             localStorageHelper.removeToken()
             dispatch(authActionsCreators.isLoggedFSuccess())
-            dispatch(authActionsCreators.currentUserClearSuccess())
-        }).catch(err => redirectErrPage(history, err))
+        }).then(() => dispatch(authActionsCreators.currentUserClearSuccess())).catch(err => redirectErrPage(history, err))
 
     }
 }
@@ -68,9 +67,10 @@ export function registerApi(user, history) {
 
 export function getCurrentUserApi() {
     return async (dispatch, getState) => {
+       
         dispatch(authActionsCreators.currentUserIsLoadingTSuccess());
         if (localStorageHelper.isExistsToken()) {
-            if (Object.keys(getState().currentUserReducer).length == 0) {
+            if (Object.keys(getState().currentUserReducer.detail).length === 0) {
                 await axios.get(CURRENT_USER_PATH, {
                     headers: localStorageHelper.authHeaderObj()
                 }).then(res => {
@@ -80,7 +80,6 @@ export function getCurrentUserApi() {
                 }).then(() => {
                     dispatch(authActionsCreators.currentUserIsLoadingFSuccess());
                 }).catch(err => {
-                    alert("csa")
                     if (err.response.status === 401) {
                         var refreshToken = bindActionCreators(refreshTokenApi, dispatch)
                         refreshToken();
@@ -89,7 +88,7 @@ export function getCurrentUserApi() {
             }
         }
         dispatch(authActionsCreators.currentUserIsLoadingFSuccess());
-    }   
+    }
 }
 
 function refreshTokenApi() {

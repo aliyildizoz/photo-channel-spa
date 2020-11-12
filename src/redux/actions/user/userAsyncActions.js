@@ -11,12 +11,16 @@ import { isLoadingTSuccess } from "../common/commonActionsCreators";
 
 
 
-export function getUserApi(userId, history) {
+export function getUserApi(userId, history,callBack) {
 
     return async (dispatch) => {
         await axios.get(getUserUrlById(userId)).
             then(res => {
                 dispatch(getUserDetailSuccess(res.data));
+            }).then(()=>{
+                if (typeof callBack == "function") {
+                    callBack()
+                }
             })
             .catch(err => redirectErrPage(history, err))
     }
@@ -48,27 +52,36 @@ export function getUserApi(userId, history) {
 
 
 
-export function getLikedPhotosApi(userId, history) {
+export function getLikedPhotosApi(userId, history, callBack) {
     return async dispatch => {
         await axios.get(getLikedPhotosUrl(userId)).
-            then(res => dispatch(getLikedPhotosSuccess(res.data))).
-            catch(err => redirectErrPage(err, history))
+            then(res => dispatch(getLikedPhotosSuccess(res.data))).then(() => {
+                if (typeof callBack == "function") {
+                    callBack()
+                }
+            }).catch(err => redirectErrPage(err, history))
     }
 }
 
 
-export function getSubscriptionsApi(userId, history) {
+export function getSubscriptionsApi(userId, history, callBack) {
     return async dispatch => {
         await axios.get(getSubscriptionsUrl(userId)).
-            then(res => dispatch(getSubscriptionsSuccess(res.data))).
-            catch(err => redirectErrPage(err, history))
+            then(res => dispatch(getSubscriptionsSuccess(res.data))).then(() => {
+                if (typeof callBack == "function") {
+                    callBack()
+                }
+            }).catch (err => redirectErrPage(err, history))
     }
 }
 
-export function getUserCommentsPhotosApi(userId, history) {
+export function getUserCommentsPhotosApi(userId, history, callBack) {
     return async dispatch => {
         await axios.get(getUserCommentsPhotosUrl(userId)).
-            then(res => dispatch(getUserCommentsPhotosSuccess(res.data))).
-            catch(err => redirectErrPage(err, history))
+            then(res => dispatch(getUserCommentsPhotosSuccess(res.data))).then(() => {
+                if (typeof callBack == "function") {
+                    callBack()
+                }
+            }).catch(err => redirectErrPage(err, history))
     }
 }

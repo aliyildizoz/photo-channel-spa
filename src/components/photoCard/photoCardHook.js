@@ -12,9 +12,10 @@ import axios from "axios";
 import { redirectErrPage } from "../../redux/helpers/historyHelper";
 import { photoDeleteApi } from "../../redux/actions/photo/photoAsyncActions";
 import { getChannelPhotosSuccess } from "../../redux/actions/photo/photoActionCreators";
-import moment from 'moment';
 
-export default function PhotoCardHook({ photo, cardWidth = "41rem", bodyShowIndex = 0, className = "mt-5" }) {
+const datePatt = /.+\s\d+[:]\d+/g;
+
+const PhotoCardHook= React.memo(({ photo, cardWidth = "41rem", bodyShowIndex = 0, className = "mt-5" })=> {
 
     const [photoModalShow, setPhotoModalShow] = useState(false);
     const [cardBodyShow, setCardBodyShow] = useState(bodyShowIndex);
@@ -64,8 +65,8 @@ export default function PhotoCardHook({ photo, cardWidth = "41rem", bodyShowInde
 
         </Card>
     )
-}
-
+})
+export default  PhotoCardHook;
 export function MapPhotoCard({ photos, cardWidth = "41rem", bodyShowIndex = 0, notFoundText = "Herhangi bir fotoğraf bulunmamaktadır." }) {
     return <div>{
         photos.length > 0 ? photos.map((p, i) => {
@@ -142,7 +143,6 @@ function PhotoCardHeader({ photoId, isOwner, channelId, channelPublicId, channel
 }
 
 function PhotoCardBody({ photoId, likeCount, commentCount, userName, userId, shareDate, setLikesShow, setCommentShow }) {
-
     const [likeCnt, setlikeCnt] = useState(likeCount)
     const setlikeCount = (isLike) => {
         isLike ? setlikeCnt(likeCnt + 1) : setlikeCnt(likeCnt - 1);
@@ -170,7 +170,7 @@ function PhotoCardBody({ photoId, likeCount, commentCount, userName, userId, sha
             <LikeButton photoId={photoId} setlikeCount={setlikeCount} />
             <Button variant="dark" onClick={setCommentShow} className="btn-sm ml-2" style={{ borderRadius: 0 }}>
                 <i className="fa  fa-comment" style={{ fontSize: 16 }}></i>&nbsp;&nbsp;Yorum Yap</Button>
-            <div className="d-inline-flex font-weight-lighter float-right">{moment(shareDate).format("DD.MM.YYYY - HH:MM")}</div>
+            <div className="d-inline-flex font-weight-lighter float-right">{new Date(shareDate).toLocaleString().match(datePatt).toString().replace(" ", " - ")}</div>
         </Card.Body>
     )
 }
@@ -316,7 +316,7 @@ function PhotoCardComments({ currentUserId, photoId, hideCardBody, countDec, cou
                                     </Dropdown> : null
                                 }
 
-                                <div className="d-inline-flex font-weight-light float-right">{moment(c.shareDate).format("DD.MM.YYYY - HH:MM")}</div>
+                                <div className="d-inline-flex font-weight-light float-right">{new Date(c.shareDate).toLocaleString().match(datePatt).toString().replace(" ", " - ")}</div>
 
                                 <hr style={{ margin: 5 }} />
                                 <p className="mb-0">

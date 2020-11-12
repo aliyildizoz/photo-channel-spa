@@ -9,6 +9,7 @@ import PhotoCardHook, { MapPhotoCard } from "../photoCard/photoCardHook";
 import { getSubscriptionsApi, getLikedPhotosApi, getUserCommentsPhotosApi, getUserApi } from "../../redux/actions/user/userAsyncActions";
 import { getIsOwnerSuccess } from "../../redux/actions/user/userActionsCreators";
 import { SubsApi } from "../channel/channelHooks";
+import Loading from "../common/Loading";
 
 export function Flow({ renderState, userId }) {
     const [flowState, setFlowState] = useState();
@@ -45,44 +46,53 @@ export function Flow({ renderState, userId }) {
 function LikedPhotos({ userId }) {
     const dispatch = useDispatch();
     const history = useHistory();
+
+    const [isLoading, setIsLoading] = useState(true)
+    const setFalseIsLoading = () => setIsLoading(false);
     const likedPhotos = useSelector(state => state.userReducer.likedPhotos)
     useEffect(() => {
-        dispatch(getLikedPhotosApi(userId, history))
+        dispatch(getLikedPhotosApi(userId, history, setFalseIsLoading))
     }, [userId, history, dispatch]);
     return <div className="mt-3">
-        <MapPhotoCard photos={likedPhotos} />
+        {isLoading ? < Loading /> : <MapPhotoCard photos={likedPhotos} />}
     </div>
 }
 function CommentsPhotos({ userId }) {
 
     const dispatch = useDispatch();
-    const history = useHistory()
-    useEffect(() => { dispatch(getUserCommentsPhotosApi(userId, history)) }, [userId, history, dispatch])
+    const history = useHistory();
+
+    const [isLoading, setIsLoading] = useState(true)
+    const setFalseIsLoading = () => setIsLoading(false);
+    useEffect(() => { dispatch(getUserCommentsPhotosApi(userId, history, setFalseIsLoading)) }, [userId, history, dispatch])
     const commentsPhotos = useSelector(state => state.userReducer.commentsPhotos)
 
-    return <div className="mt-3"> <MapPhotoCard photos={commentsPhotos} bodyShowIndex={1} notFoundText={"Bu kişinin herhangi bir yorumu bulunmamaktadır."} /></div>
+    return <div className="mt-3"> {isLoading ? <Loading /> : <MapPhotoCard photos={commentsPhotos} bodyShowIndex={1} notFoundText={"Bu kişinin herhangi bir yorumu bulunmamaktadır."} />}</div>
 }
 
 function UserPhotos({ userId }) {
     const dispatch = useDispatch();
-    const history = useHistory()
-    useEffect(() => { dispatch(getUserPhotosApi(userId, history)) }, [userId, history])
+    const history = useHistory();
+
+    const [isLoading, setIsLoading] = useState(true)
+    const setFalseIsLoading = () => setIsLoading(false);
+    useEffect(() => { dispatch(getUserPhotosApi(userId, history, setFalseIsLoading)); }, [userId, history, dispatch])
+
     const userPhotos = useSelector(state => state.userReducer.userPhotos)
 
-    return <div className="mt-3">
-        <div> <MapPhotoCard photos={userPhotos} /></div>
+    return <div className="mt-3">{isLoading ? <Loading /> : <div> <MapPhotoCard photos={userPhotos} /></div>}
     </div>
 }
 
 export function Subscriptions({ userId, subsCount }) {
     const dispatch = useDispatch()
     const history = useHistory();
-    const [subsCnt, setsubsCnt] = useState()
+    const [isLoading, setIsLoading] = useState(true)
+    const setFalseIsLoading = () => setIsLoading(false);
+
     useEffect(() => {
-        dispatch(getSubscriptionsApi(userId, history));
-        dispatch(getUserApi(userId, history));
-        setsubsCnt(subsCnt);
-    }, [userId, history, dispatch, subsCnt])
+        dispatch(getSubscriptionsApi(userId, history, setFalseIsLoading));
+    }, [userId, history, dispatch])
     const subscriptions = useSelector(state => state.userReducer.subscriptions)
     return <div>
         <Row>
@@ -92,7 +102,7 @@ export function Subscriptions({ userId, subsCount }) {
                     <ListGroup.Item style={{ borderRadius: 0, borderTop: 0, borderBottom: 0, paddingBottom: 0 }}>
                         <h5>Abonelikler</h5>
                     </ListGroup.Item>
-                    <div className="overflow-auto" style={{ height: 600 }}> {
+                    {isLoading ? <Loading /> : <div className="overflow-auto" style={{ height: 600 }}> {
                         subsCount > 0 ? subscriptions.map(channel => {
                             return <ListGroup.Item key={channel.id} >
                                 <Media>
@@ -106,7 +116,7 @@ export function Subscriptions({ userId, subsCount }) {
                             </ListGroup.Item>
                         }) : <h6 className="font-weight-normal mt-2 ml-2"><i> Abonelik bulunmamaktadır.</i></h6>
                     }
-                    </div>
+                    </div>}
                 </ListGroup>
             </Col>
         </Row>

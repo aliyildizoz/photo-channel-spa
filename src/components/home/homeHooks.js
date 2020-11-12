@@ -15,7 +15,7 @@ export function Most(props) {
                 <Col>
 
                     <ListGroup variant="flush" className="shadow-lg ">
-                        <ListGroup.Item variant="info"><h4>En iyi kanallar <i class="fas fa-star text-info"></i></h4></ListGroup.Item>
+                        <ListGroup.Item variant="info"><h4>En iyi kanallar <i className="fas fa-star text-info"></i></h4></ListGroup.Item>
                         <ListGroup.Item className="d-flex">
 
                             <Image cloudName="dwebpzxqn" publicId={"ushqxs3qmzsj2w552oxv"}   >
@@ -48,9 +48,9 @@ export function Most(props) {
             <Row className="mt-5 ">
                 <Col>
                    <ListGroup className="shadow-lg ">
-                       <ListGroupItem variant="info"><h4>Fotoğraf <i class="fas fa-star text-info"></i></h4></ListGroupItem>
-                       <ListGroupItem><Link className="text-decoration-none"><i class="fas fa-thumbs-up mr-2"></i>En çok beğenilenler</Link></ListGroupItem>
-                       <ListGroupItem><Link className="text-decoration-none"><i class="fas fa-comment mr-2"></i>En çok yorum alanlar</Link></ListGroupItem>
+                       <ListGroupItem variant="info"><h4>Fotoğraf <i className="fas fa-star text-info"></i></h4></ListGroupItem>
+                       <ListGroupItem><Link className="text-decoration-none"><i className="fas fa-thumbs-up mr-2"></i>En çok beğenilenler</Link></ListGroupItem>
+                       <ListGroupItem><Link className="text-decoration-none"><i className="fas fa-comment mr-2"></i>En çok yorum alanlar</Link></ListGroupItem>
                    </ListGroup>
                 </Col>
             </Row>

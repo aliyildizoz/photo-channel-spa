@@ -1,10 +1,10 @@
-import React, { Component, useEffect } from 'react'
+import React, { Component } from 'react'
 import { Navbar, Nav, Container, Form, FormControl, Button } from "react-bootstrap"
-import { Link, useHistory, useLocation, useParams, useRouteMatch } from 'react-router-dom'
-import { connect, useSelector, useDispatch } from 'react-redux'
+import { Link } from 'react-router-dom'
+import { connect, useSelector } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import * as authAsyncActions from '../../redux/actions/auth/authAsyncActions'
-import Loading from '../common/Loading'
+import { useHistory } from 'react-router-dom/cjs/react-router-dom'
 
 class Navi extends Component {
 
@@ -46,13 +46,14 @@ export default connect(mapStateToProps, mapDispatchToProps)(Navi);
 
 function NaviAuthButtons({ logoutEvent }) {
     const isLogged = useSelector(state => state.isLoggedReducer);
-    const currentUser = useSelector(state => state.currentUserReducer);
+    const currentUser = useSelector(state => state.currentUserReducer.detail);
+    const history = useHistory()
 
     return isLogged ? <Nav >
-        <Link to="/login" onClick={logoutEvent} className="nav-link"><i class="fas fa-sign-out-alt"></i> Çıkış</Link>
-        <Link to={"/profile/" + currentUser.id} className="nav-link"><i class="fas fa-user"></i> Profil</Link>
+        <Link to="/" onClick={() => logoutEvent(history)} className="nav-link"><i className="fas fa-sign-out-alt"></i> Çıkış</Link>
+        <Link to={"/profile/" + currentUser.id} className="nav-link"><i className="fas fa-user"></i> Profil</Link>
     </Nav> : <Nav >
-            <Link to="/login" className="nav-link "><i class="fas fa-sign-in-alt"></i> Giriş</Link>
-            <Link to="/register" className="nav-link "><i class="fas fa-user-plus"></i> Üye ol</Link>
+            <Link to="/login" className="nav-link "><i className="fas fa-sign-in-alt"></i> Giriş</Link>
+            <Link to="/register" className="nav-link "><i className="fas fa-user-plus"></i> Üye ol</Link>
         </Nav>;
 }

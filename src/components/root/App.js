@@ -18,7 +18,8 @@ import UserChannels from '../profiles/UserChannels';
 import * as authAsyncActions from '../../redux/actions/auth/authAsyncActions'
 import { getUserIsOwnerSuccess } from '../../redux/actions/user/userActionsCreators'
 import Loading from '../common/Loading';
-import { Col, Container, Row } from 'react-bootstrap';
+import { Button, Col, Container, Row } from 'react-bootstrap';
+import { NavLink } from 'react-router-dom/cjs/react-router-dom';
 
 class App extends Component {
 
@@ -31,8 +32,6 @@ class App extends Component {
       <div className="App" >
 
         <Navi />
-
-
         <Container fluid  >
 
           <Switch >
@@ -43,22 +42,22 @@ class App extends Component {
             <Route exact path="/register" component={Register} />
             <Route exact path="/errorpage" component={ErrorPage} />
             <Route exact path="/profile/:id" render={(props) => {
-              this.props.actions.getUserIsOwner(this.props.currentUser.id == props.match.params.id);
+              this.props.actions.getUserIsOwner(this.props.currentUser.detail.id == props.match.params.id);
               return <Profile {...props} />
             }} />
             <Route exact path="/profile/:id/settings" render={(props) => {
               var urlId = props.match.params.id;
-              return this.props.currentUserIsLoading ?
-                <Loading /> : this.props.currentUser.id == urlId ? < ProfileSettings {...props} /> : <Redirect to={"/profile/" + urlId} />;
+              return this.props.currentUser.isLoading ?
+                <Loading /> : this.props.currentUser.detail.id == urlId ? < ProfileSettings {...props} /> : <Redirect to={"/profile/" + urlId} />;
             }
             } />
             <Route exact path="/profile/:id/channels" render={(props) => {
-              if (this.props.currentUser.currentUserIsLoading) {
+              if (this.props.currentUser.isLoading) {
                 return <Loading />
               } else {
                 var urlId = props.match.params.id;
                 var isOwner = false;
-                if (this.props.currentUser.id == urlId) isOwner = true;
+                if (this.props.currentUser.detail.id == urlId) isOwner = true;
 
                 this.props.actions.getUserIsOwner(isOwner);
                 return <UserChannels {...props} />
@@ -73,28 +72,44 @@ class App extends Component {
           </Switch>
         </Container>
 
-        <footer className="bg-dark text-light mt-5">
+        
+        {/* <footer className="bg-dark text-light" style={{ flexShrink: "none",marginTop:1080 }}>
           <Container>
             <Row className="pb-5 pt-5">
               <Col md={{ span: 4, offset: 2 }}>
-                <ul>
-                  <h3>Site haritası</h3><hr className="bg-light" />
-                  <li><Link className="text-decoration-none"> Giriş</Link></li>
-                  <li><Link className="text-decoration-none"> Uye ol</Link></li>
-                  <li><Link className="text-decoration-none">Ana sayfa</Link></li>
-                </ul>
+
+                <h3>Site haritası</h3><hr className="bg-light" />
+                {this.props.isLogged ? (
+                  <ul>
+                    <li><Link to="/" onClick={() => this.props.actions.logout()} className="text-decoration-none ml-0 pl-0">Çıkış</Link></li>
+                    <li><Link to={"/profile/" + this.props.currentUser.detail.id} className="text-decoration-none">Profil</Link></li>
+                    <li><Link to="/" className="text-decoration-none">Ana sayfa</Link></li>
+                  </ul>
+                ) : (
+                    <ul>
+                      <li><Link to="/login" className="text-decoration-none"> Giriş</Link></li>
+                      <li><Link to="/register" className="text-decoration-none">Uye ol</Link></li>
+                      <li><Link to="/" className="text-decoration-none">Ana sayfa</Link></li>
+                    </ul>
+                  )}
+
+
+
               </Col>
               <Col md={{ span: 4 }}>
                 <ul >
                   <h3>En popüler</h3><hr className="bg-light" />
-                  <li><i class="fas fa-star "></i> Kanallar</li>
-                  <li><i class="fas fa-star "></i> Fotoğraflar</li>
+                  <li><i className="fas fa-star "></i> Kanallar</li>
+                  <li><i className="fas fa-star "></i> Fotoğraflar</li>
                 </ul>
               </Col>
 
             </Row>
+            <Row><Col md={{ span: 4, offset: 2 }}>
+              <h6 className="text-break text-justify text-muted font-weight-normal ">Copyright <i className="far fa-copyright mb-2"></i> Tüm hakları saklıdır.</h6>
+            </Col></Row>
           </Container>
-        </footer>
+        </footer> */}
 
       </div>
     )
@@ -104,7 +119,8 @@ function mapDispatchToProps(dispatch) {
   return {
     actions: {
       getCurrentUser: bindActionCreators(authAsyncActions.getCurrentUserApi, dispatch),
-      getUserIsOwner: bindActionCreators(getUserIsOwnerSuccess, dispatch)
+      getUserIsOwner: bindActionCreators(getUserIsOwnerSuccess, dispatch),
+      logout: bindActionCreators(authAsyncActions.logoutApi, dispatch)
 
     }
   }
@@ -112,7 +128,9 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
   return {
     currentUser: state.currentUserReducer,
-    isLoading: state.isLoadingReducer
+    isLoading: state.isLoadingReducer,
+    isLogged: state.isLoadingReducer,
+
   }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(App);

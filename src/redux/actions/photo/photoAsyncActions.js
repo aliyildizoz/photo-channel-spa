@@ -5,7 +5,7 @@ import { redirectErrPage } from "../../helpers/historyHelper";
 import { authHeaderObj } from "../../helpers/localStorageHelper";
 import { getUserPhotosSuccess } from "../user/userActionsCreators";
 
-export function photoCreateApi(photo, history) {
+export function photoCreateApi(photo, history,callBack) {
     return async dispatch => {
         console.log(photo)
         const fd = new FormData();
@@ -31,6 +31,10 @@ export function photoCreateApi(photo, history) {
                     }]
                 });
                 dispatch(getChannelGallerySuccess(photos))
+            }).then(()=>{
+                if (typeof callBack == "function") {
+                    callBack()
+                }
             }).catch(err => {
                 console.log(err)
                 redirectErrPage(history, err);
@@ -53,7 +57,7 @@ export function photoDeleteApi(photoId, history) {
     }
 }
 
-export function channelPhotosApi(channelId, history) {
+export function channelPhotosApi(channelId, history,callBack) {
     return async dispatch => {
         await axios.get(getChannelPhotosPath(channelId)).
             then(res => {
@@ -74,14 +78,21 @@ export function channelPhotosApi(channelId, history) {
                     }]
                 });
                 dispatch(getChannelGallerySuccess(photos))
+            }).then(()=>{
+                if (typeof callBack == "function") {
+                    callBack()
+                }
             }).catch(err => redirectErrPage(history, err))
     }
 }
-export function getUserPhotosApi(userId, history) {
+export function getUserPhotosApi(userId, history, callBack) {
     return async dispatch => {
         await axios.get(getUserPhotosUrl(userId)).
-            then(res => dispatch(getUserPhotosSuccess(res.data))).
-            catch(err => redirectErrPage(err, history))
+            then(res => dispatch(getUserPhotosSuccess(res.data))).then(() => {
+                if (typeof callBack == "function") {
+                    callBack()
+                }
+            }).catch(err => redirectErrPage(err, history))
     }
 }
 function randomIntFromInterval(min, max) {
