@@ -45,14 +45,13 @@ export function Flow({ renderState, userId }) {
 }
 function LikedPhotos({ userId }) {
     const dispatch = useDispatch();
-    const history = useHistory();
 
     const [isLoading, setIsLoading] = useState(true)
     const setFalseIsLoading = () => setIsLoading(false);
     const likedPhotos = useSelector(state => state.userReducer.likedPhotos)
     useEffect(() => {
-        dispatch(getLikedPhotosApi(userId, history, setFalseIsLoading))
-    }, [userId, history, dispatch]);
+        dispatch(getLikedPhotosApi(userId, setFalseIsLoading))
+    }, [userId, dispatch]);
     return <div className="mt-3">
         {isLoading ? < Loading /> : <MapPhotoCard photos={likedPhotos} />}
     </div>
@@ -60,11 +59,10 @@ function LikedPhotos({ userId }) {
 function CommentsPhotos({ userId }) {
 
     const dispatch = useDispatch();
-    const history = useHistory();
 
     const [isLoading, setIsLoading] = useState(true)
     const setFalseIsLoading = () => setIsLoading(false);
-    useEffect(() => { dispatch(getUserCommentsPhotosApi(userId, history, setFalseIsLoading)) }, [userId, history, dispatch])
+    useEffect(() => { dispatch(getUserCommentsPhotosApi(userId, setFalseIsLoading)) }, [userId, dispatch])
     const commentsPhotos = useSelector(state => state.userReducer.commentsPhotos)
 
     return <div className="mt-3"> {isLoading ? <Loading /> : <MapPhotoCard photos={commentsPhotos} bodyShowIndex={1} notFoundText={"Bu kişinin herhangi bir yorumu bulunmamaktadır."} />}</div>
@@ -72,11 +70,10 @@ function CommentsPhotos({ userId }) {
 
 function UserPhotos({ userId }) {
     const dispatch = useDispatch();
-    const history = useHistory();
 
     const [isLoading, setIsLoading] = useState(true)
     const setFalseIsLoading = () => setIsLoading(false);
-    useEffect(() => { dispatch(getUserPhotosApi(userId, history, setFalseIsLoading)); }, [userId, history, dispatch])
+    useEffect(() => { dispatch(getUserPhotosApi(userId, setFalseIsLoading)); }, [userId, dispatch])
 
     const userPhotos = useSelector(state => state.userReducer.userPhotos)
 
@@ -86,13 +83,12 @@ function UserPhotos({ userId }) {
 
 export function Subscriptions({ userId, subsCount }) {
     const dispatch = useDispatch()
-    const history = useHistory();
     const [isLoading, setIsLoading] = useState(true)
     const setFalseIsLoading = () => setIsLoading(false);
 
     useEffect(() => {
-        dispatch(getSubscriptionsApi(userId, history, setFalseIsLoading));
-    }, [userId, history, dispatch])
+        dispatch(getSubscriptionsApi(userId, setFalseIsLoading));
+    }, [userId, dispatch])
     const subscriptions = useSelector(state => state.userReducer.subscriptions)
     return <div>
         <Row>
@@ -125,11 +121,11 @@ export function Subscriptions({ userId, subsCount }) {
 }
 
 function SubsButton({ channelId }) {
-    const history = useHistory();
     const [isSubs, setIsSubs] = useState(true)
+    const dispatch = useDispatch()
     const subsThen = () => setIsSubs(true)
     const unSubsThen = () => setIsSubs(false)
-    const [subs, unSubs] = SubsApi(channelId, subsThen, unSubsThen, history);
+    const [subs, unSubs] = SubsApi(channelId, subsThen, unSubsThen, dispatch);
     const isOwner = useSelector(state => state.userReducer.isOwner)
     return isOwner ? isSubs ? <Button variant="primary" onClick={unSubs} className="btn-sm ml-2">Abone olundu</Button> :
         <Button variant="outline-primary" onClick={subs} className="btn-sm ml-2">Abone ol</Button> : null

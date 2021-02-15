@@ -15,9 +15,13 @@ class Profile extends Component {
         isLoading: true
     }
     componentDidMount() {
-        this.props.actions.getUserDetail(this.props.match.params.id, this.props.history, () => this.setState({ ...this.state, isLoading: false }))
+        this.props.actions.getUserDetail(this.props.match.params.id, () => this.setState({ ...this.state, isLoading: false }))
     }
-
+    componentDidUpdate(prevProps) {
+        if (this.props.match.params.id !== prevProps.match.params.id) {
+            this.props.actions.getUserDetail(this.props.match.params.id, () => this.setState({ ...this.state, isLoading: false }))
+        }
+    }
 
 
     render() {

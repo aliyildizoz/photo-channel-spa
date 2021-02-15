@@ -5,7 +5,7 @@ import { redirectErrPage } from "../../helpers/historyHelper";
 import { authHeaderObj } from "../../helpers/localStorageHelper";
 import { getUserPhotosSuccess } from "../user/userActionsCreators";
 
-export function photoCreateApi(photo, history,callBack) {
+export function photoCreateApi(photo, callBack) {
     return async dispatch => {
         console.log(photo)
         const fd = new FormData();
@@ -37,27 +37,27 @@ export function photoCreateApi(photo, history,callBack) {
                 }
             }).catch(err => {
                 console.log(err)
-                redirectErrPage(history, err);
+                redirectErrPage(err,dispatch);
             })
         }).catch(err => {
             console.log(err)
-            redirectErrPage(history, err);
+            redirectErrPage(err,dispatch);
         })
     }
 }
 
-export function photoDeleteApi(photoId, history) {
+export function photoDeleteApi(photoId) {
     return async dispatch => {
         await axios.delete(deletePhotoPath(photoId), {
             headers: authHeaderObj()
         }).catch(err => {
             console.log(err)
-            redirectErrPage(history, err);
+            redirectErrPage(err,dispatch);
         })
     }
 }
 
-export function channelPhotosApi(channelId, history,callBack) {
+export function channelPhotosApi(channelId, callBack) {
     return async dispatch => {
         await axios.get(getChannelPhotosPath(channelId)).
             then(res => {
@@ -82,17 +82,17 @@ export function channelPhotosApi(channelId, history,callBack) {
                 if (typeof callBack == "function") {
                     callBack()
                 }
-            }).catch(err => redirectErrPage(history, err))
+            }).catch(err => redirectErrPage(err,dispatch))
     }
 }
-export function getUserPhotosApi(userId, history, callBack) {
+export function getUserPhotosApi(userId,  callBack) {
     return async dispatch => {
         await axios.get(getUserPhotosUrl(userId)).
             then(res => dispatch(getUserPhotosSuccess(res.data))).then(() => {
                 if (typeof callBack == "function") {
                     callBack()
                 }
-            }).catch(err => redirectErrPage(err, history))
+            }).catch(err => redirectErrPage(err, dispatch))
     }
 }
 function randomIntFromInterval(min, max) {

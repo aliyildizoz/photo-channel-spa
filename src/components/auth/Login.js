@@ -12,10 +12,8 @@ export default function Login() {
 
     const apiResponse = useSelector(state => state.apiResponseReducer);
     const dispatch = useDispatch();
-
-    const history = useHistory()
     const login = () => {
-        dispatch(authAsyncActions.loginApi(model,history))
+        dispatch(authAsyncActions.loginApi(model))
     }
 
     const [model, setModel] = useState({ email: "", password: "" });

@@ -5,6 +5,10 @@ import * as categoryActionCreators from '../../redux/actions/category/categoryAc
 import * as categoryAsyncActions from '../../redux/actions/category/categoryAsyncActions'
 import { Badge, Button, ListGroup, ListGroupItem } from 'react-bootstrap';
 import { Multiselect } from 'multiselect-react-dropdown';
+import { Link } from 'react-router-dom'
+import { push } from 'connected-react-router'
+import { searchByMultiCategoryApi } from '../../redux/actions/search/searchAsyncActions'
+import { searchByCategorySuccess } from '../../redux/actions/search/searchActionCreators'
 
 class CategoryList extends Component {
 
@@ -14,6 +18,24 @@ class CategoryList extends Component {
     selectCategory = (c) => {
         this.props.actions.currentCategory(c)
     }
+    onChangeHandler = (categories) => {
+        this.props.actions.setSelectedCategories(categories)
+        if (categories.length > 0) {
+            this.props.actions.historyPush("/feed/" + this.queryGenerate(categories))
+            console.log("/feed/" + this.queryGenerate(categories));
+            return;
+        }
+        this.props.actions.historyPush("/feed")
+        this.props.setFeedState()
+    }
+    queryGenerate = (categories) => {
+        var query = ""
+        categories.forEach((c, i) => {
+            query += (i !== 0 ? "-" : "") + encodeURIComponent(c.name.toLowerCase());
+        });
+        return query;
+    }
+
     render() {
         return (
             <div >
@@ -24,21 +46,21 @@ class CategoryList extends Component {
                             displayValue="name"
                             closeIcon="circle"
                             style={{ chips: { background: "#5bc0de" } }}
-                            // onSelect={onChange}
-                            // onRemove={onChange}
+                            onSelect={this.onChangeHandler}
+                            onRemove={this.onChangeHandler}
                             placeholder="Kategori ara"
-                        /><Button className="mt-2" block>Kanalları bul</Button>
+                            selectedValues={this.props.selectedCategories}
+                        />
                     </ListGroupItem>
                     <ListGroupItem >
                         <h5>
                             {
-
                                 this.props.categories.map(c => (
-                                    <Badge
+                                    <Link onClick={() => this.onChangeHandler([c])} key={c.id} to={"/feed/" + encodeURIComponent(c.name)} className="text-decoration-none"> <Badge
                                         variant="info"
                                         className="ml-2 mt-2 cursorPointer category "
-                                        style={{ background: c.id == this.props.currentCategory.id ? "#5bc0de" : "" }}
-                                        onClick={() => this.selectCategory(c)} key={c.id}>{c.name}</Badge>
+                                        style={{ background: (this.props.selectedCategories.length === 1 ? this.props.selectedCategories.includes(c) ? "#5bc0de" : "" : "#17a2b8") }}
+                                    >{c.name}</Badge></Link>
                                 ))
                             }
                         </h5>
@@ -50,13 +72,14 @@ class CategoryList extends Component {
 }
 function mapStateToProps(state) {
 
-    return { categories: state.categoryListReducer, currentCategory: state.changeCategoryReducer }
+    return { categories: state.categoryListReducer, selectedCategories: state.selectedCategoriesReducer }
 }
 function mapDispatchToProps(dispatch) {
     return {
         actions: {
             getCategories: bindActionCreators(categoryAsyncActions.getCategories, dispatch),
-            currentCategory: bindActionCreators(categoryActionCreators.changeCategory, dispatch),
+            historyPush: bindActionCreators(push, dispatch),
+            setSelectedCategories: bindActionCreators(categoryActionCreators.setSelectedCategoriesSuccess, dispatch)
         }
     }
 }

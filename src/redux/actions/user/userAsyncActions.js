@@ -11,7 +11,7 @@ import { isLoadingTSuccess } from "../common/commonActionsCreators";
 
 
 
-export function getUserApi(userId, history,callBack) {
+export function getUserApi(userId, callBack) {
 
     return async (dispatch) => {
         await axios.get(getUserUrlById(userId)).
@@ -22,66 +22,41 @@ export function getUserApi(userId, history,callBack) {
                     callBack()
                 }
             })
-            .catch(err => redirectErrPage(history, err))
+            .catch(err => redirectErrPage(err,dispatch))
     }
 }
 
 
-
-// export function userUpdateApi(user, userId, history, setLoggedUser) {
-//     return async dispatch => {
-//         await axios.put(USER_FULL_PATH + "/" + userId, user).then(res => {
-//             console.log(setLoggedUser)
-//             setLoggedUser();
-//             history.push("/profile/" + userId)
-
-//         }).catch(err => {
-//             console.error(err)
-//             // if (err.response.status === 400) {
-//             //     dispatch(userUpdateResSuccess(err.response))
-//             // } else {
-//             //     history.push({
-//             //         pathname: '/rrorpage',
-//             //         state: { message: err.response.data, status: err.response.status }
-//             //     })
-//             // }
-//         })
-//     }
-// }
-
-
-
-
-export function getLikedPhotosApi(userId, history, callBack) {
+export function getLikedPhotosApi(userId,  callBack) {
     return async dispatch => {
         await axios.get(getLikedPhotosUrl(userId)).
             then(res => dispatch(getLikedPhotosSuccess(res.data))).then(() => {
                 if (typeof callBack == "function") {
                     callBack()
                 }
-            }).catch(err => redirectErrPage(err, history))
+            }).catch(err => redirectErrPage(err, dispatch))
     }
 }
 
 
-export function getSubscriptionsApi(userId, history, callBack) {
+export function getSubscriptionsApi(userId,  callBack) {
     return async dispatch => {
         await axios.get(getSubscriptionsUrl(userId)).
             then(res => dispatch(getSubscriptionsSuccess(res.data))).then(() => {
                 if (typeof callBack == "function") {
                     callBack()
                 }
-            }).catch (err => redirectErrPage(err, history))
+            }).catch (err => redirectErrPage(err, dispatch))
     }
 }
 
-export function getUserCommentsPhotosApi(userId, history, callBack) {
+export function getUserCommentsPhotosApi(userId,  callBack) {
     return async dispatch => {
         await axios.get(getUserCommentsPhotosUrl(userId)).
             then(res => dispatch(getUserCommentsPhotosSuccess(res.data))).then(() => {
                 if (typeof callBack == "function") {
                     callBack()
                 }
-            }).catch(err => redirectErrPage(err, history))
+            }).catch(err => redirectErrPage(err, dispatch))
     }
 }

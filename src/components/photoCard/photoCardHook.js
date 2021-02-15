@@ -15,17 +15,17 @@ import { getChannelPhotosSuccess } from "../../redux/actions/photo/photoActionCr
 
 const datePatt = /.+\s\d+[:]\d+/g;
 
-const PhotoCardHook= React.memo(({ photo, cardWidth = "41rem", bodyShowIndex = 0, className = "mt-5" })=> {
+const PhotoCardHook = React.memo(({ removeButton = false, photo, cardWidth = "41rem", bodyShowIndex = 0, className = "mt-5" }) => {
 
     const [photoModalShow, setPhotoModalShow] = useState(false);
     const [cardBodyShow, setCardBodyShow] = useState(bodyShowIndex);
-    const [isOwner, setIsOwner] = useState(false);
+    const [isOwner, setIsOwner] = useState(removeButton);
     const currentUser = useSelector(state => state.currentUserReducer)
     useEffect(() => {
-        setIsOwner(currentUser.id === photo.userId)
+        if (removeButton) setIsOwner(currentUser.detail.id === photo.userId)
         setCommentCount(photo.commentCount)
         setCardBodyShow(bodyShowIndex)
-    }, [photo, bodyShowIndex, currentUser]);
+    }, [photo, bodyShowIndex, currentUser, removeButton]);
     const [commentCount, setCommentCount] = useState(photo.commentCount);
 
     return (
@@ -54,7 +54,7 @@ const PhotoCardHook= React.memo(({ photo, cardWidth = "41rem", bodyShowIndex = 0
 
 
             <PhotoCardFooter
-                currentUserId={currentUser.id}
+                currentUserId={currentUser.detail.id}
                 likeCount={photo.likeCount}
                 photoId={photo.photoId}
                 cardBodyShow={cardBodyShow}
@@ -66,8 +66,10 @@ const PhotoCardHook= React.memo(({ photo, cardWidth = "41rem", bodyShowIndex = 0
         </Card>
     )
 })
-export default  PhotoCardHook;
-export function MapPhotoCard({ photos, cardWidth = "41rem", bodyShowIndex = 0, notFoundText = "Herhangi bir fotoğraf bulunmamaktadır." }) {
+export default PhotoCardHook;
+
+
+export function MapPhotoCard({ removeButton = false, photos, cardWidth = "41rem", bodyShowIndex = 0, notFoundText = "Herhangi bir fotoğraf bulunmamaktadır." }) {
     return <div>{
         photos.length > 0 ? photos.map((p, i) => {
             return <PhotoCardHook
@@ -85,6 +87,7 @@ export function MapPhotoCard({ photos, cardWidth = "41rem", bodyShowIndex = 0, n
                     channelName: p.channelName,
                     channelPublicId: p.channelPublicId
                 }}
+                removeButton={removeButton}
                 bodyShowIndex={bodyShowIndex}
                 className={i !== 0 ? "mt-5" : ""}
             />
@@ -107,11 +110,10 @@ function PhotoCardFooter({ currentUserId, likeCount, photoId, cardBodyShow, hide
 function PhotoCardHeader({ photoId, isOwner, channelId, channelPublicId, channelName }) {
     const [deleteModalShow, setDeleteModalShow] = useState(false);
     const dispatch = useDispatch()
-    const history = useHistory()
     const channelPhotos = useSelector(state => state.channelReducer.channelPhotos);
 
     const deletePhotoClick = () => {
-        dispatch(photoDeleteApi(photoId, history))
+        dispatch(photoDeleteApi(photoId))
         setDeleteModalShow(false);
         if (channelPhotos.length !== 0) {
             dispatch(getChannelPhotosSuccess([...channelPhotos.filter(p => p.photoId !== photoId)]))
@@ -170,13 +172,14 @@ function PhotoCardBody({ photoId, likeCount, commentCount, userName, userId, sha
             <LikeButton photoId={photoId} setlikeCount={setlikeCount} />
             <Button variant="dark" onClick={setCommentShow} className="btn-sm ml-2" style={{ borderRadius: 0 }}>
                 <i className="fa  fa-comment" style={{ fontSize: 16 }}></i>&nbsp;&nbsp;Yorum Yap</Button>
-            <div className="d-inline-flex font-weight-lighter float-right">{new Date(shareDate).toLocaleString().match(datePatt).toString().replace(" ", " - ")}</div>
+            {/* <div className="d-inline-flex font-weight-lighter float-right">{new Date(shareDate).toLocaleString().match(datePatt).toString().replace(" ", " - ")}</div> */}
         </Card.Body>
     )
 }
 
 function LikeButton({ photoId, setlikeCount }) {
     const [isLike, setIsLike] = useState(false)
+    const dispatch = useDispatch()
     const history = useHistory()
     const isLogged = useSelector(state => state.isLoggedReducer);
     const onClick = () => {
@@ -186,13 +189,13 @@ function LikeButton({ photoId, setlikeCount }) {
             axios.post(LIKE_API_URL, fd, { headers: authHeaderObj() }).then(() => {
                 setIsLike(!isLike);
                 setlikeCount(!isLike);
-            }).catch(err => redirectErrPage(history, err));
+            }).catch(err => redirectErrPage(err,dispatch));
         }
         else {
             axios.delete(deleteLikePath(photoId), { headers: authHeaderObj() }).then(() => {
                 setIsLike(!isLike);
                 setlikeCount(!isLike);
-            }).catch(err => redirectErrPage(history, err));
+            }).catch(err => redirectErrPage(err,dispatch));
         }
 
     }
@@ -227,6 +230,7 @@ function PhotoCardComments({ currentUserId, photoId, hideCardBody, countDec, cou
     }, [photoId]);
     const isLogged = useSelector(state => state.isLoggedReducer);
     const history = useHistory()
+    const dispatch = useDispatch()
     const createCommentClick = () => {
         if (!isLogged) history.push("/login")
 
@@ -236,7 +240,7 @@ function PhotoCardComments({ currentUserId, photoId, hideCardBody, countDec, cou
             axios.post(COMMENT_PATH, { photoId: photoId, description: newComment }, { headers: authHeaderObj() }).then((res => {
                 setComments([res.data, ...comments]);
                 countInc();
-            })).catch(err => redirectErrPage(history, err))
+            })).catch(err => redirectErrPage(err,dispatch))
         } else {
             setShowValid(true);
         }
@@ -253,7 +257,7 @@ function PhotoCardComments({ currentUserId, photoId, hideCardBody, countDec, cou
                 })
                 setComments([...comments]);
                 setEditModalShow(false);
-            })).catch(err => redirectErrPage(history, err))
+            })).catch(err => redirectErrPage(err,dispatch))
 
         }
     }
@@ -263,7 +267,7 @@ function PhotoCardComments({ currentUserId, photoId, hideCardBody, countDec, cou
             setComments([...comments.filter(c => c.commentId !== comment.commentId)])
             setDeleteModalShow(false)
             countDec();
-        })).catch(err => redirectErrPage(history, err))
+        })).catch(err => redirectErrPage(err,dispatch))
 
     }
     const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (

@@ -1,32 +1,34 @@
-export function redirectErrPage(history, err) {
-    console.log(err)
+import { push } from 'connected-react-router'
+import { toast } from 'react-toastify';
+
+export function redirectErrPage(err, dispatch) {
+    console.error("response Error --> ", err)
     if (err.response === undefined) {
-        history.push({
-            pathname: "/errorpage",
-            state: { message: "Hata oluştu", status:  500 }
-        });
+        toast.error("Bir hata oluştu...");
         return;
     }
 
-    var pathname;
+    var path = {
+        pathname: "",
+        state: { message: err.response.data, status: err.response.status }
+    };
     switch (err.response.status) {
         case 404:
-            pathname = "/notfound"
+            path.pathname = "/notfound"
             break;
         case 400:
-            pathname = "/badrequest"
+            path.pathname = "/badrequest"
             break;
         case 403:
-            pathname = "/forbidden"
+            path.pathname = "/forbidden"
             break;
         case 500:
-            pathname = "/errorpage"
+            path.pathname = "/errorpage"
+            path.state.message = "Hata oluştu";
+            path.state.status = 500;
             break;
         default:
             break;
     }
-    history.push({
-        pathname: pathname,
-        state: { message: err.response.data , status: err.response.status  }
-    });
+    dispatch(push(path));
 }

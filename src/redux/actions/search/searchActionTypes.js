@@ -1,0 +1,2 @@
+export const SEARCH_BY_TEXT = "SEARCH_BY_TEXT";
+export const SEARCH_BY_CATEGORY = "SEARCH_BY_CATEGORYID";

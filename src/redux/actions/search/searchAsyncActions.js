@@ -1,0 +1,64 @@
+import axios from "axios"
+import { bindActionCreators } from "redux"
+import { redirectErrPage } from "../../helpers/historyHelper"
+import { searchByCategorySuccess, searchByTextSuccess } from "./searchActionCreators"
+import { searchByCategoryUrl, searchByMultiCategoryUrl, searchByTextUrl } from "./searchEndPoints"
+import { toast } from 'react-toastify';
+
+export function searchByTextApi(text, callBack) {
+
+    return async dispatch => {
+
+        console.log(text)
+        await axios.get(searchByTextUrl(text)).then((res) => {
+            dispatch(searchByTextSuccess(res.data))
+        }).then(() => {
+            if (typeof callBack == "function") {
+                callBack()
+            }
+        }).catch((err) => {
+            if (err.response.status === 404) {
+                return;
+            }
+            redirectErrPage(err, dispatch)
+        })
+
+    }
+}
+export function searchByCategoryApi(categoryId, callBack) {
+
+    return async dispatch => {
+
+        await axios.get(searchByCategoryUrl(categoryId)).then((res) => {
+            console.log(res.data)
+            dispatch(searchByCategorySuccess(res.data))
+        }).then(() => {
+            if (typeof callBack == "function") {
+                callBack()
+            }
+        }).catch((err) =>
+            redirectErrPage(err, dispatch))
+    }
+}
+export function searchByMultiCategoryApi(categoryIds, callBack) {
+
+    return async dispatch => {
+
+        await axios.get(searchByMultiCategoryUrl, { params: { categoryIds: categoryIds } }).then((res) => {
+            console.log(res.data)
+            dispatch(searchByCategorySuccess(res.data))
+        }).then(() => {
+            if (typeof callBack == "function") {
+                callBack()
+            }
+        }).catch((err) => {
+            if (err.response.status === 404) {
+                dispatch(searchByCategorySuccess([]))
+                return;
+            }
+            redirectErrPage(err, dispatch);
+        })
+
+
+    }
+}

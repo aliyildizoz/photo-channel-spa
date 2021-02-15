@@ -13,10 +13,11 @@ import { SubsButton, Flow, ChannelCategories } from './channelHooks';
 import SimpleReactValidator from 'simple-react-validator';
 import { getIsSubsApi } from '../../redux/actions/subscrib/subsAsyncAction';
 import Loading from '../common/Loading';
+import { withRouter } from 'react-router-dom/cjs/react-router-dom';
 
 registerPlugin(FilePondPluginImagePreview, FilePondPluginFileValidateType, FilePondPluginImageExifOrientation);
 
-class ChannelDetail extends Component {
+class Channel extends Component {
     state = {
         firsRenderFlow: "photos",
         model: {
@@ -26,16 +27,25 @@ class ChannelDetail extends Component {
         isLoading: true
     }
     validator = new SimpleReactValidator({ locale: 'tr' });
-    componentDidMount() {
-        var channelId = this.props.match.params.id;
-        var history = this.props.history;
-        this.props.actions.getChannelDetail(channelId, history, () =>
-            this.props.actions.getIsSub(channelId, history, () =>
-                this.props.actions.getChannelPhotos(channelId, history, () =>
-                    this.props.actions.getSubscribers(channelId, history, () =>
-                        this.props.actions.getCategories(channelId, history, () =>
+    getAllApiRequest = (channelId) => {
+        this.props.actions.getChannelDetail(channelId, () =>
+            this.props.actions.getIsSub(channelId, () =>
+                this.props.actions.getChannelPhotos(channelId, () =>
+                    this.props.actions.getSubscribers(channelId, () =>
+                        this.props.actions.getCategories(channelId, () =>
                             this.setState({ ...this.state, isLoading: false }))))))
+    }
+    componentDidMount() {
 
+        var channelId = this.props.match.params.id;
+        this.getAllApiRequest(channelId)
+    }
+
+    componentDidUpdate(prevProps) {
+        if (this.props.match.params.id !== prevProps.match.params.id) {
+            var channelId = this.props.match.params.id;
+            this.getAllApiRequest(channelId)
+        }
     }
     onSubmitHandler = (e) => {
         e.preventDefault();
@@ -48,6 +58,9 @@ class ChannelDetail extends Component {
             this.setState({ ...this.state, model: { ...this.state.model, files: [] } })
         }
     }
+
+
+
     render() {
 
         return (
@@ -123,4 +136,4 @@ function mapStateToProps(state) {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ChannelDetail);
+export default connect(mapStateToProps, mapDispatchToProps)(Channel);

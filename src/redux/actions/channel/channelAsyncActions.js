@@ -10,8 +10,9 @@ import { getSubscribersSuccess } from "../subscrib/subsActionCreators"
 import { apiResponse, isLoadingFSuccess, isLoadingTSuccess } from "../common/commonActionsCreators"
 import { getUserChannelsSuccess } from "../user/userActionsCreators"
 import { isLoggedFSuccess, isLoggedTSuccess } from "../auth/authActionsCreators"
+import { push } from 'connected-react-router'
 
-export function getChannelDetailApi(channelId, history,callBack) {
+export function getChannelDetailApi(channelId, callBack) {
     return async dispatch => {
         await axios.get(getChannelPathById(channelId)).then(res => {
             dispatch(getChannelDetailSuccess(res.data))
@@ -20,13 +21,13 @@ export function getChannelDetailApi(channelId, history,callBack) {
                 callBack()
             }
         }).catch(err => {
-            console.log(err)
-            redirectErrPage(history, err)
+            console.log("cas")
+            redirectErrPage(err,dispatch)
         })
     }
 }
 
-export function getChannelCategoriesApi(channelId, history,callBack) {
+export function getChannelCategoriesApi(channelId, callBack) {
     return async dispatch => {
         await axios.get(getChannelCategoriesPath(channelId)).then(res => {
             dispatch(getChannelCategoriesSuccess(res.data))
@@ -36,12 +37,12 @@ export function getChannelCategoriesApi(channelId, history,callBack) {
             }
         }).catch(err => {
             console.log(err)
-            redirectErrPage(history, err)
+            redirectErrPage(err,dispatch)
         })
     }
 }
 
-export function getSubscribersApi(channelId, history,callBack) {
+export function getSubscribersApi(channelId, callBack) {
     return async dispatch => {
         axios.get(getChannelSubscribersPath(channelId)).then(res => dispatch(getSubscribersSuccess(res.data))).then(()=>{
             if (typeof callBack == "function") {
@@ -49,16 +50,15 @@ export function getSubscribersApi(channelId, history,callBack) {
             }
         }).catch(err => {
             console.log(err)
-            redirectErrPage(history, err)
+            redirectErrPage(err,dispatch)
         });
     }
 }
 
-export function channelUpdateApi(channel, channelId, history) {
+export function channelUpdateApi(channel, channelId) {
 
     return async dispatch => {
         const fd = new FormData();
-        console.log(channel);
         fd.append("file", channel.file);
         fd.append("name", channel.name);
         await axios.put(getChannelPathById(channelId), fd, {
@@ -68,25 +68,25 @@ export function channelUpdateApi(channel, channelId, history) {
             if (err.response.status === 400) {
                 dispatch(apiResponse({ message: err.response.data, status: err.response.status }))
             } else {
-                redirectErrPage(history, err)
+                redirectErrPage(err,dispatch)
             }
         })
     }
 }
 
-export function addChannelCategoriesApi(categories, channelId, history) {
+export function addChannelCategoriesApi(categories, channelId) {
     return async dispatch => {
         await axios.put(channelCategoriesPathById(channelId), { categoryIds: categories.map(c => c.id) }).
             then(() => {
                 dispatch(getChannelCategoriesSuccess(categories));
-                history.push("/channel/" + channelId);
+                dispatch(push("/channel/" + channelId));
             }).catch(err => {
-                redirectErrPage(history, err);
+                redirectErrPage(err,dispatch);
             })
     }
 }
 
-export function getChannelIsOwnerApi(channelId, history) {
+export function getChannelIsOwnerApi(channelId) {
     return async dispatch => {
         dispatch(channelIsLoadingTSuccess())
         if (isExistsToken()) {
@@ -94,19 +94,21 @@ export function getChannelIsOwnerApi(channelId, history) {
                 headers: authHeaderObj()
             }).then(res => {
                 dispatch(getChannelIsOwnerSuccess(res.data))
+                dispatch(channelIsLoadingFSuccess())
             }).then(() => dispatch(isLoadingFSuccess())).catch(err => {
-                redirectErrPage(history, err);
+                redirectErrPage(err,dispatch);
             })
         }else{
             dispatch(channelIsLoadingFSuccess())
+            dispatch(getChannelIsOwnerSuccess(false))
         }
     }
 }
 
-export function getUserChannelsApi(userId, history) {
+export function getUserChannelsApi(userId) {
     return async dispatch => {
         await axios.get(getUserChannelUrl(userId)).
             then(res => dispatch(getUserChannelsSuccess(res.data)))
-            .catch(err => redirectErrPage(err, history))
+            .catch(err => redirectErrPage(err, dispatch))
     }
 }

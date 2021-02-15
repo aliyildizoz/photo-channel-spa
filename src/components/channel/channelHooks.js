@@ -15,7 +15,7 @@ import { getChannelOwnerPath } from "../../redux/actions/channel/channelEndPoint
 import { getChannelIsOwnerSuccess } from "../../redux/actions/channel/channelActionCreators";
 export function SubsButton({ channelId, subsCount }) {
     const subscribers = useSelector(state => state.channelReducer.subscribers);
-    const currentUser = useSelector(state => state.currentUserReducer)
+    const currentUser = useSelector(state => state.currentUserReducer.detail)
     const isSubs = useSelector(state => state.isSubsReducer);
     const [subsCnt, setSubsCnt] = useState(subsCount)
     const history = useHistory()
@@ -35,25 +35,25 @@ export function SubsButton({ channelId, subsCount }) {
         dispatch(getIsSubsSuccess(false));
         dispatch(getSubscribersSuccess([...subscribers.filter(s => s.id !== currentUser.id)]))
     }
-    const [subs, unSubs] = SubsApi(channelId, subsThen, unSubsThen, history)
+    const [subs, unSubs] = SubsApi(channelId, subsThen, unSubsThen, dispatch)
 
     return isSubs ? <JustSubsButton variant="primary" subsCount={subsCnt} onClick={unSubs} text="Abone olundu" /> :
         <JustSubsButton variant="outline-primary" subsCount={subsCnt} onClick={subs} text="Abone ol" />
 
 }
 
-export function SubsApi(channelId, subsThen, unSubsThen, history) {
+export function SubsApi(channelId, subsThen, unSubsThen, dispatch) {
     const subs = () => {
         var fd = new FormData()
         fd.append("channelId", channelId)
         axios.post(SUBS_API_URL, fd, { headers: authHeaderObj() }).then(() => {
             subsThen()
-        }).catch(err => redirectErrPage(history, err));
+        }).catch(err => redirectErrPage(err,dispatch));
     }
     const unSubs = () => {
         axios.delete(deleteSubsPath(channelId), { headers: authHeaderObj() }).then(() => {
             unSubsThen()
-        }).catch(err => redirectErrPage(history, err));
+        }).catch(err => redirectErrPage(err,dispatch));
     }
 
     return [subs, unSubs];
@@ -123,7 +123,6 @@ export function ChannelAbout({ channelId }) {
     const channelDetail = useSelector(state => state.channelReducer.channelDetail);
     const subscribers = useSelector(state => state.channelReducer.subscribers);
     const [owner, setOwner] = useState({})
-    const history = useHistory()
     const currentUserId = useSelector(state => state.currentUserReducer.detail.id)
     const isOwner = useSelector(state => state.channelIsOwnerReducer)
     const dispatch = useDispatch();
@@ -134,9 +133,9 @@ export function ChannelAbout({ channelId }) {
         }
         ).catch(err => {
             console.log(err);
-            redirectErrPage(history, err)
+            redirectErrPage(err,dispatch)
         })
-    }, [channelId, currentUserId, history, dispatch])
+    }, [channelId, currentUserId, dispatch])
 
     return <Container>
         <Row className="mt-4">

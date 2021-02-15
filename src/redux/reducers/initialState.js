@@ -1,6 +1,6 @@
 export default {
     categories: [],
-    currentCategory: {},
+    selectedCategories: [],
     apiResponse: { message: "", status: 0 },
     isLogged: false,
     user: {
@@ -27,5 +27,15 @@ export default {
         isSubs: false,
         isOwner: false,
         channelIsLoading: true
+    },
+    home: {
+        mostPhotos: [],
+        mostComments: [],
+        mostChannels: [],
+        feed: []
+    },
+    search: {
+        searchTextRes: {},
+        searchCategory: []
     }
 }

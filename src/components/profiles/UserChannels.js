@@ -23,7 +23,7 @@ class UserChannels extends Component {
         isMainContent: true
     }
     componentDidMount = () => {
-        this.props.actions.getUserChannels(this.props.match.params.id, this.props.history);
+        this.props.actions.getUserChannels(this.props.match.params.id);
     }
     render() {
         return (
@@ -140,14 +140,15 @@ function ChannelCreate() {
             fd.append("name", name);
             await axios.post(CHANNEL_PATH, fd, {
                 headers: authHeaderObj()
-            }).then((data) => {
-                history.push("/channel/" + data.id);
+            }).then((res) => {
+                console.log(res.data);
+                history.push("/channel/" + res.data.id);
             }).catch(err => {
-                // console.log(err)
+                 console.log(err)
                 if (err.response.status === 400) {
                     setApiResponse(err.response.data)
                 } else {
-                    redirectErrPage(history, err)
+                    redirectErrPage(err,dispatch)
                 }
             })
         } else {
@@ -159,7 +160,7 @@ function ChannelCreate() {
     }
 
     return <div>
-        {/* <h5 className="text-success">Yeni Kanal</h5> */}
+        <h5 className="text-success">Yeni Kanal</h5>
         <hr />
         <Form onSubmit={onSubmitHandler} className="mb-3">
 

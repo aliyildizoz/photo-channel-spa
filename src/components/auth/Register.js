@@ -15,7 +15,7 @@ export default function Register() {
 
     const history = useHistory()
     const register = () => {
-        dispatch(authAsyncActions.registerApi(model,history))
+        dispatch(authAsyncActions.registerApi(model))
     }
 
     const [model, setModel] = useState({ email: "", password: "",firstName:"",lastName:"",userName:"" });

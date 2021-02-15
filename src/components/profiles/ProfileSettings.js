@@ -91,7 +91,7 @@ function Settings() {
             dispatch(isLoggedFSuccess());
             dispatch(currentUserClearSuccess());
             history.push("/")
-        }).catch((err) => redirectErrPage(err, history))
+        }).catch((err) => redirectErrPage(err,dispatch))
     }
     return <Row className="bg-light" style={{ borderBottomLeftRadius: 50, borderBottomRightRadius: 50 }}>
         <Col style={{ marginTop: 50, marginBottom: 50 }}>

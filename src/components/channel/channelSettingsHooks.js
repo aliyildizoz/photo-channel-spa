@@ -1,6 +1,6 @@
-import React, { useState,  useRef } from "react"
+import React, { useState, useRef, useEffect } from "react"
 import { useSelector, useDispatch } from 'react-redux'
-import { Col, Form, FormGroup, Button, ListGroup, Modal,  Accordion, Alert } from "react-bootstrap"
+import { Col, Form, FormGroup, Button, ListGroup, Modal, Accordion, Alert } from "react-bootstrap"
 import { Multiselect } from 'multiselect-react-dropdown';
 import { Link, useHistory } from "react-router-dom"
 import axios from "axios";
@@ -31,15 +31,20 @@ export function ChannelUpdate({ channelId }) {
     const [name, setName] = useState("")
     const [files, setFiles] = useState([])
 
+    useEffect(() => {
+        setName(channelDetail.name)
+    }, [channelDetail, setName])
     const onChangeHandler = (e) => {
         setName(e.target.value)
         validator.current.showMessages();
     }
     const onSubmitHandler = (e) => {
         e.preventDefault();
-        if ((name !== channelDetail.name && validator.current.allValid()) || files.length > 0) {
-            dispatch(channelUpdateApi({ name: name, file: files[0] }, channelId, history));
+        if (validator.current.allValid() || files.length > 0) {
+            dispatch(channelUpdateApi({ name: name, file: files[0] }, channelId));
             history.push("/channel/" + channelId);
+        } else {
+            validator.current.showMessages();
         }
     }
     return <Col>
@@ -70,14 +75,13 @@ export function CategoryUpdate({ channelId }) {
     const allCategories = useSelector(state => state.categoryListReducer)
     const [selectedCategories, setSelectedCategories] = useState([])
     const dispatch = useDispatch()
-    const history = useHistory()
 
     const onChange = (e) => {
         setSelectedCategories(e)
     }
     const onClickHandler = (e) => {
         if (selectedCategories.length > 0) {
-            dispatch(addChannelCategoriesApi(selectedCategories, channelId, history))
+            dispatch(addChannelCategoriesApi(selectedCategories, channelId))
         }
     }
     return <Col >
@@ -100,10 +104,13 @@ export function CategoryUpdate({ channelId }) {
 export function ChannelDelete({ channelId }) {
 
     const history = useHistory()
+    const dispatch = useDispatch()
+
     const onClickHandler = () => {
+        console.log(getChannelPathById(channelId));
         axios.delete(getChannelPathById(channelId), {
             headers: authHeaderObj()
-        }).then(() => history.push("/")).catch(err => redirectErrPage(history, err))
+        }).then(() => history.push("/")).catch(err => redirectErrPage(err, dispatch))
     }
     return <Col className="mt-2">
         <Accordion>
@@ -121,11 +128,10 @@ export function Subscribers({ channelId }) {
     const [modalShow, setModalShow] = useState(false)
     const [deleteId, setDeleteId] = useState(0)
     const dispatch = useDispatch()
-    const history = useHistory()
     const removeSubs = (userId) => {
         axios.delete(deleteSubsByOwnerPath(channelId, userId), {
             headers: authHeaderObj()
-        }).then(() => dispatch(getSubscribersApi(channelId, history))).then(() => setModalShow(false)).catch((err) => redirectErrPage(history, err))
+        }).then(() => dispatch(getSubscribersApi(channelId))).then(() => setModalShow(false)).catch((err) => redirectErrPage(err, dispatch))
     }
 
     return <div>

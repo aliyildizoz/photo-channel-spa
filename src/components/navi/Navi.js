@@ -1,26 +1,39 @@
-import React, { Component } from 'react'
+import React, { Component, useEffect } from 'react'
 import { Navbar, Nav, Container, Form, FormControl, Button } from "react-bootstrap"
 import { Link } from 'react-router-dom'
 import { connect, useSelector } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import * as authAsyncActions from '../../redux/actions/auth/authAsyncActions'
 import { useHistory } from 'react-router-dom/cjs/react-router-dom'
+import { searchByTextApi } from '../../redux/actions/search/searchAsyncActions'
+import SearchInput from '../search/SearchInput'
+import { setSelectedCategoriesSuccess } from '../../redux/actions/category/categoryActionCreators'
 
 class Navi extends Component {
 
+    state = {
+        searchText: ""
+    }
+    onChangeHandler = (event) => {
+        this.setState({ ...this.state, searchText: event.target.value })
+    }
+    onSubmitHandler = (event) => {
+        event.preventDefault();
+
+        if (this.state.searchText !== "") {
+            this.props.actions.searchByTextApi(this.state.searchText,)
+        }
+    }
     render() {
         return (
             <div style={{ marginBottom: 55 }}>
-                <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark" className="fixed-top" >
+                <Navbar collapseOnSelect expand="lg" bg="info" variant="dark" className="fixed-top" >
                     <Container>
-                        <Link to="/"><Navbar.Brand>PhotoChannel</Navbar.Brand></Link>
+                        <Link to="/" onClick={() => this.props.actions.setSelectedCategories([])}><Navbar.Brand>PhotoChannel</Navbar.Brand></Link>
                         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                         <Navbar.Collapse id="responsive-navbar-nav">
-                            <Nav className="mr-auto">
-                                <Form inline>
-                                    <FormControl type="text" placeholder="Search" className="mr-sm-2" />
-                                    <Button variant="outline-light">Search</Button>
-                                </Form>
+                            <Nav className="mr-auto ml-auto">
+                                <SearchInput />
                             </Nav>
                             <NaviAuthButtons logoutEvent={this.props.actions.logoutApi} />
                         </Navbar.Collapse>
@@ -38,7 +51,9 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
     return {
         actions: {
-            logoutApi: bindActionCreators(authAsyncActions.logoutApi, dispatch)
+            logoutApi: bindActionCreators(authAsyncActions.logoutApi, dispatch),
+            searchByTextApi: bindActionCreators(searchByTextApi, dispatch),
+            setSelectedCategories: bindActionCreators(setSelectedCategoriesSuccess, dispatch)
         }
     }
 }
@@ -48,7 +63,7 @@ function NaviAuthButtons({ logoutEvent }) {
     const isLogged = useSelector(state => state.isLoggedReducer);
     const currentUser = useSelector(state => state.currentUserReducer.detail);
     const history = useHistory()
-
+    useEffect(() => console.log(currentUser), [currentUser])
     return isLogged ? <Nav >
         <Link to="/" onClick={() => logoutEvent(history)} className="nav-link"><i className="fas fa-sign-out-alt"></i> Çıkış</Link>
         <Link to={"/profile/" + currentUser.id} className="nav-link"><i className="fas fa-user"></i> Profil</Link>
@@ -57,3 +72,4 @@ function NaviAuthButtons({ logoutEvent }) {
             <Link to="/register" className="nav-link "><i className="fas fa-user-plus"></i> Üye ol</Link>
         </Nav>;
 }
+

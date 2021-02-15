@@ -9,7 +9,7 @@ export function isExistsToken() {
 }
 export function setToken(token) {
     removeToken()
-    console.log("setToken ", token)
+    // console.log("setToken ", token)
     localStorage.setItem("token", String(token.token).toString());
     localStorage.setItem("tokenExpiration", String(token.expiration).toString());
     localStorage.setItem("refreshToken", String(token.refreshToken).toString());

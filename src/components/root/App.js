@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Home from '../home/Home';
-import { Switch, Route, Redirect, Link } from 'react-router-dom';
+import { Switch, Route, Redirect, Link, Router, BrowserRouter } from 'react-router-dom';
 import ErrorPage from '../common/ErrorPage';
 import { connect } from 'react-redux'
 import Profile from '../profiles/Profile';
@@ -18,8 +18,10 @@ import UserChannels from '../profiles/UserChannels';
 import * as authAsyncActions from '../../redux/actions/auth/authAsyncActions'
 import { getUserIsOwnerSuccess } from '../../redux/actions/user/userActionsCreators'
 import Loading from '../common/Loading';
-import { Button, Col, Container, Row } from 'react-bootstrap';
-import { NavLink } from 'react-router-dom/cjs/react-router-dom';
+import { Button, Col, Container, Jumbotron, Row } from 'react-bootstrap';
+import { NavLink, withRouter } from 'react-router-dom/cjs/react-router-dom';
+import { isExistsToken } from '../../redux/helpers/localStorageHelper';
+import { ToastContainer } from "react-toastify";
 
 class App extends Component {
 
@@ -36,15 +38,22 @@ class App extends Component {
 
           <Switch >
             <Route exact path="/" render={(props) => {
-              return <Home match={props.match} />
+              return <Redirect to="/feed" />
             }} />
-            <Route exact path="/login" component={Login} />
-            <Route exact path="/register" component={Register} />
+            <Route exact path="/feed" component={Home} />
+            <Route exact path="/feed/:text" component={Home} />
+            <Route exact path="/login" render={() => {
+              return this.props.isLogged ? <Redirect to="/" /> : <Login />
+            }} />
+            <Route exact path="/register" render={() => {
+              return this.props.isLogged ? <Redirect to="/" /> : <Register />
+            }} />
             <Route exact path="/errorpage" component={ErrorPage} />
             <Route exact path="/profile/:id" render={(props) => {
               this.props.actions.getUserIsOwner(this.props.currentUser.detail.id == props.match.params.id);
               return <Profile {...props} />
             }} />
+
             <Route exact path="/profile/:id/settings" render={(props) => {
               var urlId = props.match.params.id;
               return this.props.currentUser.isLoading ?
@@ -63,6 +72,7 @@ class App extends Component {
                 return <UserChannels {...props} />
               }
             }} />
+
             <Route exact path="/channel/:id" component={Channel} />
             <Route exact path="/channel/:id/settings" component={ChannelSettings} />
             <Route exact path="/notfound" component={NotFound} />
@@ -70,9 +80,10 @@ class App extends Component {
             <Route exact path="/badrequest" component={BadRequest} />
             <Route component={NotFound} />
           </Switch>
-        </Container>
 
-        
+        </Container>
+        <ToastContainer autoClose={5000} />
+
         {/* <footer className="bg-dark text-light" style={{ flexShrink: "none",marginTop:1080 }}>
           <Container>
             <Row className="pb-5 pt-5">
@@ -129,7 +140,7 @@ function mapStateToProps(state) {
   return {
     currentUser: state.currentUserReducer,
     isLoading: state.isLoadingReducer,
-    isLogged: state.isLoadingReducer,
+    isLogged: state.isLoggedReducer,
 
   }
 }
