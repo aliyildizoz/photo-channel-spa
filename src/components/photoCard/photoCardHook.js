@@ -12,50 +12,67 @@ import axios from "axios";
 import { redirectErrPage } from "../../redux/helpers/historyHelper";
 import { photoDeleteApi } from "../../redux/actions/photo/photoAsyncActions";
 import { getChannelPhotosSuccess } from "../../redux/actions/photo/photoActionCreators";
+import { getLikedPhotosSuccess, getUserCommentsPhotosSuccess, getUserPhotosSuccess } from "../../redux/actions/user/userActionsCreators";
+import { profileFlowState } from "../../redux/constants/constants";
+import _ from 'lodash'
 
 const datePatt = /.+\s\d+[:]\d+/g;
 
-const PhotoCardHook = React.memo(({ removeButton = false, photo, cardWidth = "41rem", bodyShowIndex = 0, className = "mt-5" }) => {
+function PhotoCardHook({ refreshPhotos, removeButton = false, photo, cardWidth = "41rem", bodyShowIndex = 0, className = "mt-5" }) {
 
     const [photoModalShow, setPhotoModalShow] = useState(false);
     const [cardBodyShow, setCardBodyShow] = useState(bodyShowIndex);
     const [isOwner, setIsOwner] = useState(removeButton);
     const currentUser = useSelector(state => state.currentUserReducer)
+    const [likeCnt, setlikeCnt] = useState(photo.likeCount)
+    const [commentCount, setCommentCount] = useState(photo.commentCount);
+    const [isLike, setIsLike] = useState(false)
+    const isLogged = useSelector(state => state.isLoggedReducer);
+    const setlikeCount = (isLike) => {
+        isLike ? setlikeCnt(likeCnt + 1) : setlikeCnt(likeCnt - 1);
+    }
     useEffect(() => {
         if (removeButton) setIsOwner(currentUser.detail.id === photo.userId)
         setCommentCount(photo.commentCount)
         setCardBodyShow(bodyShowIndex)
-    }, [photo, bodyShowIndex, currentUser, removeButton]);
-    const [commentCount, setCommentCount] = useState(photo.commentCount);
+        setlikeCnt(photo.likeCount)
+        if (isLogged) {
+            axios.get(getIsLikePath(photo.photoId), { headers: authHeaderObj() }).then(res => setIsLike(res.data))
+        }
+    }, [photo, bodyShowIndex, currentUser, removeButton, setIsLike, isLogged]);
 
     return (
         <Card border="light" className={"shadow-lg  bg-white rounded " + className} style={{ width: cardWidth, height: "auto" }}>
 
-            <PhotoCardHeader photoId={photo.photoId} isOwner={isOwner} channelId={photo.channelId} channelName={photo.channelName} channelPublicId={photo.channelPublicId} />
+            <PhotoCardHeader refreshPhotos={refreshPhotos} photoId={photo.photoId} isOwner={isOwner} channelId={photo.channelId} channelName={photo.channelName} channelPublicId={photo.channelPublicId} />
 
-            <div style={{ cursor: "pointer" }} onClick={() => setPhotoModalShow(true)}> <Image cloudName="dwebpzxqn" publicId={photo.publicId} className="card-img-top img-fluid">
+            <div style={{ cursor: "pointer" }} onClick={() => setPhotoModalShow(true)}> <Image cloudName="dwebpzxqn" publicId={photo.photoPublicId} className="card-img-top img-fluid">
                 <Transformation aspectRatio="1.5" crop="crop" />
             </Image></div>
             <PhotoModal
                 show={photoModalShow}
                 onHide={() => setPhotoModalShow(false)}
-                publicId={photo.publicId}
+                publicId={photo.photoPublicId}
             />
             <PhotoCardBody
                 shareDate={photo.shareDate}
-                likeCount={photo.likeCount}
+                likeCount={likeCnt}
                 commentCount={commentCount}
                 userName={photo.userName}
                 userId={photo.userId}
                 setCommentShow={() => setCardBodyShow(1)}
                 setLikesShow={() => setCardBodyShow(2)}
                 photoId={photo.photoId}
+                photo={photo}
+                setlikeCount={setlikeCount}
+                isLike={isLike}
+                setIsLike={setIsLike}
             />
 
 
             <PhotoCardFooter
                 currentUserId={currentUser.detail.id}
-                likeCount={photo.likeCount}
+                likeCount={likeCnt}
                 photoId={photo.photoId}
                 cardBodyShow={cardBodyShow}
                 hideCardBody={() => setCardBodyShow(0)}
@@ -65,18 +82,18 @@ const PhotoCardHook = React.memo(({ removeButton = false, photo, cardWidth = "41
 
         </Card>
     )
-})
+}
 export default PhotoCardHook;
 
 
-export function MapPhotoCard({ removeButton = false, photos, cardWidth = "41rem", bodyShowIndex = 0, notFoundText = "Herhangi bir fotoğraf bulunmamaktadır." }) {
+export function MapPhotoCard({ refreshPhotos, removeButton = false, photos, cardWidth = "41rem", bodyShowIndex = 0, notFoundText = "Herhangi bir fotoğraf bulunmamaktadır." }) {
     return <div>{
         photos.length > 0 ? photos.map((p, i) => {
             return <PhotoCardHook
                 cardWidth={cardWidth}
                 key={i}
                 photo={{
-                    publicId: p.photoPublicId,
+                    photoPublicId: p.photoPublicId,
                     likeCount: p.likeCount,
                     commentCount: p.commentCount,
                     userId: p.userId,
@@ -90,6 +107,7 @@ export function MapPhotoCard({ removeButton = false, photos, cardWidth = "41rem"
                 removeButton={removeButton}
                 bodyShowIndex={bodyShowIndex}
                 className={i !== 0 ? "mt-5" : ""}
+                refreshPhotos={() => refreshPhotos(p.photoId)}
             />
 
         }) : <h6 className="font-weight-normal"><i>{notFoundText}</i></h6>
@@ -107,17 +125,14 @@ function PhotoCardFooter({ currentUserId, likeCount, photoId, cardBodyShow, hide
             return null;
     }
 }
-function PhotoCardHeader({ photoId, isOwner, channelId, channelPublicId, channelName }) {
+function PhotoCardHeader({ refreshPhotos, photoId, isOwner, channelId, channelPublicId, channelName }) {
     const [deleteModalShow, setDeleteModalShow] = useState(false);
-    const dispatch = useDispatch()
-    const channelPhotos = useSelector(state => state.channelReducer.channelPhotos);
+    const dispatch = useDispatch();
 
     const deletePhotoClick = () => {
         dispatch(photoDeleteApi(photoId))
         setDeleteModalShow(false);
-        if (channelPhotos.length !== 0) {
-            dispatch(getChannelPhotosSuccess([...channelPhotos.filter(p => p.photoId !== photoId)]))
-        }
+        refreshPhotos();
     }
     return (
         <Card.Header >
@@ -131,9 +146,16 @@ function PhotoCardHeader({ photoId, isOwner, channelId, channelPublicId, channel
                 <Link className="text-decoration-none" to={"/channel/" + channelId}>
                     {channelName}
                 </Link>
+
             </Media>
             {
-                isOwner ? <Button variant="danger" onClick={() => setDeleteModalShow(true)} className="d-inline-flex float-right"><span className="far fa-trash-alt text-light"></span></Button> : null
+                isOwner ? <Dropdown drop="left" className="d-inline-flex float-right dropleft">
+                    <Dropdown.Toggle as={CustomToggle} className="dropleft"></Dropdown.Toggle>
+
+                    <Dropdown.Menu >
+                        <Dropdown.Item onClick={() => { setDeleteModalShow(true); }} eventKey="2"><span className="far fa-trash-alt text-danger mr-2"></span> Sil</Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown> : null
             }
             <DeletePhotoModal
                 show={deleteModalShow}
@@ -144,18 +166,14 @@ function PhotoCardHeader({ photoId, isOwner, channelId, channelPublicId, channel
     )
 }
 
-function PhotoCardBody({ photoId, likeCount, commentCount, userName, userId, shareDate, setLikesShow, setCommentShow }) {
-    const [likeCnt, setlikeCnt] = useState(likeCount)
-    const setlikeCount = (isLike) => {
-        isLike ? setlikeCnt(likeCnt + 1) : setlikeCnt(likeCnt - 1);
-    }
+function PhotoCardBody({ setIsLike, isLike, photo, photoId, likeCount, commentCount, userName, userId, shareDate, setLikesShow, setCommentShow, setlikeCount }) {
 
     return (
         <Card.Body style={{ paddingTop: 0 }} className="pl-2">
 
             <p style={{ fontSize: 16 }} className="text-muted d-inline-flex mb-0 mr-2">
                 <button onClick={setLikesShow} style={{ padding: 0 }} type="button" className="btn btn-link">
-                    <i className="fa  fa-thumbs-up text-primary ml-2 mr-2"></i>{likeCnt} </button>
+                    <i className="fa  fa-thumbs-up text-primary ml-2 mr-2"></i>{likeCount} </button>
                 <b className="ml-2 ">·</b>
             </p>
             <p style={{ fontSize: 16 }} className="text-muted d-inline-flex mb-0">
@@ -169,19 +187,21 @@ function PhotoCardBody({ photoId, likeCount, commentCount, userName, userId, sha
 
             <hr style={{ margin: 5 }} />
 
-            <LikeButton photoId={photoId} setlikeCount={setlikeCount} />
+            <LikeButton photoId={photoId} photo={photo} setlikeCount={setlikeCount} isLike={isLike} setIsLike={setIsLike} />
             <Button variant="dark" onClick={setCommentShow} className="btn-sm ml-2" style={{ borderRadius: 0 }}>
                 <i className="fa  fa-comment" style={{ fontSize: 16 }}></i>&nbsp;&nbsp;Yorum Yap</Button>
-            {/* <div className="d-inline-flex font-weight-lighter float-right">{new Date(shareDate).toLocaleString().match(datePatt).toString().replace(" ", " - ")}</div> */}
+            <div className="d-inline-flex font-weight-lighter float-right">{new Date(shareDate).toLocaleString().match(datePatt).toString().replace(" ", " - ")}</div>
         </Card.Body>
     )
 }
 
-function LikeButton({ photoId, setlikeCount }) {
-    const [isLike, setIsLike] = useState(false)
+function LikeButton({ isLike, setIsLike, photoId, setlikeCount }) {
+
+
     const dispatch = useDispatch()
     const history = useHistory()
     const isLogged = useSelector(state => state.isLoggedReducer);
+
     const onClick = () => {
         var fd = new FormData();
         fd.append("photoId", photoId)
@@ -189,22 +209,16 @@ function LikeButton({ photoId, setlikeCount }) {
             axios.post(LIKE_API_URL, fd, { headers: authHeaderObj() }).then(() => {
                 setIsLike(!isLike);
                 setlikeCount(!isLike);
-            }).catch(err => redirectErrPage(err,dispatch));
+            }).catch(err => redirectErrPage(err, dispatch));
         }
         else {
             axios.delete(deleteLikePath(photoId), { headers: authHeaderObj() }).then(() => {
                 setIsLike(!isLike);
                 setlikeCount(!isLike);
-            }).catch(err => redirectErrPage(err,dispatch));
+            }).catch(err => redirectErrPage(err, dispatch));
         }
 
     }
-
-    useEffect(() => {
-        if (isLogged) {
-            axios.get(getIsLikePath(photoId), { headers: authHeaderObj() }).then(res => setIsLike(res.data))
-        }
-    }, [isLogged, photoId])
     if (!isLogged) {
         return <Button onClick={() => history.push("/login")} variant="outline-primary" style={{ borderRadius: 0 }} className="btn-sm">
             <i className="fa  fa-thumbs-up" style={{ fontSize: 16 }}></i>&nbsp;&nbsp;Beğen</Button>
@@ -240,7 +254,7 @@ function PhotoCardComments({ currentUserId, photoId, hideCardBody, countDec, cou
             axios.post(COMMENT_PATH, { photoId: photoId, description: newComment }, { headers: authHeaderObj() }).then((res => {
                 setComments([res.data, ...comments]);
                 countInc();
-            })).catch(err => redirectErrPage(err,dispatch))
+            })).catch(err => redirectErrPage(err, dispatch))
         } else {
             setShowValid(true);
         }
@@ -257,7 +271,7 @@ function PhotoCardComments({ currentUserId, photoId, hideCardBody, countDec, cou
                 })
                 setComments([...comments]);
                 setEditModalShow(false);
-            })).catch(err => redirectErrPage(err,dispatch))
+            })).catch(err => redirectErrPage(err, dispatch))
 
         }
     }
@@ -267,16 +281,10 @@ function PhotoCardComments({ currentUserId, photoId, hideCardBody, countDec, cou
             setComments([...comments.filter(c => c.commentId !== comment.commentId)])
             setDeleteModalShow(false)
             countDec();
-        })).catch(err => redirectErrPage(err,dispatch))
+        })).catch(err => redirectErrPage(err, dispatch))
 
     }
-    const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
-        <div>
-            <svg onClick={onClick} ref={ref} width="1em" height="1em" viewBox="0 0 16 16" className="bi bi-three-dots-vertical dropdowncommentbutton" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                <path fillRule="evenodd" d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
-            </svg>
-        </div>
-    ));
+
     return (
         <div>
             <Row>
@@ -352,7 +360,13 @@ function PhotoCardComments({ currentUserId, photoId, hideCardBody, countDec, cou
         </div>
     )
 }
-
+const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
+    <div>
+        <svg onClick={onClick} ref={ref} width="1em" height="1em" viewBox="0 0 16 16" className="bi bi-three-dots-vertical dropdowncommentbutton" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path fillRule="evenodd" d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+        </svg>
+    </div>
+));
 function EditCommentModal(props) {
     const onChangeCommentHandler = (e) => {
         props.setComment({ ...props.comment, description: e.target.value })

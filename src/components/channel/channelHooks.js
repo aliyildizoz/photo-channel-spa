@@ -13,6 +13,7 @@ import PhotoGallery from "../photos/PhotoGallery";
 import { redirectErrPage } from "../../redux/helpers/historyHelper";
 import { getChannelOwnerPath } from "../../redux/actions/channel/channelEndPoints";
 import { getChannelIsOwnerSuccess } from "../../redux/actions/channel/channelActionCreators";
+import { getChannelGallerySuccess, getChannelPhotosSuccess } from "../../redux/actions/photo/photoActionCreators";
 export function SubsButton({ channelId, subsCount }) {
     const subscribers = useSelector(state => state.channelReducer.subscribers);
     const currentUser = useSelector(state => state.currentUserReducer.detail)
@@ -48,12 +49,12 @@ export function SubsApi(channelId, subsThen, unSubsThen, dispatch) {
         fd.append("channelId", channelId)
         axios.post(SUBS_API_URL, fd, { headers: authHeaderObj() }).then(() => {
             subsThen()
-        }).catch(err => redirectErrPage(err,dispatch));
+        }).catch(err => redirectErrPage(err, dispatch));
     }
     const unSubs = () => {
         axios.delete(deleteSubsPath(channelId), { headers: authHeaderObj() }).then(() => {
             unSubsThen()
-        }).catch(err => redirectErrPage(err,dispatch));
+        }).catch(err => redirectErrPage(err, dispatch));
     }
 
     return [subs, unSubs];
@@ -67,8 +68,13 @@ function JustSubsButton({ text, subsCount, variant, onClick }) {
 
 export function ChannelPhotos({ channelId }) {
     const channelPhotos = useSelector(state => state.channelReducer.channelPhotos);
+    const photoGallery = useSelector(state => state.channelReducer.photoGallery);
+    const dispatch = useDispatch();
     return <div className="mt-3">
-        <MapPhotoCard photos={channelPhotos} />
+        <MapPhotoCard refreshPhotos={(id) => {
+                dispatch(getChannelPhotosSuccess([...channelPhotos.filter(p => p.photoId !== id)]))
+                dispatch(getChannelGallerySuccess([...photoGallery.filter(p => p.photoId !== id)]))
+            }} removeButton={true} photos={channelPhotos} />
     </div>
 }
 export function Flow({ renderState, channelId }) {
@@ -103,18 +109,24 @@ export function Flow({ renderState, channelId }) {
     </div>
 }
 
-export function ChannelCategories({ channelId }) {
+export function ChannelCategories() {
     const categories = useSelector(state => state.channelReducer.categories);
-    return <ListGroup>
+    return <ListGroup>{categories.length !== 0 ?
         <ListGroup.Item>
             {
                 categories.map((c, i) => {
-                    return <h4 className="d-inline-flex mr-2" key={i}><Link to="#"><Badge variant="info">
+                    return <h4 className="d-inline-flex mr-2" key={i}><Link to={"/feed/" + c.name.toLowerCase()}><Badge variant="info">
                         {c.name}
                     </Badge></Link></h4>
                 })
             }
         </ListGroup.Item>
+        :
+        <ListGroup.Item>
+            <h4 className="d-inline-flex mr-2" ><Badge variant="secondary">
+                Kategorize edilmemiş
+                </Badge></h4>
+        </ListGroup.Item>}
     </ListGroup>
 }
 
@@ -133,7 +145,7 @@ export function ChannelAbout({ channelId }) {
         }
         ).catch(err => {
             console.log(err);
-            redirectErrPage(err,dispatch)
+            redirectErrPage(err, dispatch)
         })
     }, [channelId, currentUserId, dispatch])
 

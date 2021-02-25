@@ -22,6 +22,7 @@ import { Button, Col, Container, Jumbotron, Row } from 'react-bootstrap';
 import { NavLink, withRouter } from 'react-router-dom/cjs/react-router-dom';
 import { isExistsToken } from '../../redux/helpers/localStorageHelper';
 import { ToastContainer } from "react-toastify";
+import { profileFlowState } from '../../redux/constants/constants';
 
 class App extends Component {
 
@@ -49,11 +50,66 @@ class App extends Component {
               return this.props.isLogged ? <Redirect to="/" /> : <Register />
             }} />
             <Route exact path="/errorpage" component={ErrorPage} />
-            <Route exact path="/profile/:id" render={(props) => {
-              this.props.actions.getUserIsOwner(this.props.currentUser.detail.id == props.match.params.id);
-              return <Profile {...props} />
+
+            <Route exact path="/profile/me" render={(props) => {
+              return <Redirect to={"/profile/me/" + profileFlowState.Photos} />
+            }} />
+            <Route exact path="/profile/me/photos" render={(props) => {
+              if (this.props.currentUser.isLoading) {
+                return <Loading />
+              }
+              if (this.props.isLogged) {
+                this.props.actions.getUserIsOwner(true);
+                props.match.params.id = this.props.currentUser.detail.id;
+                return <Profile to={"/profile/me/" + profileFlowState.Photos} flowState={profileFlowState.Photos} {...props} />
+              }
+              return <Redirect to="/" />
+            }} />
+            <Route exact path="/profile/me/comments" render={(props) => {
+              if (this.props.currentUser.isLoading) {
+                return <Loading />
+              }
+              if (this.props.isLogged) {
+                this.props.actions.getUserIsOwner(true);
+                props.match.params.id = this.props.currentUser.detail.id;
+                return <Profile to={"/profile/me/" + profileFlowState.Comments} flowState={profileFlowState.Comments} {...props} />
+              }
+              return <Redirect to="/" />
+            }} />
+            <Route exact path="/profile/me/likes" render={(props) => {
+              if (this.props.currentUser.isLoading) {
+                return <Loading />
+              }
+              if (this.props.isLogged) {
+                this.props.actions.getUserIsOwner(true);
+                props.match.params.id = this.props.currentUser.detail.id;
+                return <Profile to={"/profile/me/" + profileFlowState.Likes} flowState={profileFlowState.Likes} {...props} />
+              }
+              return <Redirect to="/" />
             }} />
 
+
+            <Route exact path="/profile/:id" render={(props) => {
+              var isMe = this.props.currentUser.detail.id == props.match.params.id;
+              var urlId = isMe ? "me" : props.match.params.id;
+              return <Redirect to={"/profile/" + urlId + "/" + profileFlowState.Photos} />
+            }} />
+
+            <Route exact path="/profile/:id/photos" render={(props) => {
+              var isMe = this.props.currentUser.detail.id == props.match.params.id;
+              this.props.actions.getUserIsOwner(this.props.currentUser.detail.id == props.match.params.id);
+              return isMe ? <Redirect to={"/profile/me/" + profileFlowState.Photos} /> : <Profile flowState={profileFlowState.Photos} {...props} />
+            }} />
+            <Route exact path="/profile/:id/comments" render={(props) => {
+              var isMe = this.props.currentUser.detail.id == props.match.params.id;
+              this.props.actions.getUserIsOwner(this.props.currentUser.detail.id == props.match.params.id);
+              return isMe ? <Redirect to={"/profile/me/" + profileFlowState.Comments} /> : <Profile flowState={profileFlowState.Comments} {...props} />
+            }} />
+            <Route exact path="/profile/:id/likes" render={(props) => {
+              var isMe = this.props.currentUser.detail.id == props.match.params.id;
+              this.props.actions.getUserIsOwner(this.props.currentUser.detail.id == props.match.params.id);
+              return isMe ? <Redirect to={"/profile/me/" + profileFlowState.Likes} /> : <Profile flowState={profileFlowState.Likes} {...props} />
+            }} />
             <Route exact path="/profile/:id/settings" render={(props) => {
               var urlId = props.match.params.id;
               return this.props.currentUser.isLoading ?
@@ -65,10 +121,7 @@ class App extends Component {
                 return <Loading />
               } else {
                 var urlId = props.match.params.id;
-                var isOwner = false;
-                if (this.props.currentUser.detail.id == urlId) isOwner = true;
-
-                this.props.actions.getUserIsOwner(isOwner);
+                this.props.actions.getUserIsOwner(this.props.currentUser.detail.id == urlId);
                 return <UserChannels {...props} />
               }
             }} />

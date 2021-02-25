@@ -7,10 +7,6 @@ export default function homeReducer(state = initialState.home, action) {
             return { ...state, feed: action.payload }
         case actionTypes.GET_MOST_CHANNELS:
             return { ...state, mostChannels: action.payload }
-        case actionTypes.GET_MOST_COMMENTS:
-            return { ...state, mostComments: action.payload }
-        case actionTypes.GET_MOST_PHOTOS:
-            return { ...state, mostPhotos: action.payload }
         default:
             return state;
     }

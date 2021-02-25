@@ -1,5 +1,6 @@
 import * as actionTypes from "../../actions/user/userActionTypes"
 import initialState from "../initialState"
+import _ from "lodash"
 
 export default function userReducer(state = initialState.user, action) {
     switch (action.type) {
@@ -10,7 +11,9 @@ export default function userReducer(state = initialState.user, action) {
         case actionTypes.GET_SUBSCRIPTIONS:
             return { ...state, subscriptions: action.payload };
         case actionTypes.GET_USER_PHOTOS:
-            return { ...state, userPhotos: action.payload };
+            var userPhotosCopy=_.cloneDeep(action.payload);
+            // alert("csa2")
+            return { ...state, userPhotos: userPhotosCopy };
         case actionTypes.GET_LIKED_PHOTOS:
             return { ...state, likedPhotos: action.payload };
         case actionTypes.GET_USER_COMMENTS_PHOTOS:

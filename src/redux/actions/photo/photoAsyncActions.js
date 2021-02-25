@@ -27,21 +27,22 @@ export function photoCreateApi(photo, callBack) {
                         username: element.userName,
                         src: element.photoUrl,
                         width: width,
-                        height: height
+                        height: height,
+                        photoId: element.photoId
                     }]
                 });
                 dispatch(getChannelGallerySuccess(photos))
-            }).then(()=>{
+            }).then(() => {
                 if (typeof callBack == "function") {
                     callBack()
                 }
             }).catch(err => {
                 console.log(err)
-                redirectErrPage(err,dispatch);
+                redirectErrPage(err, dispatch);
             })
         }).catch(err => {
             console.log(err)
-            redirectErrPage(err,dispatch);
+            redirectErrPage(err, dispatch);
         })
     }
 }
@@ -52,7 +53,7 @@ export function photoDeleteApi(photoId) {
             headers: authHeaderObj()
         }).catch(err => {
             console.log(err)
-            redirectErrPage(err,dispatch);
+            redirectErrPage(err, dispatch);
         })
     }
 }
@@ -74,18 +75,19 @@ export function channelPhotosApi(channelId, callBack) {
                         username: element.userName,
                         src: element.photoUrl,
                         width: width,
-                        height: height
+                        height: height,
+                        photoId: element.photoId
                     }]
                 });
                 dispatch(getChannelGallerySuccess(photos))
-            }).then(()=>{
+            }).then(() => {
                 if (typeof callBack == "function") {
                     callBack()
                 }
-            }).catch(err => redirectErrPage(err,dispatch))
+            }).catch(err => redirectErrPage(err, dispatch))
     }
 }
-export function getUserPhotosApi(userId,  callBack) {
+export function getUserPhotosApi(userId, callBack) {
     return async dispatch => {
         await axios.get(getUserPhotosUrl(userId)).
             then(res => dispatch(getUserPhotosSuccess(res.data))).then(() => {

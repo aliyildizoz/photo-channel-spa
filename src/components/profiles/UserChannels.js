@@ -1,4 +1,4 @@
-import React, { Component, useRef, useState } from 'react'
+import React, { Component, useEffect, useRef, useState } from 'react'
 import { Container, Row, Col, Table, Media, Badge, Button, Alert, Form, FormGroup } from 'react-bootstrap'
 import { Link, useHistory } from 'react-router-dom/cjs/react-router-dom'
 import Image from 'cloudinary-react/lib/components/Image/Image'
@@ -15,6 +15,7 @@ import { CHANNEL_PATH } from '../../redux/actions/channel/channelEndPoints'
 import axios from 'axios'
 import { authHeaderObj } from '../../redux/helpers/localStorageHelper'
 import { redirectErrPage } from '../../redux/helpers/historyHelper'
+import { channelIsLoadingTSuccess, getChannelIsOwnerSuccess } from '../../redux/actions/channel/channelActionCreators'
 
 registerPlugin(FilePondPluginImagePreview, FilePondPluginFileValidateType, FilePondPluginImageExifOrientation);
 
@@ -72,6 +73,7 @@ function mapDispatchToProps(dispatch) {
 export default connect(mapStateToProps, mapDispatchToProps)(UserChannels);
 
 function MapChannelList({ channelList, isCog }) {
+
     return <tbody>{isCog ? channelList.map(channel => {
         return <tr key={channel.id}>
             <td style={{ width: 3 }}>
@@ -126,6 +128,7 @@ function ChannelCreate() {
     const [files, setFiles] = useState([])
     const [fileMessage, setFileMessage] = useState()
     const [apiResponse, setApiResponse] = useState()
+    const [isLoading, setIsLoading] = useState(false)
     const setFileValid = (message = "Lütfen bir fotoğraf seçiniz.") => setFileMessage(message)
     const onChangeHandler = (e) => {
         setName(e.target.value)
@@ -138,17 +141,20 @@ function ChannelCreate() {
             const fd = new FormData();
             fd.append("file", files[0]);
             fd.append("name", name);
+            setIsLoading(true);
             await axios.post(CHANNEL_PATH, fd, {
                 headers: authHeaderObj()
             }).then((res) => {
                 console.log(res.data);
                 history.push("/channel/" + res.data.id);
+                setIsLoading(false);
             }).catch(err => {
-                 console.log(err)
+                setIsLoading(false);
+                console.log(err)
                 if (err.response.status === 400) {
                     setApiResponse(err.response.data)
                 } else {
-                    redirectErrPage(err,dispatch)
+                    redirectErrPage(err, dispatch)
                 }
             })
         } else {
@@ -182,7 +188,13 @@ function ChannelCreate() {
                 files={files}
             />
             {validator.current.messageWhenPresent(fileMessage, { className: 'text-danger' })}
-            <Button type="submit" variant="success" className="mt-2" block>Oluştur</Button>
+            {
+                isLoading ? <Button variant="success" className="mt-2" block disabled>
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"> </span>
+                    Loading...
+              </Button> : <Button type="submit" variant="success" className="mt-2" block>Oluştur</Button>
+            }
+
         </Form>
     </div>
 

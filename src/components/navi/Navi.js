@@ -63,10 +63,9 @@ function NaviAuthButtons({ logoutEvent }) {
     const isLogged = useSelector(state => state.isLoggedReducer);
     const currentUser = useSelector(state => state.currentUserReducer.detail);
     const history = useHistory()
-    useEffect(() => console.log(currentUser), [currentUser])
     return isLogged ? <Nav >
         <Link to="/" onClick={() => logoutEvent(history)} className="nav-link"><i className="fas fa-sign-out-alt"></i> Çıkış</Link>
-        <Link to={"/profile/" + currentUser.id} className="nav-link"><i className="fas fa-user"></i> Profil</Link>
+        <Link to={"/profile/me"} className="nav-link"><i className="fas fa-user"></i> Profil</Link>
     </Nav> : <Nav >
             <Link to="/login" className="nav-link "><i className="fas fa-sign-in-alt"></i> Giriş</Link>
             <Link to="/register" className="nav-link "><i className="fas fa-user-plus"></i> Üye ol</Link>

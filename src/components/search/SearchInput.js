@@ -65,7 +65,7 @@ const SearchInput = () => {
             {
                 inputIsFocus ? <Container >
                     <Row>
-                        <Col className="fixed-top mt-5" md={{ span: 3 }} style={{ marginLeft: 742, width: 428 }}>
+                        <Col className="fixed-top mt-5" md={{ span: 3 }} style={{ marginLeft: 847, width: 428 }}>
 
                             <ListGroup >
                                 {

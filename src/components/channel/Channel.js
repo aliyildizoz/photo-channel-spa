@@ -24,7 +24,8 @@ class Channel extends Component {
             files: []
         },
         validMessage: "Lütfen bir fotoğraf seçiniz.",
-        isLoading: true
+        isLoading: true,
+        isUploadLoading: false
     }
     validator = new SimpleReactValidator({ locale: 'tr' });
     getAllApiRequest = (channelId) => {
@@ -36,7 +37,6 @@ class Channel extends Component {
                             this.setState({ ...this.state, isLoading: false }))))))
     }
     componentDidMount() {
-
         var channelId = this.props.match.params.id;
         this.getAllApiRequest(channelId)
     }
@@ -54,8 +54,11 @@ class Channel extends Component {
             this.forceUpdate();
         }
         else {
-            this.props.actions.addPhoto({ file: this.state.model.files[0], channelId: this.props.match.params.id }, this.props.history)
-            this.setState({ ...this.state, model: { ...this.state.model, files: [] } })
+            this.validator.hideMessages();
+            this.setState({ ...this.state, isUploadLoading: true });
+            this.props.actions.addPhoto({ file: this.state.model.files[0], channelId: this.props.match.params.id },
+                () => this.setState({ ...this.state, isUploadLoading: false }, () => this.setState({ ...this.state, model: { ...this.state.model, files: [] } })))
+
         }
     }
 
@@ -81,7 +84,7 @@ class Channel extends Component {
                     </Row>
                     <Row className="mt-3">
                         <Col md="3">
-                            <ChannelCategories channelId={this.props.match.params.id}></ChannelCategories>
+                            <ChannelCategories />
                             {
                                 this.props.isSubs ? <Form className="mt-3" onSubmit={this.onSubmitHandler}>
 
@@ -92,6 +95,7 @@ class Channel extends Component {
 
                                                 var file = imageFile.map(f => f.file)
                                                 this.setState({ ...this.state, model: { ...this.state.model, files: file } })
+                                                this.validator.hideMessages();
                                             }}
                                             labelIdle='Fotoğrafını sürükle bırak veya <strong class="filepond--label-action">seç</strong>'
                                             acceptedFileTypes={['image/*']}
@@ -102,7 +106,12 @@ class Channel extends Component {
 
                                         {this.validator.messageWhenPresent(this.state.validMessage, { className: 'text-danger' })}
                                     </FormGroup>
-                                    <Button type="submit" block variant="outline-secondary">Yükle</Button>
+                                    {
+                                        this.state.isUploadLoading ? <Button variant="success" block disabled>
+                                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"> </span>
+                                             Loading...
+                                        </Button> : <Button type="submit" block variant="outline-secondary">Yükle</Button>
+                                    }
                                 </Form> : null
                             }
 

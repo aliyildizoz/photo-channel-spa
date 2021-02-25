@@ -11,7 +11,6 @@ import Loading from '../common/Loading'
 class Profile extends Component {
 
     state = {
-        renderState: "photos",
         isLoading: true
     }
     componentDidMount() {
@@ -65,7 +64,7 @@ class Profile extends Component {
                         </Col>
                         <Col md="8" >
 
-                            <Flow renderState={this.state.renderState} userId={this.props.match.params.id} />
+                            <Flow renderState={this.props.flowState} userId={this.props.match.params.id} />
 
                         </Col>
 

@@ -2,38 +2,33 @@ import { Transformation } from 'cloudinary-react';
 import Image from 'cloudinary-react/lib/components/Image';
 import React, { Component, useEffect, useState } from 'react'
 import { Container, Col, Row, ListGroup, ListGroupItem, Alert, Badge } from 'react-bootstrap';
-import { connect, useSelector } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
-import { getFeedApi, getMostChannelsApi, getMostCommentsApi, getMostPhotosApi } from '../../redux/actions/home/homeAsyncActions';
+import { getFeedApi, getMostChannelsApi } from '../../redux/actions/home/homeAsyncActions';
 import { searchByMultiCategoryApi } from '../../redux/actions/search/searchAsyncActions';
 import CategoryList from '../categories/CategoryList';
 import { MapPhotoCard } from '../photoCard/photoCardHook';
+import { homeContent, feedType } from '../../redux/constants/constants'
+import { getFeedSuccess } from '../../redux/actions/home/homeActionCreators';
 
-const feedType = {
-    MostPhotos: "MostPhotos",
-    MostComments: "MostComments",
-    Feed: "Feed",
-    FilterChannel: "FilterChannel"
-}
 
 class Home extends Component {
     state = {
-        feedState: feedType.Feed
+        homeContentState: homeContent.Feed
     }
     componentDidMount() {
-
         if (this.props.match.params.text) {
-            this.setState({ ...this.state, feedState: feedType.FilterChannel })
+            this.setState({ ...this.state, homeContentState: homeContent.FilterChannel })
         }
-        this.props.actions.getFeed();
+        this.props.actions.getFeed(feedType.Feed);
         this.props.actions.getMostChannels();
     }
 
     componentDidUpdate(prevProps) {
         if (this.props.match.params.text !== prevProps.match.params.text && this.props.match.params.text) {
             this.props.actions.getByQueryChannels(this.props.selectedCategories.map(c => c.id))
-            this.setState({ ...this.state, feedState: feedType.FilterChannel })
+            this.setState({ ...this.state, homeContentState: homeContent.FilterChannel })
         }
 
     }
@@ -46,7 +41,7 @@ class Home extends Component {
                         <Col md={3}>
                             <Container className="position-fixed mt-4">
                                 <Row>
-                                    <Col md="3"><CategoryList setFeedState={() => this.setState({ ...this.state, feedState: feedType.Feed })} /></Col>
+                                    <Col md="3"><CategoryList setFeedState={() => this.setState({ ...this.state, homeContentState: homeContent.FilterChannel })} /></Col>
                                 </Row>
                             </Container>
                         </Col>
@@ -54,7 +49,7 @@ class Home extends Component {
                             <Container className="mt-5">
                                 <Row>
                                     <Col className="ml-3 mb-3">
-                                        <Feed feedState={this.state.feedState} />
+                                        <Feed feedState={this.state.homeContentState} />
                                     </Col>
                                 </Row>
                             </Container>
@@ -94,12 +89,12 @@ class Home extends Component {
                                                     <ListGroupItem variant="info"><h4>Fotoğraf <i className="fas fa-star text-info"></i></h4></ListGroupItem>
                                                     <ListGroupItem>
                                                         <Link className="text-decoration-none" onClick={() =>
-                                                            this.props.actions.getMostPhotos(this.props.history, () => this.setState({ ...this.state, feedState: feedType.MostPhotos }))}>
+                                                            this.props.actions.getFeed(feedType.MostPhotos, () => this.setState({ ...this.state, homeContentState: homeContent.Feed }))}>
                                                             <i className="fas fa-thumbs-up mr-2"></i>En çok beğenilenler
                                                         </Link>
                                                     </ListGroupItem>
                                                     <ListGroupItem>
-                                                        <Link className="text-decoration-none" onClick={() => this.props.actions.getMostComments(this.props.history, () => this.setState({ ...this.state, feedState: feedType.MostComments }))}>
+                                                        <Link className="text-decoration-none" onClick={() => this.props.actions.getFeed(feedType.MostComments, () => this.setState({ ...this.state, homeContentState: homeContent.Feed }))}>
                                                             <i className="fas fa-comment mr-2"></i>En çok yorum alanlar
                                                         </Link>
                                                     </ListGroupItem>
@@ -119,30 +114,20 @@ class Home extends Component {
 function Feed({ feedState }) {
 
     const homeState = useSelector(state => state.homeReducer)
-    const isLogged = useSelector(state => state.isLoggedReducer)
+    const dispatch = useDispatch()
     const [state, setState] = useState(feedState)
     useEffect(() => {
-        if (isLogged) {
-            setState(feedState);
-        } else {
-            if (feedState !== feedType.Feed) {
-                setState(feedState);
-            } else {
-                setState(feedType.MostPhotos);
-            }
-        }
-    }, [feedState, isLogged])
+        setState(feedState);
+    }, [feedState])
     switch (state) {
-        case feedType.Feed:
-            return <MapPhotoCard cardWidth="31em" photos={homeState.feed} notFoundText={"Lütfen bazı kanallara abone olun."} />
-        case feedType.FilterChannel:
+        case homeContent.Feed:
+            return <MapPhotoCard refreshPhotos={(id) => {
+                dispatch(getFeedSuccess([...homeState.feed.filter(p => p.photoId !== id)]))
+            }} removeButton cardWidth="31em" photos={homeState.feed} notFoundText={"Lütfen bazı kanallara abone olun."} />
+        case homeContent.FilterChannel:
             return <FilterChannel />
-        case feedType.MostPhotos:
-            return <MapPhotoCard cardWidth="31em" notFoundText={"Lütfen bazı kanallara abone olun."} photos={homeState.mostPhotos} />
-        case feedType.MostComments:
-            return <MapPhotoCard bodyShowIndex={1} cardWidth="31em" notFoundText={"Lütfen bazı kanallara abone olun."} photos={homeState.mostComments} />
         default:
-            break;
+            return null;
     }
 
 }
@@ -157,10 +142,8 @@ function mapDispatchToProps(dispatch) {
     return {
         actions: {
             getFeed: bindActionCreators(getFeedApi, dispatch),
-            getMostChannels: bindActionCreators(getMostChannelsApi, dispatch),
-            getMostPhotos: bindActionCreators(getMostPhotosApi, dispatch),
-            getMostComments: bindActionCreators(getMostCommentsApi, dispatch),
-            getByQueryChannels: bindActionCreators(searchByMultiCategoryApi, dispatch)
+            getByQueryChannels: bindActionCreators(searchByMultiCategoryApi, dispatch),
+            getMostChannels: bindActionCreators(getMostChannelsApi, dispatch)
 
         }
     }

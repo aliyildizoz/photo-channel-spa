@@ -7,33 +7,51 @@ import { Link, useHistory } from "react-router-dom";
 import { getUserPhotosApi } from "../../redux/actions/photo/photoAsyncActions";
 import PhotoCardHook, { MapPhotoCard } from "../photoCard/photoCardHook";
 import { getSubscriptionsApi, getLikedPhotosApi, getUserCommentsPhotosApi, getUserApi } from "../../redux/actions/user/userAsyncActions";
-import { getIsOwnerSuccess } from "../../redux/actions/user/userActionsCreators";
+import { getIsOwnerSuccess, getLikedPhotosSuccess, getUserCommentsPhotosSuccess, getUserPhotosSuccess } from "../../redux/actions/user/userActionsCreators";
 import { SubsApi } from "../channel/channelHooks";
 import Loading from "../common/Loading";
+import { profileFlowState } from "../../redux/constants/constants";
 
 export function Flow({ renderState, userId }) {
     const [flowState, setFlowState] = useState();
+    const history = useHistory()
     useEffect(() => setFlowState(renderState), [renderState])
-
+    const dispatch = useDispatch();
     return <div>
         <Row>
             <Col md="12">
                 <Tabs
                     id="controlled-tab-example"
                     activeKey={flowState}
-                    onSelect={(k) => setFlowState(k)}
+                    onSelect={(k) => {
+                        setFlowState(k)
+                        history.push(k)
+                        switch (k) {
+                            case profileFlowState.Photos:
+                                dispatch(getUserPhotosApi(userId));
+                                break;
+                            case profileFlowState.Likes:
+                                dispatch(getLikedPhotosApi(userId))
+                                break;
+                            case profileFlowState.Comments:
+                                dispatch(getUserCommentsPhotosApi(userId))
+                                break;
+                            default:
+                                break;
+                        }
+                    }}
                 >
-                    <Tab eventKey="photos" title="Fotoğraflar" >
+                    <Tab eventKey={profileFlowState.Photos} title="Fotoğraflar" >
                         <Col >
                             <UserPhotos userId={userId} />
                         </Col>
                     </Tab>
-                    <Tab eventKey="likes" title="Beğeniler">
+                    <Tab eventKey={profileFlowState.Likes} title="Beğeniler">
                         <Col>
                             <LikedPhotos userId={userId} />
                         </Col>
                     </Tab>
-                    <Tab eventKey="comments" title="Yorumlar">
+                    <Tab eventKey={profileFlowState.Comments} title="Yorumlar">
                         <Col>
                             <CommentsPhotos userId={userId} />
                         </Col>
@@ -53,7 +71,9 @@ function LikedPhotos({ userId }) {
         dispatch(getLikedPhotosApi(userId, setFalseIsLoading))
     }, [userId, dispatch]);
     return <div className="mt-3">
-        {isLoading ? < Loading /> : <MapPhotoCard photos={likedPhotos} />}
+        {isLoading ? < Loading /> : <MapPhotoCard removeButton={true} refreshPhotos={(id) => {
+            dispatch(getLikedPhotosSuccess([...likedPhotos.filter(p => p.photoId !== id)]))
+        }} photos={likedPhotos} />}
     </div>
 }
 function CommentsPhotos({ userId }) {
@@ -65,7 +85,9 @@ function CommentsPhotos({ userId }) {
     useEffect(() => { dispatch(getUserCommentsPhotosApi(userId, setFalseIsLoading)) }, [userId, dispatch])
     const commentsPhotos = useSelector(state => state.userReducer.commentsPhotos)
 
-    return <div className="mt-3"> {isLoading ? <Loading /> : <MapPhotoCard photos={commentsPhotos} bodyShowIndex={1} notFoundText={"Bu kişinin herhangi bir yorumu bulunmamaktadır."} />}</div>
+    return <div className="mt-3"> {isLoading ? <Loading /> : <MapPhotoCard removeButton={true} refreshPhotos={(id) => {
+        dispatch(getUserCommentsPhotosSuccess([...commentsPhotos.filter(p => p.photoId !== id)]))
+    }} photos={commentsPhotos} bodyShowIndex={1} notFoundText={"Bu kişinin herhangi bir yorumu bulunmamaktadır."} />}</div>
 }
 
 function UserPhotos({ userId }) {
@@ -77,7 +99,10 @@ function UserPhotos({ userId }) {
 
     const userPhotos = useSelector(state => state.userReducer.userPhotos)
 
-    return <div className="mt-3">{isLoading ? <Loading /> : <div> <MapPhotoCard photos={userPhotos} /></div>}
+    return <div className="mt-3">{isLoading ? <Loading /> : <div>
+        <MapPhotoCard removeButton={true} refreshPhotos={(id) => {
+            dispatch(getUserPhotosSuccess([...userPhotos.filter(p => p.photoId !== id)]))
+        }} photos={userPhotos} /></div>}
     </div>
 }
 

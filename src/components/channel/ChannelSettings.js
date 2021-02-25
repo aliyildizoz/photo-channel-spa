@@ -12,22 +12,17 @@ class ChannelSettings extends Component {
     componentDidMount() {
 
         var channelId = this.props.match.params.id;
-
         this.props.actions.getChannelIsOwner(channelId)
-
-        if (!this.props.channelIsOwner) {
-            this.props.actions.getChannelDetail(channelId)
-            this.props.actions.getSubscribers(channelId)
-            this.props.actions.getChannelCategories(channelId)
-            if (Object.keys(this.props.categories).length === 0) {
-                this.props.actions.getCategories()
-            }
+        this.props.actions.getChannelDetail(channelId)
+        this.props.actions.getSubscribers(channelId)
+        this.props.actions.getChannelCategories(channelId)
+        if (Object.keys(this.props.categories).length === 0) {
+            this.props.actions.getCategories()
         }
     }
 
 
     render() {
-
         return (
             <div>
                 {

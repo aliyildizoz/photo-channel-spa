@@ -7,6 +7,8 @@ import { isLoadingTSuccess, isLoadingFSuccess } from "../common/commonActionsCre
 import { bindActionCreators } from "redux";
 import { redirectErrPage } from "../../helpers/historyHelper"
 import { push } from 'connected-react-router'
+import { feedType } from "../../constants/constants"
+import { getFeedApi } from "../../actions/home/homeAsyncActions"
 
 
 export function loginApi(user) {
@@ -19,13 +21,13 @@ export function loginApi(user) {
         }).catch(err => {
             console.log(err.response)
             if (err.response === undefined) {
-                redirectErrPage(err,dispatch);
+                redirectErrPage(err, dispatch);
                 return;
             }
             if (err.response.status === 400) {
                 dispatch(commonActionsCreators.apiResponse({ message: err.response.data, status: err.response.data }))
             } else {
-                redirectErrPage(err,dispatch)
+                redirectErrPage(err, dispatch)
             }
         })
     }
@@ -38,9 +40,11 @@ export function logoutApi() {
                 authorization: localStorageHelper.getJwtToken()
             }
         }).then(() => {
-            localStorageHelper.removeToken()
-            dispatch(authActionsCreators.isLoggedFSuccess())
-        }).then(() => dispatch(authActionsCreators.currentUserClearSuccess())).catch(err => redirectErrPage(err,dispatch))
+            localStorageHelper.removeToken();
+            dispatch(authActionsCreators.isLoggedFSuccess());
+            var getFeed = bindActionCreators(getFeedApi, dispatch);
+            getFeed(feedType.MostPhotos);
+        }).then(() => dispatch(authActionsCreators.currentUserClearSuccess())).catch(err => redirectErrPage(err, dispatch))
 
     }
 }
@@ -54,13 +58,13 @@ export function registerApi(user) {
         }).catch(err => {
             console.log(err.response)
             if (err.response === undefined) {
-                redirectErrPage(err,dispatch);
+                redirectErrPage(err, dispatch);
                 return;
             }
             if (err.response.status === 400) {
                 dispatch(commonActionsCreators.apiResponse({ message: err.response.data, status: err.response.data }))
             } else {
-                redirectErrPage(err,dispatch)
+                redirectErrPage(err, dispatch)
             }
         })
     }
@@ -68,7 +72,7 @@ export function registerApi(user) {
 
 export function getCurrentUserApi() {
     return async (dispatch, getState) => {
-       
+
         dispatch(authActionsCreators.currentUserIsLoadingTSuccess());
         if (localStorageHelper.isExistsToken()) {
             if (Object.keys(getState().currentUserReducer.detail).length === 0) {
@@ -105,6 +109,6 @@ function refreshTokenApi() {
             localStorageHelper.setToken(res.data)
             var getCurrentUser = bindActionCreators(getCurrentUserApi, dispatch)
             getCurrentUser();
-        }).catch(err => redirectErrPage(err,dispatch));
+        }).catch(err => redirectErrPage(err, dispatch));
     }
 }

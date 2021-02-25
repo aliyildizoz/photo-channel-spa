@@ -23,9 +23,10 @@ export function redirectErrPage(err, dispatch) {
             path.pathname = "/forbidden"
             break;
         case 500:
-            path.pathname = "/errorpage"
-            path.state.message = "Hata oluştu";
-            path.state.status = 500;
+            // path.pathname = "/errorpage"
+            // path.state.message = "Hata oluştu";
+            // path.state.status = 500;
+            toast.error("Bir hata oluştu...");
             break;
         default:
             break;
