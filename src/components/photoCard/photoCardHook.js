@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react"
-import { Container, Row, Col, Card, Media, InputGroup, FormControl, ListGroup, Dropdown, Modal, Form } from 'react-bootstrap'
+import { Container, Row, Col, Card, Media, InputGroup, FormControl, ListGroup, Dropdown, Modal, Form, ModalBody } from 'react-bootstrap'
 import { Button } from 'react-bootstrap'
 import { Link, useHistory } from 'react-router-dom'
 import Image from 'cloudinary-react/lib/components/Image/Image';
@@ -53,6 +53,7 @@ function PhotoCardHook({ refreshPhotos, removeButton = false, photo, cardWidth =
                 show={photoModalShow}
                 onHide={() => setPhotoModalShow(false)}
                 publicId={photo.photoPublicId}
+                photoUrl={photo.photoUrl}
             />
             <PhotoCardBody
                 shareDate={photo.shareDate}
@@ -63,7 +64,6 @@ function PhotoCardHook({ refreshPhotos, removeButton = false, photo, cardWidth =
                 setCommentShow={() => setCardBodyShow(1)}
                 setLikesShow={() => setCardBodyShow(2)}
                 photoId={photo.photoId}
-                photo={photo}
                 setlikeCount={setlikeCount}
                 isLike={isLike}
                 setIsLike={setIsLike}
@@ -102,7 +102,8 @@ export function MapPhotoCard({ refreshPhotos, removeButton = false, photos, card
                     photoId: p.photoId,
                     channelId: p.channelId,
                     channelName: p.channelName,
-                    channelPublicId: p.channelPublicId
+                    channelPublicId: p.channelPublicId,
+                    photoUrl: p.photoUrl
                 }}
                 removeButton={removeButton}
                 bodyShowIndex={bodyShowIndex}
@@ -166,7 +167,7 @@ function PhotoCardHeader({ refreshPhotos, photoId, isOwner, channelId, channelPu
     )
 }
 
-function PhotoCardBody({ setIsLike, isLike, photo, photoId, likeCount, commentCount, userName, userId, shareDate, setLikesShow, setCommentShow, setlikeCount }) {
+function PhotoCardBody({ setIsLike, isLike, photoId, likeCount, commentCount, userName, userId, shareDate, setLikesShow, setCommentShow, setlikeCount }) {
 
     return (
         <Card.Body style={{ paddingTop: 0 }} className="pl-2">
@@ -187,7 +188,7 @@ function PhotoCardBody({ setIsLike, isLike, photo, photoId, likeCount, commentCo
 
             <hr style={{ margin: 5 }} />
 
-            <LikeButton photoId={photoId} photo={photo} setlikeCount={setlikeCount} isLike={isLike} setIsLike={setIsLike} />
+            <LikeButton photoId={photoId} setlikeCount={setlikeCount} isLike={isLike} setIsLike={setIsLike} />
             <Button variant="dark" onClick={setCommentShow} className="btn-sm ml-2" style={{ borderRadius: 0 }}>
                 <i className="fa  fa-comment" style={{ fontSize: 16 }}></i>&nbsp;&nbsp;Yorum Yap</Button>
             <div className="d-inline-flex font-weight-lighter float-right">{new Date(shareDate).toLocaleString().match(datePatt).toString().replace(" ", " - ")}</div>
@@ -196,8 +197,6 @@ function PhotoCardBody({ setIsLike, isLike, photo, photoId, likeCount, commentCo
 }
 
 function LikeButton({ isLike, setIsLike, photoId, setlikeCount }) {
-
-
     const dispatch = useDispatch()
     const history = useHistory()
     const isLogged = useSelector(state => state.isLoggedReducer);
@@ -239,7 +238,6 @@ function PhotoCardComments({ currentUserId, photoId, hideCardBody, countDec, cou
     const [currentComment, setCurrentComment] = useState({});
 
     useEffect(() => {
-
         axios.get(getPhotoCommentsUrl(photoId)).then(res => { setComments(res.data) })
     }, [photoId]);
     const isLogged = useSelector(state => state.isLoggedReducer);
@@ -431,10 +429,8 @@ function DeletePhotoModal(props) {
 function PhotoModal(props) {
 
     return (
-        <Modal {...props}>
-            <Image cloudName="dwebpzxqn" publicId={props.publicId} className="card-img-top img-fluid">
-            </Image>
-
+        <Modal size="lg" backdropClassName="bg-dark"  {...props}>
+                <img src={props.photoUrl} />
         </Modal>
     );
 }
