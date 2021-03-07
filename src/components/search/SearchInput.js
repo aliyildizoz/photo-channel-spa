@@ -1,6 +1,6 @@
 import Image from 'cloudinary-react/lib/components/Image'
 import Transformation from 'cloudinary-react/lib/components/Transformation'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Button, Col, Container, Form, FormControl, ListGroup, ListGroupItem, Row } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
@@ -16,7 +16,11 @@ const SearchInput = () => {
     const [inputIsFocus, setInputIsFocus] = useState(false)
     const [cursor, setCursor] = useState(0)
     const [searchText, setSearchText] = useState("")
-
+    const searchInputRef = React.createRef();
+    const [contentSize, setMarginLeft] = useState({});
+    useEffect(() => {
+        setMarginLeft(searchInputRef.current.getBoundingClientRect())
+    }, [])
     const onChangeHandler = (event) => {
         setSearchText(event.target.value)
         if (event.target.value !== "") {
@@ -60,18 +64,18 @@ const SearchInput = () => {
                 setCursor(0);
             }
         }}>
-            <FormControl onFocus={() => setInputIsFocus(true)} onKeyDown={handleKeyDown} type="text" value={searchText} onChange={onChangeHandler} placeholder="arama" style={{ width: 400, height: 30 }} className="mr-2 ml-3" />
+            <FormControl ref={searchInputRef} onFocus={() => setInputIsFocus(true)} onKeyDown={handleKeyDown} type="text" value={searchText} onChange={onChangeHandler} placeholder="arama" style={{ width: 400, height: 30 }} className="mr-2 ml-3" />
 
             {
                 inputIsFocus ? <Container >
                     <Row>
-                        <Col className="fixed-top mt-5" md={{ span: 3 }} style={{ marginLeft: 847, width: 428 }}>
+                        <Col className="fixed-top mt-5"  style={{ marginLeft: contentSize.left-15, width: contentSize.width+30 }}>
 
-                            <ListGroup >
+                            <ListGroup>
                                 {
                                     Object.entries(searchTextRes).length !== 0 ? searchTextRes.channels.map((c, i) => {
-                                        return <Link onClick={() => { /*history.push("/channel/" + c.id); history.go(0);*/ setSearchText(""); dispatch(searchByTextSuccess({})); }} className="text-decoration-none" to={"/channel/" + c.id}>
-                                            <ListGroup.Item action variant="light" key={i} className="d-flex pt-1 pb-1 " style={{ backgroundColor: (cursor === i ? "#ececf6" : null) }}>
+                                        return <Link key={i} onClick={() => { setSearchText(""); dispatch(searchByTextSuccess({})); }} className="text-decoration-none" to={"/channel/" + c.id}>
+                                            <ListGroup.Item action variant="light"  className="d-flex pt-1 pb-1 " style={{ backgroundColor: (cursor === i ? "#ececf6" : null) }}>
 
                                                 <Image cloudName="dwebpzxqn" publicId={c.publicId}   >
                                                     <Transformation width={25} height={25} gravity="auto" crop="fill" radius="2" />
@@ -84,8 +88,8 @@ const SearchInput = () => {
                                 }
                                 {
                                     Object.entries(searchTextRes).length !== 0 ? searchTextRes.users.map((u, i) => {
-                                        return <Link onClick={() => { setSearchText(""); dispatch(searchByTextSuccess({})) }} className="text-decoration-none" to={"/profile/" + u.id}>
-                                            <ListGroup.Item action variant="light" key={i} className="d-flex pt-1 pb-0 " style={{ backgroundColor: (cursor === i + searchTextRes.channels.length ? "#ececf6" : null) }}>
+                                        return <Link key={i+10} onClick={() => { setSearchText(""); dispatch(searchByTextSuccess({})) }} className="text-decoration-none" to={"/profile/" + u.id}>
+                                            <ListGroup.Item action variant="light"  className="d-flex pt-1 pb-0 " style={{ backgroundColor: (cursor === i + searchTextRes.channels.length ? "#ececf6" : null) }}>
                                                 <i className="fas fa-user mr-2 ml-1 " style={{ fontSize: 18 }}></i>
                                                 <h6 className="d-flex align-items-center ml-1 "> {u.firstName + " " + u.lastName}</h6>
                                             </ListGroup.Item>

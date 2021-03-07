@@ -8,8 +8,6 @@ import { toast } from 'react-toastify';
 export function searchByTextApi(text, callBack) {
 
     return async dispatch => {
-
-        console.log(text)
         await axios.get(searchByTextUrl(text)).then((res) => {
             dispatch(searchByTextSuccess(res.data))
         }).then(() => {
@@ -30,7 +28,6 @@ export function searchByCategoryApi(categoryId, callBack) {
     return async dispatch => {
 
         await axios.get(searchByCategoryUrl(categoryId)).then((res) => {
-            console.log(res.data)
             dispatch(searchByCategorySuccess(res.data))
         }).then(() => {
             if (typeof callBack == "function") {
@@ -45,7 +42,6 @@ export function searchByMultiCategoryApi(categoryIds, callBack) {
     return async dispatch => {
 
         await axios.get(searchByMultiCategoryUrl, { params: { categoryIds: categoryIds } }).then((res) => {
-            console.log(res.data)
             dispatch(searchByCategorySuccess(res.data))
         }).then(() => {
             if (typeof callBack == "function") {

@@ -3,12 +3,10 @@ import { connect } from "react-redux"
 import { bindActionCreators } from 'redux'
 import * as categoryActionCreators from '../../redux/actions/category/categoryActionCreators'
 import * as categoryAsyncActions from '../../redux/actions/category/categoryAsyncActions'
-import { Badge, Button, ListGroup, ListGroupItem } from 'react-bootstrap';
+import { Badge,  ListGroup, ListGroupItem } from 'react-bootstrap';
 import { Multiselect } from 'multiselect-react-dropdown';
 import { Link } from 'react-router-dom'
 import { push } from 'connected-react-router'
-import { searchByMultiCategoryApi } from '../../redux/actions/search/searchAsyncActions'
-import { searchByCategorySuccess } from '../../redux/actions/search/searchActionCreators'
 
 class CategoryList extends Component {
 
@@ -70,7 +68,6 @@ class CategoryList extends Component {
     }
 }
 function mapStateToProps(state) {
-
     return { categories: state.categoryListReducer, selectedCategories: state.selectedCategoriesReducer }
 }
 function mapDispatchToProps(dispatch) {

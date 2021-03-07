@@ -88,13 +88,13 @@ class Home extends Component {
                                                 <ListGroup className="shadow-lg ">
                                                     <ListGroupItem variant="info"><h4>Fotoğraf <i className="fas fa-star text-info"></i></h4></ListGroupItem>
                                                     <ListGroupItem>
-                                                        <Link to="" className="text-decoration-none" onClick={() =>
+                                                        <Link className="text-decoration-none" onClick={() =>
                                                             this.props.actions.getFeed(feedType.MostPhotos, () => this.setState({ ...this.state, homeContentState: homeContent.Feed }))}>
                                                             <i className="fas fa-thumbs-up mr-2"></i>En çok beğenilenler
                                                         </Link>
                                                     </ListGroupItem>
                                                     <ListGroupItem>
-                                                        <Link to="" className="text-decoration-none" onClick={() => this.props.actions.getFeed(feedType.MostComments, () => this.setState({ ...this.state, homeContentState: homeContent.Feed }))}>
+                                                        <Link  className="text-decoration-none" onClick={() => this.props.actions.getFeed(feedType.MostComments, () => this.setState({ ...this.state, homeContentState: homeContent.Feed }))}>
                                                             <i className="fas fa-comment mr-2"></i>En çok yorum alanlar
                                                         </Link>
                                                     </ListGroupItem>

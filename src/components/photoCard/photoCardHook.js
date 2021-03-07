@@ -15,8 +15,8 @@ import { getChannelPhotosSuccess } from "../../redux/actions/photo/photoActionCr
 import { getLikedPhotosSuccess, getUserCommentsPhotosSuccess, getUserPhotosSuccess } from "../../redux/actions/user/userActionsCreators";
 import { profileFlowState } from "../../redux/constants/constants";
 import _ from 'lodash'
+import Moment from "react-moment";
 
-const datePatt = /.+\s\d+[:]\d+/g;
 
 function PhotoCardHook({ refreshPhotos, removeButton = false, photo, cardWidth = "41rem", bodyShowIndex = 0, className = "mt-5" }) {
 
@@ -191,7 +191,7 @@ function PhotoCardBody({ setIsLike, isLike, photoId, likeCount, commentCount, us
             <LikeButton photoId={photoId} setlikeCount={setlikeCount} isLike={isLike} setIsLike={setIsLike} />
             <Button variant="dark" onClick={setCommentShow} className="btn-sm ml-2" style={{ borderRadius: 0 }}>
                 <i className="fa  fa-comment" style={{ fontSize: 16 }}></i>&nbsp;&nbsp;Yorum Yap</Button>
-            <div className="d-inline-flex font-weight-lighter float-right">{new Date(shareDate).toLocaleString().match(datePatt).toString().replace(" ", " - ")}</div>
+            <div className="d-inline-flex font-weight-lighter float-right"><Moment format="DD.MM.YYYY - hh:mm a">{shareDate}</Moment></div>
         </Card.Body>
     )
 }
@@ -326,7 +326,7 @@ function PhotoCardComments({ currentUserId, photoId, hideCardBody, countDec, cou
                                     </Dropdown> : null
                                 }
 
-                                <div className="d-inline-flex font-weight-light float-right">{new Date(c.shareDate).toLocaleString().match(datePatt).toString().replace(" ", " - ")}</div>
+                                <div className="d-inline-flex font-weight-light float-right"><Moment format="DD.MM.YYYY - hh:mm a">{c.shareDate}</Moment></div>
 
                                 <hr style={{ margin: 5 }} />
                                 <p className="mb-0">
