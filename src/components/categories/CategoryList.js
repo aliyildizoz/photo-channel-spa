@@ -22,7 +22,6 @@ class CategoryList extends Component {
         this.props.actions.setSelectedCategories(categories)
         if (categories.length > 0) {
             this.props.actions.historyPush("/feed/" + this.queryGenerate(categories))
-            console.log("/feed/" + this.queryGenerate(categories));
             return;
         }
         this.props.actions.historyPush("/feed")

@@ -5,16 +5,18 @@ import axios from "axios";
 import { redirectErrPage } from "../../helpers/historyHelper";
 
 
-export function getIsSubsApi(channelId,  callBack) {
-    return async dispatch => {
-        if (isExistsToken()) {
+export function getIsSubsApi(channelId, callBack) {
+    return async (dispatch, getState) => {
+
+        if (isExistsToken() && Object.keys(getState().currentUserReducer.detail).length > 0) {
+
             axios.get(getIsSubsPath(channelId), { headers: authHeaderObj() }).
                 then(res => dispatch(getIsSubsSuccess(res.data))).then(() => {
                     if (typeof callBack == "function") {
                         callBack()
                     }
                 }).catch(err => redirectErrPage(err, dispatch));
-        }else{
+        } else {
             if (typeof callBack == "function") {
                 callBack()
             }

@@ -1,1 +1,1 @@
-export const  MAIN_URL = "https://localhost:5001";
+export const  MAIN_URL = "https://localhost:44367";

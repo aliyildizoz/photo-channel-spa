@@ -72,9 +72,10 @@ export function registerApi(user) {
 
 export function getCurrentUserApi() {
     return async (dispatch, getState) => {
-
         dispatch(authActionsCreators.currentUserIsLoadingTSuccess());
         if (localStorageHelper.isExistsToken()) {
+            console.log("object");
+
             if (Object.keys(getState().currentUserReducer.detail).length === 0) {
                 await axios.get(CURRENT_USER_PATH, {
                     headers: localStorageHelper.authHeaderObj()
@@ -109,6 +110,13 @@ function refreshTokenApi() {
             localStorageHelper.setToken(res.data)
             var getCurrentUser = bindActionCreators(getCurrentUserApi, dispatch)
             getCurrentUser();
-        }).catch(err => redirectErrPage(err, dispatch));
+        }).catch(err => {
+            if (err?.response?.status === 400) {
+                localStorageHelper.removeToken();
+                dispatch(authActionsCreators.isLoggedFSuccess())
+                return;
+            }
+            redirectErrPage(err, dispatch)
+        });
     }
 }
