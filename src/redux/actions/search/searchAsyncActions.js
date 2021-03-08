@@ -1,9 +1,7 @@
 import axios from "axios"
-import { bindActionCreators } from "redux"
 import { redirectErrPage } from "../../helpers/historyHelper"
 import { searchByCategorySuccess, searchByTextSuccess } from "./searchActionCreators"
 import { searchByCategoryUrl, searchByMultiCategoryUrl, searchByTextUrl } from "./searchEndPoints"
-import { toast } from 'react-toastify';
 
 export function searchByTextApi(text, callBack) {
 

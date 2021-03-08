@@ -123,7 +123,7 @@ function Feed({ feedState }) {
         case homeContent.Feed:
             return <MapPhotoCard refreshPhotos={(id) => {
                 dispatch(getFeedSuccess([...homeState.feed.filter(p => p.photoId !== id)]))
-            }} removeButton cardWidth="31em" photos={homeState.feed} notFoundText={"Lütfen bazı kanallara abone olun."} />
+            }} removeButton cardWidth="31em" photos={homeState.feed} notFoundText="Loading..." />
         case homeContent.FilterChannel:
             return <FilterChannel />
         default:

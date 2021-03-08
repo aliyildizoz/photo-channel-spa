@@ -11,6 +11,7 @@ import { apiResponse, isLoadingFSuccess, isLoadingTSuccess } from "../common/com
 import { getUserChannelsSuccess } from "../user/userActionsCreators"
 import { isLoggedFSuccess, isLoggedTSuccess } from "../auth/authActionsCreators"
 import { push } from 'connected-react-router'
+import { toast } from "react-toastify"
 
 export function getChannelDetailApi(channelId, callBack) {
     return async dispatch => {
@@ -70,6 +71,8 @@ export function channelUpdateApi(channel, channelId) {
             } else {
                 redirectErrPage(err,dispatch)
             }
+        }).then(() => toast.success("Kanal güncellendi.")).catch(err => {
+            redirectErrPage(err,dispatch);
         })
     }
 }
@@ -80,7 +83,7 @@ export function addChannelCategoriesApi(categories, channelId) {
             then(() => {
                 dispatch(getChannelCategoriesSuccess(categories));
                 dispatch(push("/channel/" + channelId));
-            }).catch(err => {
+            }).then(() => toast.success("Kategoriler güncellendi.")).catch(err => {
                 redirectErrPage(err,dispatch);
             })
     }

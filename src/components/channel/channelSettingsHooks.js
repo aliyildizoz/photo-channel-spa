@@ -15,6 +15,7 @@ import { FilePond, registerPlugin } from 'react-filepond';
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation';
+import { toast } from "react-toastify";
 
 registerPlugin(FilePondPluginImagePreview, FilePondPluginFileValidateType, FilePondPluginImageExifOrientation);
 
@@ -110,7 +111,7 @@ export function ChannelDelete({ channelId }) {
         console.log(getChannelPathById(channelId));
         axios.delete(getChannelPathById(channelId), {
             headers: authHeaderObj()
-        }).then(() => history.push("/")).catch(err => redirectErrPage(err, dispatch))
+        }).then(() => history.push("/")).then(() => toast.success("Kanal silindi.")).catch(err => redirectErrPage(err, dispatch))
     }
     return <Col className="mt-2">
         <Accordion>
@@ -131,7 +132,7 @@ export function Subscribers({ channelId }) {
     const removeSubs = (userId) => {
         axios.delete(deleteSubsByOwnerPath(channelId, userId), {
             headers: authHeaderObj()
-        }).then(() => dispatch(getSubscribersApi(channelId))).then(() => setModalShow(false)).catch((err) => redirectErrPage(err, dispatch))
+        }).then(() => dispatch(getSubscribersApi(channelId))).then(() => setModalShow(false)).then(() => toast.success("Kullanıcı silindi.")).catch((err) => redirectErrPage(err, dispatch))
     }
 
     return <div>

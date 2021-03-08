@@ -244,7 +244,10 @@ function PhotoCardComments({ currentUserId, photoId, hideCardBody, countDec, cou
     const history = useHistory()
     const dispatch = useDispatch()
     const createCommentClick = () => {
-        if (!isLogged) history.push("/login")
+        if (!isLogged) {
+            history.push("/login")
+            return;
+        }
 
         if (newComment !== "" && newComment !== undefined) {
             setShowValid(false);
@@ -430,7 +433,7 @@ function PhotoModal(props) {
 
     return (
         <Modal size="lg" backdropClassName="bg-dark"  {...props}>
-                <img src={props.photoUrl} />
+            <img src={props.photoUrl} />
         </Modal>
     );
 }

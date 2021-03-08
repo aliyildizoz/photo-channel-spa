@@ -31,6 +31,7 @@ class Profile extends Component {
                         <Col md="12">
                             <Card className="card-inverse rounded-0" style={{ borderWidth: 1, marginTop: 20 }}>
                                 <Col>
+
                                     <div className="card-block">
                                         {this.state.isLoading ? <Loading /> : <Row>
                                             <Col md={{ span: 2 }} className="mt-3 mb-4">
@@ -44,7 +45,7 @@ class Profile extends Component {
                                             </Col>
                                             <Col>
                                                 {this.props.isOwner ?
-                                                    <Link id="settingLink" className="float-right mt-3" to={this.props.match.params.id + "/settings"}>
+                                                    <Link id="settingLink" className="float-right mt-3" to="settings">
                                                         <i className="fas fa-user-edit fa-2x"></i>
                                                     </Link>
                                                     : null}

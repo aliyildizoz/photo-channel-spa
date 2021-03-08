@@ -110,10 +110,15 @@ class App extends Component {
               this.props.actions.getUserIsOwner(this.props.currentUser.detail.id == props.match.params.id);
               return isMe ? <Redirect to={"/profile/me/" + profileFlowState.Likes} /> : <Profile flowState={profileFlowState.Likes} {...props} />
             }} />
-            <Route exact path="/profile/:id/settings" render={(props) => {
-              var urlId = props.match.params.id;
-              return this.props.currentUser.isLoading ?
-                <Loading /> : this.props.currentUser.detail.id == urlId ? < ProfileSettings {...props} /> : <Redirect to={"/profile/" + urlId} />;
+            <Route exact path="/profile/me/settings" render={(props) => {
+                if (this.props.currentUser.isLoading) {
+                  return <Loading />
+                }
+                if (this.props.isLogged) {
+                  this.props.actions.getUserIsOwner(true);
+                  props.match.params.id = this.props.currentUser.detail.id;
+                  return< ProfileSettings {...props} />
+                }
             }
             } />
             <Route exact path="/profile/:id/channels" render={(props) => {

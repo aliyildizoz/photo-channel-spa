@@ -11,7 +11,7 @@ import * as localStorageHelper from "../../redux/helpers/localStorageHelper"
 import { redirectErrPage } from '../../redux/helpers/historyHelper'
 import { currentUserClearSuccess, currentUserSuccess, isLoggedFSuccess } from '../../redux/actions/auth/authActionsCreators'
 import { getCurrentUserApi } from '../../redux/actions/auth/authAsyncActions'
-
+import { toast } from 'react-toastify';
 export default class ProfileSettings extends Component {
 
     render() {
@@ -62,7 +62,7 @@ function Settings() {
             await axios.put(getUserUrlById(currentUser.id), userModel, { headers: authHeaderObj() }).then(res => {
                 dispatch(getUserDetailSuccess(currentUser));
                 localStorageHelper.setToken(res.data)
-            }).then(() => history.push("/profile/" + currentUser.id)).then(() =>   dispatch(currentUserSuccess(userModel))).catch((err) => setUserResponse(err.response.data))
+            }).then(() => history.push("/profile/" + currentUser.id)).then(() => dispatch(currentUserSuccess(userModel))).then(() => toast.success("Hesap güncellendi.")).catch((err) => setUserResponse(err.response.data))
 
         } else {
             userValidator.current.showMessages();
@@ -75,7 +75,7 @@ function Settings() {
                 await axios.put(getUpdatePasswordUrl(currentUser.id), {
                     oldPassword: passwordModel.oldPasword,
                     newPassword: passwordModel.newPassword
-                }, { headers: authHeaderObj() }).catch((err) => setPasswordResponse(err.response.data))
+                }, { headers: authHeaderObj() }).then(() => history.push("/profile/me")).then(() => toast.success("Şifre güncellendi.")).catch((err) => setPasswordResponse(err.response.data))
                 setEqualMessage("");
             }
             else {
@@ -91,7 +91,7 @@ function Settings() {
             dispatch(isLoggedFSuccess());
             dispatch(currentUserClearSuccess());
             history.push("/")
-        }).catch((err) => redirectErrPage(err,dispatch))
+        }).catch((err) => redirectErrPage(err, dispatch))
     }
     return <Row className="bg-light" style={{ borderBottomLeftRadius: 50, borderBottomRightRadius: 50 }}>
         <Col style={{ marginTop: 50, marginBottom: 50 }}>
