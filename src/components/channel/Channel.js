@@ -66,7 +66,6 @@ class Channel extends Component {
 
 
     render() {
-
         return (
             <div>
                 { this.state.isLoading ? <Loading /> : <Container >

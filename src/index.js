@@ -7,7 +7,6 @@ import 'filepond/dist/filepond.min.css';
 import './public/css/channelDetail.css';
 import './public/css/index.css';
 import * as serviceWorker from './serviceWorker';
-import { BrowserRouter } from "react-router-dom"
 import { ConnectedRouter } from 'connected-react-router'
 import { Provider } from 'react-redux';
 import configureStore, { history } from "./redux/configureStore";
