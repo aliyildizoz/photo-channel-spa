@@ -53,7 +53,7 @@ class CategoryList extends Component {
                         <h5>
                             {
                                 this.props.categories.map(c => (
-                                    <Link onClick={() => this.onChangeHandler([c])} key={c.id} to={"/feed/" + encodeURIComponent(c.name)} className="text-decoration-none"> <Badge
+                                    <Link onClick={() => this.onChangeHandler([c])} key={c.id} to={"/feed/" + encodeURIComponent(c.name.toLowerCase())} className="text-decoration-none"> <Badge
                                         variant="info"
                                         className="ml-2 mt-2 cursorPointer category "
                                         style={{ background: (this.props.selectedCategories.length === 1 ? this.props.selectedCategories.includes(c) ? "#5bc0de" : "" : "#17a2b8") }}

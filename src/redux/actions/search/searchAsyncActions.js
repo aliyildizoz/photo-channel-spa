@@ -1,4 +1,5 @@
 import axios from "axios"
+import _ from "lodash"
 import { redirectErrPage } from "../../helpers/historyHelper"
 import { searchByCategorySuccess, searchByTextSuccess } from "./searchActionCreators"
 import { searchByCategoryUrl, searchByMultiCategoryUrl, searchByTextUrl } from "./searchEndPoints"
@@ -40,7 +41,7 @@ export function searchByMultiCategoryApi(categoryIds, callBack) {
     return async dispatch => {
 
         await axios.get(searchByMultiCategoryUrl, { params: { categoryIds: categoryIds } }).then((res) => {
-            dispatch(searchByCategorySuccess(res.data))
+            dispatch(searchByCategorySuccess(_.cloneDeep(res.data)))
         }).then(() => {
             if (typeof callBack == "function") {
                 callBack()

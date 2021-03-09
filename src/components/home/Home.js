@@ -11,8 +11,7 @@ import CategoryList from '../categories/CategoryList';
 import { MapPhotoCard } from '../photoCard/photoCardHook';
 import { homeContent, feedType } from '../../redux/constants/constants'
 import { getFeedSuccess } from '../../redux/actions/home/homeActionCreators';
-import ErrorBoundary from '../toolbox/ErrorBoundary';
-
+import * as categoryActionCreators from '../../redux/actions/category/categoryActionCreators'
 
 class Home extends Component {
     state = {
@@ -27,15 +26,23 @@ class Home extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (this.props.match.params.text !== prevProps.match.params.text && this.props.match.params.text) {
-            this.props.actions.getByQueryChannels(this.props.selectedCategories.map(c => c.id))
-            this.setState({ ...this.state, homeContentState: homeContent.FilterChannel })
+        if (this.props.match.params.text !== prevProps.match.params.text) {
+            if (this.props.match.params.text) {
+                var selectedCategories = this.props.match.params.text.includes("-") ? decodeURIComponent(this.props.match.params.text).split("-") : this.props.match.params.text;
+                var selectedCategoriesDetail = this.props.categories.filter(c => selectedCategories.includes(c.name.toLowerCase()));
+                this.props.actions.setSelectedCategories([...selectedCategoriesDetail])
+                this.props.actions.getByQueryChannels(selectedCategoriesDetail.map(c => c.id))
+                this.setState({ ...this.state, homeContentState: homeContent.FilterChannel })
+            }else{
+                this.props.actions.setSelectedCategories([])
+                this.setState({ ...this.state, homeContentState: homeContent.Feed })
+            }
         }
 
     }
     render() {
-        
-        
+
+
         return (
             <div>
                 <Container >
@@ -138,7 +145,8 @@ function mapStateToProps(state) {
     return {
         mostChannels: state.homeReducer.mostChannels,
         isLogged: state.isLoggedReducer,
-        selectedCategories: state.selectedCategoriesReducer
+        selectedCategories: state.selectedCategoriesReducer,
+        categories: state.categoryListReducer
     }
 }
 function mapDispatchToProps(dispatch) {
@@ -146,8 +154,8 @@ function mapDispatchToProps(dispatch) {
         actions: {
             getFeed: bindActionCreators(getFeedApi, dispatch),
             getByQueryChannels: bindActionCreators(searchByMultiCategoryApi, dispatch),
-            getMostChannels: bindActionCreators(getMostChannelsApi, dispatch)
-
+            getMostChannels: bindActionCreators(getMostChannelsApi, dispatch),
+            setSelectedCategories: bindActionCreators(categoryActionCreators.setSelectedCategoriesSuccess, dispatch)
         }
     }
 }
@@ -166,7 +174,7 @@ function FilterChannel() {
         </span>
         <Link to={"/profile/" + c.ownerId} className="d-inline-flex text-dark  float-right">{c.firstName + " " + c.lastName}</Link>
     </Alert>) : <Alert variant="dark">
-            <h6>Aradığınız kategoride kanal bulunamadı.</h6>
-        </Alert>
+        <h6>Aradığınız kategoride kanal bulunamadı.</h6>
+    </Alert>
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Home);
