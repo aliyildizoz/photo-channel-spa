@@ -82,7 +82,8 @@ export function CategoryUpdate({ channelId }) {
     }
     const onClickHandler = (e) => {
         if (selectedCategories.length > 0) {
-            dispatch(addChannelCategoriesApi(selectedCategories, channelId))
+            console.log(selectedCategories);
+           dispatch(addChannelCategoriesApi(selectedCategories, channelId))
         }
     }
     return <Col >

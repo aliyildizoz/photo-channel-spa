@@ -79,7 +79,7 @@ export function channelUpdateApi(channel, channelId) {
 
 export function addChannelCategoriesApi(categories, channelId) {
     return async dispatch => {
-        await axios.put(channelCategoriesPathById(channelId), { categoryIds: categories.map(c => c.id) }).
+        await axios.put(channelCategoriesPathById(channelId), { categoryIds: categories.map(c => c.id) },{ headers: authHeaderObj()}).
             then(() => {
                 dispatch(getChannelCategoriesSuccess(categories));
                 dispatch(push("/channel/" + channelId));
