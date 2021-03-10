@@ -13,8 +13,6 @@ import { SubsButton, Flow, ChannelCategories } from './channelHooks';
 import SimpleReactValidator from 'simple-react-validator';
 import { getIsSubsApi } from '../../redux/actions/subscrib/subsAsyncAction';
 import Loading from '../common/Loading';
-import { withRouter } from 'react-router-dom/cjs/react-router-dom';
-import { Link } from 'react-router-dom';
 
 registerPlugin(FilePondPluginImagePreview, FilePondPluginFileValidateType, FilePondPluginImageExifOrientation);
 

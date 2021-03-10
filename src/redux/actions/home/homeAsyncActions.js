@@ -12,7 +12,6 @@ export function getFeedApi(feedState, callBack) {
 
     return async (dispatch, getState) => {
         var getFeed;
-
         switch (feedState) {
             case feedType.Feed:
                 if (localStorageHelper.isExistsToken() || Object.keys(getState().currentUserReducer.detail).length === 0) {
@@ -29,7 +28,6 @@ export function getFeedApi(feedState, callBack) {
                 getFeed = bindActionCreators(getMostCommentsApi, dispatch);
                 break;
             default:
-                getFeed = bindActionCreators(getUserFeedApi, dispatch);
                 break;
         }
 

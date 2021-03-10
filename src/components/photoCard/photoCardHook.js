@@ -39,7 +39,7 @@ function PhotoCardHook({ refreshPhotos, removeButton = false, photo, cardWidth =
         if (isLogged) {
             axios.get(getIsLikePath(photo.photoId), { headers: authHeaderObj() }).then(res => setIsLike(res.data))
         }
-    }, [photo, bodyShowIndex, currentUser, removeButton, setIsLike, isLogged]);
+    }, []);
 
     return (
         <Card border="light" className={"shadow-lg  bg-white rounded " + className} style={{ width: cardWidth, height: "auto" }}>
@@ -239,7 +239,7 @@ function PhotoCardComments({ currentUserId, photoId, hideCardBody, countDec, cou
 
     useEffect(() => {
         axios.get(getPhotoCommentsUrl(photoId)).then(res => { setComments(res.data) })
-    }, [photoId]);
+    }, []);
     const isLogged = useSelector(state => state.isLoggedReducer);
     const history = useHistory()
     const dispatch = useDispatch()
@@ -442,8 +442,7 @@ function PhotoCardLikes({ photoId, hideCardBody }) {
     const [likes, setLikes] = useState([])
     useEffect(() => {
         axios.get(getPhotoLikesUrl(photoId)).then(res => { setLikes(res.data); })
-
-    }, [photoId]);
+    }, []);
     return (
         <div>
             <Row>

@@ -34,7 +34,7 @@ export function ChannelUpdate({ channelId }) {
 
     useEffect(() => {
         setName(channelDetail.name)
-    }, [channelDetail, setName])
+    }, [])
     const onChangeHandler = (e) => {
         setName(e.target.value)
         validator.current.showMessages();

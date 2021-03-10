@@ -22,7 +22,7 @@ export function SubsButton({ channelId, subsCount }) {
     const history = useHistory()
     const isLogged = useSelector(state => state.isLoggedReducer);
     const dispatch = useDispatch();
-    useEffect(() => setSubsCnt(subsCount), [subsCount])
+    useEffect(() => setSubsCnt(subsCount), [])
     if (!isLogged) {
         return (<JustSubsButton variant="outline-primary" subsCount={subsCnt} onClick={() => history.push('/login')} text="Abone ol" />)
     }
@@ -79,7 +79,7 @@ export function ChannelPhotos({ channelId }) {
 }
 export function Flow({ renderState, channelId }) {
     const [flowState, setFlowState] = useState();
-    useEffect(() => setFlowState(renderState), [renderState])
+    useEffect(() => setFlowState(renderState), [])
     return <div>
         <Row>
             <Col md="12">
@@ -144,10 +144,9 @@ export function ChannelAbout({ channelId }) {
             dispatch(getChannelIsOwnerSuccess(currentUserId === res.data.id))
         }
         ).catch(err => {
-            console.log(err);
             redirectErrPage(err, dispatch)
         })
-    }, [channelId, currentUserId, dispatch])
+    }, [])
 
     return <Container>
         <Row className="mt-4">

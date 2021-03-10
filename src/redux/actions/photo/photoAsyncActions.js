@@ -18,8 +18,8 @@ export function photoCreateApi(photo, callBack) {
                 dispatch(getChannelPhotosSuccess(res.data))
                 var photos = []
                 res.data.forEach(element => {
-                    let width = randomIntFromInterval(3, 4)
-                    let height = randomIntFromInterval(3, 4)
+                    let width = 4
+                    let height = 4
                     photos = [...photos, {
                         userid: element.userId,
                         sharedate: element.shareDate,
@@ -66,8 +66,8 @@ export function channelPhotosApi(channelId, callBack) {
                 dispatch(getChannelPhotosSuccess(res.data))
                 var photos = []
                 res.data.forEach(element => {
-                    let width = randomIntFromInterval(3, 4)
-                    let height = randomIntFromInterval(3, 4)
+                    let width = 4
+                    let height = 4
                     photos = [...photos, {
                         userid: element.userId,
                         sharedate: element.shareDate,
@@ -96,7 +96,4 @@ export function getUserPhotosApi(userId, callBack) {
                 }
             }).catch(err => redirectErrPage(err, dispatch))
     }
-}
-function randomIntFromInterval(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
 }

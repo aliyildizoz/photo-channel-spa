@@ -10,7 +10,6 @@ import Loading from '../common/Loading';
 import { Redirect } from 'react-router-dom/cjs/react-router-dom';
 class ChannelSettings extends Component {
     componentDidMount() {
-
         var channelId = this.props.match.params.id;
         this.props.actions.getChannelIsOwner(channelId)
         this.props.actions.getChannelDetail(channelId)

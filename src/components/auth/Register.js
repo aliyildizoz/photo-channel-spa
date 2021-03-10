@@ -12,8 +12,6 @@ export default function Register() {
 
     const apiResponse = useSelector(state => state.apiResponseReducer);
     const dispatch = useDispatch();
-
-    const history = useHistory()
     const register = () => {
         dispatch(authAsyncActions.registerApi(model))
     }

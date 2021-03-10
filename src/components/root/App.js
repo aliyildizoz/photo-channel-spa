@@ -142,45 +142,7 @@ class App extends Component {
         </Container>
         <ToastContainer autoClose={5000} />
 
-        <footer className="bg-dark text-light" style={{ flexShrink: "none", marginTop: 1080 }}>
-          <Container>
-            <Row className="pb-5 pt-5">
-              <Col md={{ span: 4, offset: 2 }}>
-
-                <h3>Site haritası</h3><hr className="bg-light" />
-                {this.props.isLogged ? (
-                  <ul>
-                    <li><Link to="/" onClick={() => this.props.actions.logout()} className="text-decoration-none ml-0 pl-0">Çıkış</Link></li>
-                    <li><Link to={"/profile/" + this.props.currentUser.detail.id} className="text-decoration-none">Profil</Link></li>
-                    <li><Link to="/" className="text-decoration-none">Ana sayfa</Link></li>
-                  </ul>
-                ) : (
-                  <ul>
-                    <li><Link to="/login" className="text-decoration-none"> Giriş</Link></li>
-                    <li><Link to="/register" className="text-decoration-none">Uye ol</Link></li>
-                    <li><Link to="/" className="text-decoration-none">Ana sayfa</Link></li>
-                  </ul>
-                )}
-
-
-
-              </Col>
-              <Col md={{ span: 4 }}>
-                <ul >
-                  <h3>En popüler</h3><hr className="bg-light" />
-                  <li><i className="fas fa-star "></i> Kanallar</li>
-                  <li><i className="fas fa-star "></i> Fotoğraflar</li>
-                </ul>
-              </Col>
-
-            </Row>
-            <Row><Col md={{ span: 4, offset: 2 }}>
-              <h6 className="text-break text-justify text-muted font-weight-normal ">Copyright <i className="far fa-copyright mb-2"></i> Tüm hakları saklıdır.</h6>
-            </Col></Row>
-          </Container>
-        </footer>
-
-      </div>
+       </div>
     )
   }
 }

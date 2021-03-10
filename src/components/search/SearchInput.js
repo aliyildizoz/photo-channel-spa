@@ -9,7 +9,6 @@ import { searchByTextApi } from '../../redux/actions/search/searchAsyncActions'
 import { searchByTextSuccess } from '../../redux/actions/search/searchActionCreators'
 
 const SearchInput = () => {
-
     const history = useHistory()
     const dispatch = useDispatch()
     const searchTextRes = useSelector(state => state.searchReducer.searchTextRes)

@@ -12,10 +12,12 @@ import { MapPhotoCard } from '../photoCard/photoCardHook';
 import { homeContent, feedType } from '../../redux/constants/constants'
 import { getFeedSuccess } from '../../redux/actions/home/homeActionCreators';
 import * as categoryActionCreators from '../../redux/actions/category/categoryActionCreators'
+import { Button } from 'bootstrap';
 
 class Home extends Component {
     state = {
-        homeContentState: homeContent.Feed
+        homeContentState: homeContent.Feed,
+        feedType: feedType.Feed
     }
     componentDidMount() {
         if (this.props.match.params.text) {
@@ -33,7 +35,7 @@ class Home extends Component {
                 this.props.actions.setSelectedCategories([...selectedCategoriesDetail])
                 this.props.actions.getByQueryChannels(selectedCategoriesDetail.map(c => c.id))
                 this.setState({ ...this.state, homeContentState: homeContent.FilterChannel })
-            }else{
+            } else {
                 this.props.actions.setSelectedCategories([])
                 this.setState({ ...this.state, homeContentState: homeContent.Feed })
             }
@@ -41,8 +43,6 @@ class Home extends Component {
 
     }
     render() {
-
-
         return (
             <div>
                 <Container >
@@ -92,21 +92,16 @@ class Home extends Component {
 
                                         </Col>
                                     </Row>
-
                                         <Row className="mt-5 ">
                                             <Col>
                                                 <ListGroup className="shadow-lg ">
                                                     <ListGroupItem variant="info"><h4>Fotoğraf <i className="fas fa-star text-info"></i></h4></ListGroupItem>
-                                                    <ListGroupItem>
-                                                        <Link to="" className="text-decoration-none" onClick={() =>
-                                                            this.props.actions.getFeed(feedType.MostPhotos, () => this.setState({ ...this.state, homeContentState: homeContent.Feed }))}>
-                                                            <i className="fas fa-thumbs-up mr-2"></i>En çok beğenilenler
-                                                        </Link>
+                                                    <ListGroupItem className="cursorPointer" active={this.state.feedType === feedType.MostPhotos} onClick={() =>
+                                                        this.props.actions.getFeed(feedType.MostPhotos, () => this.setState({ ...this.state, homeContentState: homeContent.Feed, feedType: feedType.MostPhotos }))}>
+                                                        <i className="fas fa-thumbs-up mr-2 text-info"></i>En çok beğenilenler
                                                     </ListGroupItem>
-                                                    <ListGroupItem>
-                                                        <Link to="" className="text-decoration-none" onClick={() => this.props.actions.getFeed(feedType.MostComments, () => this.setState({ ...this.state, homeContentState: homeContent.Feed }))}>
-                                                            <i className="fas fa-comment mr-2"></i>En çok yorum alanlar
-                                                        </Link>
+                                                    <ListGroupItem className="cursorPointer" active={this.state.feedType === feedType.MostComments} onClick={() => this.props.actions.getFeed(feedType.MostComments, () => this.setState({ ...this.state, homeContentState: homeContent.Feed, feedType: feedType.MostComments }))}>
+                                                        <i className="fas fa-comment mr-2 text-info"></i>En çok yorum alanlar
                                                     </ListGroupItem>
                                                 </ListGroup>
                                             </Col>
