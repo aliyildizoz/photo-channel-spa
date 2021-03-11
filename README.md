@@ -1,68 +1,108 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# PhotoChannel
+ - [Türkçe](#türkçe) 
+	 - [Uygulamanın amacı](#uygulamanın-amacı)
+	 - [Özellikler](#özellikler)
+	 - [Kullanılan Teknolojiler](#kullanılan-teknolojiler---used-technologies)
+ - [English](#english)
+	 - [Purpose of the application](#purpose-of-the-application)
+	 - [Features](#features)
+	 - [Used technologies](#kullanılan-teknolojiler---used-technologies)
+ - [Gifs](#gifs)
 
-## Available Scripts
+## Türkçe
+### Uygulamanın amacı
+Uygulama, youtube ve instagramın bazı özelliklerini birleştirmeye çalışmıştır. Youtube'daki kanal oluşturma ve abone olma, İnstagramdaki fotoğraf paylaşma, beğenme ve yorum yapma kısımlarından ilham almıştır. Bu yönde kullanıcılar kanal oluşturup bu kanallarda fotoğraf paylaşabilir, yorum yapabilir veya fotoğraf beğenebilirler. Bu kanalları aynı zamanda etiketleyebilir ve buna göre kanlları filtreleyip ilgilendiğimiz alanlardaki kanalları bulabiliriz.
+### Özellikler
 
-In the project directory, you can run:
+ 1. [**Hesap oluşturma**](#register)
+ 2. [**Kanal oluşturma**](#channel)
+ 3. [**Profil sayfası**](#comment)
+	 - Paylaşılan fotoğrafları görüntüleme
+	 - Beğenilen fotoğrafları görüntüleme
+	 - Yapılan yorumları görüntüleme
+	 - Abonelikleri görüntüleme
+	 - Kullanıcının kanallarını görüntüleme
+ 4. [**Kanal sayfası**](#channel)
+	 - Kanalda fotoğraf paylaşma
+	 - Kanal galerisini görüntüleme
+	 - Kanal aboneleri ve kanal sahibini görüntüleme
+ 5. [**Fotoğraf**](#photo)
+	 - Fotoğraf beğenme
+	 - Fotoğrafa yorum yapma
+	 - Beğenenleri görüntüleme
+	 - Yorumları görüntüleme
+ 6. [**Ana sayfa**](#home-page)
+	- Mevcut kullanıcının akışını görüntüleme
+	- En çok beğenilen fotoğrafları görüntüleme
+	- En çok yorum yapılan fotoğrafları görüntüleme
+	- En çok abonesi olan kanalları görüntüleme
+	- [Kategoriye göre kanal filtreleme](#searching-channel-filter)
 
-### `npm start`
+> Projenin backendi asp.net core web api ile yazılmıştır.[Buradan](https://github.com/AliYildizoz909/PhotoChannel) bakabilirsiniz.
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## English
+### Purpose of the application
+The application tried to combine some features of youtube and instagram. It is inspired by creating and subscribing channels on Youtube, sharing , liking and commenting photos on Instagram. In this direction, users can create channels and share photos, comment or like photos in these channels. We can also tag these channels and filter the channels accordingly and find channels in the areas we are interested in.
+### Features
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+ 1. [**Creating an account**](#register)
+ 2. [**Creating channels**](#channel)
+ 3. [**Profile page**](#comment)
+	- Viewing shared photos
+	- Viewing liked photos
+	- Viewing comments
+	- Viewing subscriptions
+	- Viewing the user's channels
+ 4. [**Channel page**](#channel)
+	- Sharing photos on the channel
+	- Viewing channel gallery
+	- Viewing channel subscribers and channel owner
+ 5. [**Photo**](#photo)
+	- Liking a photo
+	- Doing comment on the photo
+	- Viewing likes
+	- Viewing comments
+ 6. [**Home page**](#home-page)
+	- Viewing current user's stream
+	- Viewing the most liked photos
+	- Viewing photos with the most comments
+	- Viewing channels with the most subscribers
+	- [Filtering channels by category](#searching-channel-filter)
 
-### `npm test`
+> The backendi of the project was written with the asp.net core web api. You can look from [here](https://github.com/AliYildizoz909/PhotoChannel).
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Kullanılan teknolojiler - Used technologies
 
-### `npm run build`
+ - **Backend**
+	 - Asp.Net Core Web API 3.1
+	 - .Net standart 2.0
+	 - Entity Framework Core
+	 - Fluent Validation
+	 - Cloudinary
+	 - InMemory Cache
+	 - Filtering
+	 - SwaggerUI
+	 - N katmanlı mimari - N-Tier Architecture
+- **FrontEnd**
+	- reactjs
+	- react-bootstrap
+	- bootstrap
+	- filepond
+	- redux
+	- redux-thunk
+	- cloudinary-react
+	- react-router-dom
+	- connected-react-router
+	- simple-react-validator
+	- react-photo-gallery
+	- font-awesome
+## Gifs
+#### Register![enter image description here](https://github.com/AliYildizoz909/PhotoChannel/blob/master/Gifs/Register%281%29.gif?raw=true) 
+#### Update Account![enter image description here](https://github.com/AliYildizoz909/PhotoChannel/blob/master/Gifs/UpdateAccount%282%29.gif?raw=true)  
+#### Channel![enter image description here](https://github.com/AliYildizoz909/PhotoChannel/blob/master/Gifs/Channel%283%29.gif?raw=true)  
+#### Photo![enter image description here](https://github.com/AliYildizoz909/PhotoChannel/blob/master/Gifs/PhotoCommentAndLike%284%29.gif?raw=true) 
+#### Comment![enter image description here](https://github.com/AliYildizoz909/PhotoChannel/blob/master/Gifs/EditDeleteCommentAndUnlike%285%29.gif?raw=true) 
+#### Searching, channel filter![enter image description here](https://github.com/AliYildizoz909/PhotoChannel/blob/master/Gifs/SearchAndChannelFilter%286%29.gif?raw=true) 
+####  Home page![enter image description here](https://github.com/AliYildizoz909/PhotoChannel/blob/master/Gifs/HomePage%287%29.gif?raw=true) 
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
