@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from "react"
-import { Container, Row, Col, Card, Media, InputGroup, FormControl, ListGroup, Dropdown, Modal, Form, ModalBody } from 'react-bootstrap'
+import React, { useState, useEffect } from "react"
+import { Row, Col, Card, Media, InputGroup, FormControl, ListGroup, Dropdown, Modal, Form } from 'react-bootstrap'
 import { Button } from 'react-bootstrap'
 import { Link, useHistory } from 'react-router-dom'
 import Image from 'cloudinary-react/lib/components/Image/Image';
@@ -11,10 +11,6 @@ import { useSelector, useDispatch } from 'react-redux'
 import axios from "axios";
 import { redirectErrPage } from "../../redux/helpers/historyHelper";
 import { photoDeleteApi } from "../../redux/actions/photo/photoAsyncActions";
-import { getChannelPhotosSuccess } from "../../redux/actions/photo/photoActionCreators";
-import { getLikedPhotosSuccess, getUserCommentsPhotosSuccess, getUserPhotosSuccess } from "../../redux/actions/user/userActionsCreators";
-import { profileFlowState } from "../../redux/constants/constants";
-import _ from 'lodash'
 import Moment from "react-moment";
 
 
@@ -35,11 +31,11 @@ function PhotoCardHook({ refreshPhotos, removeButton = false, photo, cardWidth =
         if (removeButton) setIsOwner(currentUser.detail.id === photo.userId)
         setCommentCount(photo.commentCount)
         setCardBodyShow(bodyShowIndex)
-        setlikeCnt(photo.likeCount)
+        setlikeCnt(photo.likeCount);
         if (isLogged) {
             axios.get(getIsLikePath(photo.photoId), { headers: authHeaderObj() }).then(res => setIsLike(res.data))
         }
-    }, []);
+    }, [photo, bodyShowIndex, currentUser, removeButton, setIsLike, isLogged,setlikeCnt]);
 
     return (
         <Card border="light" className={"shadow-lg  bg-white rounded " + className} style={{ width: cardWidth, height: "auto" }}>
@@ -239,7 +235,7 @@ function PhotoCardComments({ currentUserId, photoId, hideCardBody, countDec, cou
 
     useEffect(() => {
         axios.get(getPhotoCommentsUrl(photoId)).then(res => { setComments(res.data) })
-    }, []);
+    }, [photoId]);
     const isLogged = useSelector(state => state.isLoggedReducer);
     const history = useHistory()
     const dispatch = useDispatch()
@@ -442,7 +438,7 @@ function PhotoCardLikes({ photoId, hideCardBody }) {
     const [likes, setLikes] = useState([])
     useEffect(() => {
         axios.get(getPhotoLikesUrl(photoId)).then(res => { setLikes(res.data); })
-    }, []);
+    }, [photoId]);
     return (
         <div>
             <Row>

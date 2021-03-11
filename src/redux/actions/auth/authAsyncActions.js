@@ -40,6 +40,7 @@ export function logoutApi() {
                 authorization: localStorageHelper.getJwtToken()
             }
         }).then(() => {
+            alert("");
             localStorageHelper.removeToken();
             dispatch(authActionsCreators.isLoggedFSuccess());
             var getFeed = bindActionCreators(getFeedApi, dispatch);
@@ -54,8 +55,10 @@ export function registerApi(user) {
         await axios.post(REGISTER_PATH, user).then(res => {
             localStorageHelper.setToken(res.data)
             dispatch(authActionsCreators.isLoggedTSuccess())
-            dispatch(push("/"))
-        }).catch(err => {
+        }).then(() => {
+            var getCurrentUser = bindActionCreators(getCurrentUserApi, dispatch)
+            getCurrentUser()
+        }).then(() => dispatch(push("/profile/me"))).catch(err => {
             console.log(err.response)
             if (err.response === undefined) {
                 redirectErrPage(err, dispatch);
