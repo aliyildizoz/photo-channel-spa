@@ -1,5 +1,4 @@
-import Image from 'cloudinary-react/lib/components/Image'
-import Transformation from 'cloudinary-react/lib/components/Transformation'
+import { Transformation, Image } from 'cloudinary-react';
 import React, { useEffect, useRef, useState } from 'react'
 import { Button, Col, Container, Form, FormControl, ListGroup, ListGroupItem, Row } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'

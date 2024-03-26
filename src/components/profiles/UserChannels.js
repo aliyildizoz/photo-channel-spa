@@ -1,8 +1,7 @@
 import React, { Component, useEffect, useRef, useState } from 'react'
 import { Container, Row, Col, Table, Media, Badge, Button, Alert, Form, FormGroup } from 'react-bootstrap'
 import { Link, useHistory } from 'react-router-dom/cjs/react-router-dom'
-import Image from 'cloudinary-react/lib/components/Image/Image'
-import Transformation from 'cloudinary-react/lib/components/Transformation/Transformation'
+import { Transformation, Image } from 'cloudinary-react';
 import { connect, useDispatch, useSelector } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { getUserChannelsApi } from '../../redux/actions/channel/channelAsyncActions'

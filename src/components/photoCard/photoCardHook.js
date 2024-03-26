@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react"
 import { Row, Col, Card, Media, InputGroup, FormControl, ListGroup, Dropdown, Modal, Form } from 'react-bootstrap'
 import { Button } from 'react-bootstrap'
 import { Link, useHistory } from 'react-router-dom'
-import Image from 'cloudinary-react/lib/components/Image/Image';
-import { Transformation } from 'cloudinary-react';
+import { Transformation, Image } from 'cloudinary-react';
 import { COMMENT_PATH, getPhotoCommentsUrl, getCommentPathById } from "../../redux/actions/comment/commentEndPoints"
 import { getPhotoLikesUrl, getIsLikePath, deleteLikePath, LIKE_API_URL } from "../../redux/actions/like/likeEndPoints"
 import { authHeaderObj } from "../../redux/helpers/localStorageHelper"
