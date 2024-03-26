@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  photo-channel-web-api:
+    container_name: photo-channel-web-api-v1-container
+    image: aliyildizoz909/photo-channel-web-api:v1
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - MSSQL_SA_PASSWORD=Password1*
+    ports:
+      - "5000:80"
+    networks:
+      - photo-channel-network
+    depends_on:
+      - photo-channel-sqlserver    
+  photo-channel-sqlserver:
+    container_name: photo-channel-sqlserver-v1-container
+    image: aliyildizoz909/photo-channel-sqlserver:v1
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Password1*
+    ports:
+      - "1433:1433"
+    volumes:
+      - photo-channel-volume:/var/opt/mssql
+    networks:
+      - photo-channel-network
+  photo-channel-spa:
+    container_name: photo-channel-spa-v1-container
+    image: aliyildizoz909/photo-channel-spa:v1
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - REACT_APP_MAIN_URL=photo-channel-web-api:5000
+    environment:
+      - REACT_APP_MAIN_URL=photo-channel-web-api:5000
+      - NODE_ENV=production
+    ports:
+      - "3000:3000"
+    networks:
+      - photo-channel-network
+    depends_on:
+      - photo-channel-web-api  
+volumes:
+  photo-channel-volume:
+networks:
+  photo-channel-network:
