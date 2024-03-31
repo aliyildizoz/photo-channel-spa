@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 import { Row, Col, Card, Media, InputGroup, FormControl, ListGroup, Dropdown, Modal, Form } from 'react-bootstrap'
 import { Button } from 'react-bootstrap'
-import { Link, useHistory } from 'react-router-dom'
+import { Link, useNavigate  } from 'react-router-dom'
 import { Transformation, Image } from 'cloudinary-react';
 import { COMMENT_PATH, getPhotoCommentsUrl, getCommentPathById } from "../../redux/actions/comment/commentEndPoints"
 import { getPhotoLikesUrl, getIsLikePath, deleteLikePath, LIKE_API_URL } from "../../redux/actions/like/likeEndPoints"
@@ -193,7 +193,7 @@ function PhotoCardBody({ setIsLike, isLike, photoId, likeCount, commentCount, us
 
 function LikeButton({ isLike, setIsLike, photoId, setlikeCount }) {
     const dispatch = useDispatch()
-    const history = useHistory()
+    const navigate = useNavigate()
     const isLogged = useSelector(state => state.isLoggedReducer);
 
     const onClick = () => {
@@ -214,7 +214,7 @@ function LikeButton({ isLike, setIsLike, photoId, setlikeCount }) {
 
     }
     if (!isLogged) {
-        return <Button onClick={() => history.push("/login")} variant="outline-primary" style={{ borderRadius: 0 }} className="btn-sm">
+        return <Button onClick={() => navigate("/login")} variant="outline-primary" style={{ borderRadius: 0 }} className="btn-sm">
             <i className="fa  fa-thumbs-up" style={{ fontSize: 16 }}></i>&nbsp;&nbsp;Beğen</Button>
     }
     return (
@@ -236,11 +236,11 @@ function PhotoCardComments({ currentUserId, photoId, hideCardBody, countDec, cou
         axios.get(getPhotoCommentsUrl(photoId)).then(res => { setComments(res.data) })
     }, [photoId]);
     const isLogged = useSelector(state => state.isLoggedReducer);
-    const history = useHistory()
+    const navigate = useNavigate()
     const dispatch = useDispatch()
     const createCommentClick = () => {
         if (!isLogged) {
-            history.push("/login")
+            navigate("/login")
             return;
         }
 

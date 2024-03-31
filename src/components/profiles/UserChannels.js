@@ -1,6 +1,6 @@
 import React, { Component, useEffect, useRef, useState } from 'react'
 import { Container, Row, Col, Table, Media, Badge, Button, Alert, Form, FormGroup } from 'react-bootstrap'
-import { Link, useHistory } from 'react-router-dom/cjs/react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Transformation, Image } from 'cloudinary-react';
 import { connect, useDispatch, useSelector } from 'react-redux'
 import { bindActionCreators } from 'redux'
@@ -15,15 +15,19 @@ import axios from 'axios'
 import { authHeaderObj } from '../../redux/helpers/localStorageHelper'
 import { redirectErrPage } from '../../redux/helpers/historyHelper'
 import { channelIsLoadingTSuccess, getChannelIsOwnerSuccess } from '../../redux/actions/channel/channelActionCreators'
+import withRouter from '../../redux/helpers/withRouter';
 
 registerPlugin(FilePondPluginImagePreview, FilePondPluginFileValidateType, FilePondPluginImageExifOrientation);
 
 class UserChannels extends Component {
     state = {
-        isMainContent: true
+        isMainContent: true,
+        userId:0
     }
     componentDidMount = () => {
-        this.props.actions.getUserChannels(this.props.match.params.id);
+        let userId = this.props.router.location.pathname.includes('me') ?  this.props.currentUser.id : this.props.router.params.id;
+        this.setState({ ...this.state, userId: userId });
+        this.props.actions.getUserChannels(userId);
     }
     render() {
         return (
@@ -59,7 +63,7 @@ function mapStateToProps(state) {
     return {
         userChannels: state.userReducer.userChannels,
         isOwner: state.userReducer.isOwner,
-        currentUser: state.currentUserReducer
+        currentUser: state.currentUserReducer.detail
     }
 }
 function mapDispatchToProps(dispatch) {
@@ -69,7 +73,7 @@ function mapDispatchToProps(dispatch) {
         }
     }
 }
-export default connect(mapStateToProps, mapDispatchToProps)(UserChannels);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(UserChannels));
 
 function MapChannelList({ channelList, isCog }) {
 
@@ -118,7 +122,7 @@ function MapChannelList({ channelList, isCog }) {
 function ChannelCreate() {
 
     const dispatch = useDispatch()
-    const history = useHistory()
+    const navigate = useNavigate()
 
     const [, forceUpdate] = useState()
     const validator = useRef(new SimpleReactValidator({ locale: "tr", autoForceUpdate: { forceUpdate: forceUpdate } }))
@@ -134,6 +138,7 @@ function ChannelCreate() {
         validator.current.showMessages();
         setApiResponse("");
     }
+    
     const onSubmitHandler = async (e) => {
         e.preventDefault();
         if (files.length > 0 && validator.current.allValid()) {
@@ -145,7 +150,7 @@ function ChannelCreate() {
                 headers: authHeaderObj()
             }).then((res) => {
                 console.log(res.data);
-                history.push("/channel/" + res.data.id);
+                navigate("/channel/" + res.data.id);
                 setIsLoading(false);
             }).catch(err => {
                 setIsLoading(false);

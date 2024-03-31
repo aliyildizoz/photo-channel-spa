@@ -1,24 +1,38 @@
 import React, { Component } from 'react'
-import { Container, Row, Col, Card, Badge } from 'react-bootstrap'
+import { Container, Row, Col, Card } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import * as userAsyncActions from '../../redux/actions/user/userAsyncActions'
-import { getIsOwnerSuccess } from '../../redux/actions/user/userActionsCreators'
 import { Flow, Subscriptions } from './profileHooks'
 import Loading from '../common/Loading'
+import withRouter from '../../redux/helpers/withRouter';
+import { getUserIsOwnerSuccess } from '../../redux/actions/user/userActionsCreators'
 
 class Profile extends Component {
 
     state = {
-        isLoading: true
+        isLoading: true,
+        userId:0
     }
     componentDidMount() {
-        this.props.actions.getUserDetail(this.props.match.params.id, () => this.setState({ ...this.state, isLoading: false }))
+        var userId = this.props.router.params.id;
+        if (this.props.router.location.pathname.includes('me')) {
+            this.props.actions.getUserIsOwner(true);
+            userId = this.props.currentUser.id;
+        }else{
+            this.props.getUserIsOwner(this.props.currentUser.id == this.props.router.params.id);
+        }
+
+        this.setState({ ...this.state, userId: userId });
+        this.props.actions.getUserDetail(userId, () => this.setState({ ...this.state, isLoading: false }))
     }
     componentDidUpdate(prevProps) {
-        if (this.props.match.params.id !== prevProps.match.params.id) {
-            this.props.actions.getUserDetail(this.props.match.params.id, () => this.setState({ ...this.state, isLoading: false }))
+        let userId = this.props.router.location.pathname.includes('me') ? this.props.currentUser.id : this.props.router.params.id;
+        let userIdPrev = this.props.router.location.pathname.includes('me') ? prevProps.currentUser.id : prevProps.router.params.id;
+        if (userId !== userIdPrev) {
+            this.setState({ ...this.state, userId: userId });
+            this.props.actions.getUserDetail(userId, () => this.setState({ ...this.state, isLoading: false }))
         }
     }
 
@@ -38,14 +52,14 @@ class Profile extends Component {
                                                 <Card.Title>{this.props.userDetail.firstName + " " + this.props.userDetail.lastName}</Card.Title>
                                                 <h6>{this.props.userDetail.userName}</h6>
                                                 <Card.Text>
-                                                    <Link to={"/profile/" + this.props.match.params.id + "/channels"} className="btn btn-sm btn-danger block">
+                                                    <Link to={"/profile/" + this.state.userId + "/channels"} className="btn btn-sm btn-danger block">
                                                         Kanallar
                                                     </Link>
                                                 </Card.Text>
                                             </Col>
                                             <Col>
                                                 {this.props.isOwner ?
-                                                    <Link id="settingLink" className="float-right mt-3" to="settings">
+                                                    <Link id="settingLink" className="float-right mt-3" to="../settings" relative='path'>
                                                         <i className="fas fa-user-edit fa-2x"></i>
                                                     </Link>
                                                     : null}
@@ -59,13 +73,13 @@ class Profile extends Component {
                         <Col md="4" >
                             <Row>
                                 <Col md="12"  >
-                                    <Subscriptions subsCount={this.props.userDetail.subscriptionCount} userId={this.props.match.params.id} />
+                                    <Subscriptions subsCount={this.props.userDetail.subscriptionCount} />
                                 </Col>
                             </Row>
                         </Col>
                         <Col md="8" >
 
-                            <Flow renderState={this.props.flowState} userId={this.props.match.params.id} />
+                            <Flow renderState={this.props.flowState} />
 
                         </Col>
 
@@ -87,8 +101,9 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
     return {
         actions: {
-            getUserDetail: bindActionCreators(userAsyncActions.getUserApi, dispatch)
+            getUserDetail: bindActionCreators(userAsyncActions.getUserApi, dispatch),
+            getUserIsOwner: bindActionCreators(getUserIsOwnerSuccess, dispatch)
         }
     }
 }
-export default connect(mapStateToProps, mapDispatchToProps)(Profile);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Profile));

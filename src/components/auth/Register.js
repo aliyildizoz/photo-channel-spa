@@ -1,7 +1,7 @@
 import { Container, Form, FormGroup, Row, Col, Button } from 'react-bootstrap'
 import SimpleReactValidator from 'simple-react-validator';
 import React, { useState, useEffect, useRef } from 'react';
-import { Link,useHistory } from 'react-router-dom'
+import { Link,useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 
 import * as authAsyncActions from '../../redux/actions/auth/authAsyncActions'

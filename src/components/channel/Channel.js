@@ -13,6 +13,8 @@ import { SubsButton, Flow, ChannelCategories } from './channelHooks';
 import SimpleReactValidator from 'simple-react-validator';
 import { getIsSubsApi } from '../../redux/actions/subscrib/subsAsyncAction';
 import Loading from '../common/Loading';
+import withRouter from '../../redux/helpers/withRouter';
+
 
 registerPlugin(FilePondPluginImagePreview, FilePondPluginFileValidateType, FilePondPluginImageExifOrientation);
 
@@ -36,13 +38,13 @@ class Channel extends Component {
                             this.setState({ ...this.state, isLoading: false }))))))
     }
     componentDidMount() {
-        var channelId = this.props.match.params.id;
+        var channelId = this.props.router.params.id;
         this.getAllApiRequest(channelId)
     }
 
     componentDidUpdate(prevProps) {
-        if (this.props.match.params.id !== prevProps.match.params.id) {
-            var channelId = this.props.match.params.id;
+        if (this.props.router.params.id !== prevProps.router.params.id) {
+            var channelId = this.props.router.params.id;
             this.getAllApiRequest(channelId)
         }
     }
@@ -55,7 +57,7 @@ class Channel extends Component {
         else {
             this.validator.hideMessages();
             this.setState({ ...this.state, isUploadLoading: true });
-            this.props.actions.addPhoto({ file: this.state.model.files[0], channelId: this.props.match.params.id },
+            this.props.actions.addPhoto({ file: this.state.model.files[0], channelId: this.props.router.params.id },
                 () => this.setState({ ...this.state, isUploadLoading: false }, () => this.setState({ ...this.state, model: { ...this.state.model, files: [] } })))
 
         }
@@ -73,7 +75,7 @@ class Channel extends Component {
                                 <Image cloudName="dwebpzxqn" publicId={this.props.channelDetail.publicId} className="img-fluid"  >
                                     <Transformation width="1102" height="250" crop="pad" background="auto:predominant" />
                                 </Image>
-                                <SubsButton subsCount={this.props.channelDetail.subscribersCount} channelId={this.props.match.params.id} />
+                                <SubsButton subsCount={this.props.channelDetail.subscribersCount} channelId={this.props.router.params.id} />
                                 <div className="text-ChannelName">
                                     <h4>{this.props.channelDetail.name}</h4>
                                 </div>
@@ -115,7 +117,7 @@ class Channel extends Component {
 
                         </Col>
                         <Col md="9">
-                            <Flow renderState={this.state.firsRenderFlow} channelId={this.props.match.params.id} />
+                            <Flow renderState={this.state.firsRenderFlow} channelId={this.props.router.params.id} />
                         </Col>
                     </Row>
                 </Container>}
@@ -143,4 +145,4 @@ function mapStateToProps(state) {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Channel);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Channel));

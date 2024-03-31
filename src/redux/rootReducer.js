@@ -11,11 +11,10 @@ import channelIsOwnerReducer from "./reducers/channel/channelIsOwnerReducer"
 import apiResponseReducer from "./reducers/common/apiResponseReducer"
 import homeReducer from "./reducers/home/homeReducer"
 import searchReducer from "./reducers/search/searchReducer"
-import { connectRouter } from 'connected-react-router'
 
 
-const rootReducer = (history) => combineReducers({
-    router: connectRouter(history),
+const rootReducer = (router) => combineReducers({
+    router: router,
     categoryListReducer,
     currentUserReducer,
     userReducer,

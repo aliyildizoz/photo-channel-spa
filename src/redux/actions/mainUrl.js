@@ -1,4 +1,4 @@
-var mainUrl="http://localhost:500"
+var mainUrl="http://localhost:5000"
 if (process.env.NODE_ENV==='production') {
     mainUrl=`http://${process.env.REACT_APP_MAIN_URL}`;
 }

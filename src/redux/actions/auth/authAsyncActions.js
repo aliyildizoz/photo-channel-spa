@@ -6,7 +6,7 @@ import * as authActionsCreators from "../auth/authActionsCreators"
 import { isLoadingTSuccess, isLoadingFSuccess } from "../common/commonActionsCreators"
 import { bindActionCreators } from "redux";
 import { redirectErrPage } from "../../helpers/historyHelper"
-import { push } from 'connected-react-router'
+import { push } from "redux-first-history";
 import { feedType } from "../../constants/constants"
 import { getFeedApi } from "../../actions/home/homeAsyncActions"
 

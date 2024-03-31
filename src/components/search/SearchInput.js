@@ -1,14 +1,14 @@
 import { Transformation, Image } from 'cloudinary-react';
-import React, { useEffect, useRef, useState } from 'react'
-import { Button, Col, Container, Form, FormControl, ListGroup, ListGroupItem, Row } from 'react-bootstrap'
+import React, { useEffect, useState } from 'react'
+import { Col, Container, FormControl, ListGroup, Row } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
-import { useHistory } from 'react-router-dom/cjs/react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+
 import { searchByTextApi } from '../../redux/actions/search/searchAsyncActions'
 import { searchByTextSuccess } from '../../redux/actions/search/searchActionCreators'
 
 const SearchInput = () => {
-    const history = useHistory()
+    const navigate = useNavigate()
     const dispatch = useDispatch()
     const searchTextRes = useSelector(state => state.searchReducer.searchTextRes)
     const [inputIsFocus, setInputIsFocus] = useState(false)
@@ -22,7 +22,7 @@ const SearchInput = () => {
     const onChangeHandler = (event) => {
         setSearchText(event.target.value)
         if (event.target.value !== "") {
-            dispatch(searchByTextApi(event.target.value, history));
+            dispatch(searchByTextApi(event.target.value, navigate));
             setInputIsFocus(true);
 
         } else {
@@ -47,7 +47,7 @@ const SearchInput = () => {
                 redirectUrl = "/channel/" + channel.id;
             }
 
-            history.push(redirectUrl);
+            navigate(redirectUrl);
             setCursor(0);
             setInputIsFocus(false);
             dispatch(searchByTextSuccess({}));

@@ -7,15 +7,14 @@ import 'filepond/dist/filepond.min.css';
 import './public/css/channelDetail.css';
 import './public/css/index.css';
 import * as serviceWorker from './serviceWorker';
-import { ConnectedRouter } from 'connected-react-router'
+import { HistoryRouter as Router } from "redux-first-history/rr6";
 import { Provider } from 'react-redux';
-import configureStore, { history } from "./redux/configureStore";
+import { history, store } from "./redux/configureStore";
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
 import "react-toastify/dist/ReactToastify.css";
+import 'react-responsive-carousel/lib/styles/carousel.min.css';
 
-const store = configureStore();
-
-ReactDOM.render(<Provider store={store}><ConnectedRouter history={history}><App /></ConnectedRouter></Provider>, document.getElementById('root'));
+ReactDOM.render(<Provider store={store}><Router history={history}><App /></Router></Provider>, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

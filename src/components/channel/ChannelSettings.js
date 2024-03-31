@@ -7,10 +7,13 @@ import * as categoryAsyncActions from '../../redux/actions/category/categoryAsyn
 import { ChannelUpdate, CategoryUpdate, Subscribers, ChannelDelete } from './channelSettingsHooks'
 import { Image, Transformation } from 'cloudinary-react';
 import Loading from '../common/Loading';
-import { Redirect } from 'react-router-dom/cjs/react-router-dom';
+import { Navigate } from 'react-router-dom';
+import withRouter from '../../redux/helpers/withRouter';
+
+
 class ChannelSettings extends Component {
     componentDidMount() {
-        var channelId = this.props.match.params.id;
+        var channelId = this.props.router.params.id;
         this.props.actions.getChannelIsOwner(channelId)
         this.props.actions.getChannelDetail(channelId)
         this.props.actions.getSubscribers(channelId)
@@ -44,20 +47,20 @@ class ChannelSettings extends Component {
                         <Row className="mt-3">
                             <Col md="6">
                                 <Row >
-                                    <ChannelUpdate channelId={this.props.match.params.id} />
+                                    <ChannelUpdate channelId={this.props.router.params.id} />
                                 </Row>
                                 <Row>
-                                    <CategoryUpdate channelId={this.props.match.params.id} />
+                                    <CategoryUpdate channelId={this.props.router.params.id} />
                                 </Row>
                                 <Row>
-                                    <ChannelDelete channelId={this.props.match.params.id} />
+                                    <ChannelDelete channelId={this.props.router.params.id} />
                                 </Row>
                             </Col>
                             <Col>
-                                <Subscribers channelId={this.props.match.params.id} />
+                                <Subscribers channelId={this.props.router.params.id} />
                             </Col>
                         </Row>
-                    </Container> : <Redirect to={"/channel/" + this.props.match.params.id} />
+                    </Container> : <Navigate to={"/channel/" + this.props.router.params.id} />
                 }
             </div>
         )
@@ -86,4 +89,4 @@ function mapStateToProps(state) {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ChannelSettings);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(ChannelSettings));

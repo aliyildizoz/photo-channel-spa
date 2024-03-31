@@ -6,7 +6,7 @@ import * as categoryAsyncActions from '../../redux/actions/category/categoryAsyn
 import { Badge,  ListGroup, ListGroupItem } from 'react-bootstrap';
 import { Multiselect } from 'multiselect-react-dropdown';
 import { Link } from 'react-router-dom'
-import { push } from 'connected-react-router'
+import { push } from 'redux-first-history'
 
 class CategoryList extends Component {
 
@@ -16,7 +16,7 @@ class CategoryList extends Component {
     selectCategory = (c) => {
         this.props.actions.currentCategory(c)
     }
-    onChangeHandler = (categories) => {
+    onChangeHandler = (categories) => { 
         this.props.actions.setSelectedCategories(categories)
         if (categories.length > 0) {
             this.props.actions.historyPush("/feed/" + this.queryGenerate(categories))
@@ -54,9 +54,9 @@ class CategoryList extends Component {
                             {
                                 this.props.categories.map(c => (
                                     <Link onClick={() => this.onChangeHandler([c])} key={c.id} to={"/feed/" + encodeURIComponent(c.name.toLowerCase())} className="text-decoration-none"> <Badge
-                                        variant="info"
+                                        // variant="info"
                                         className="ml-2 mt-2 cursorPointer category "
-                                        style={{ background: (this.props.selectedCategories.length === 1 ? this.props.selectedCategories.includes(c) ? "#5bc0de" : "" : "#17a2b8") }}
+                                        style={{ background: (this.props.selectedCategories.includes(c) ? "#5bc0de" : "#17a2b8") }}
                                     >{c.name}</Badge></Link>
                                 ))
                             }

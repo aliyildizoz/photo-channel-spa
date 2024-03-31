@@ -2,7 +2,7 @@ import { CATEGORIES_PATH } from "./categoryEndPoints"
 import { getCategoriesSuccess, setSelectedCategoriesSuccess } from "./categoryActionCreators"
 import axios from "axios"
 import { redirectErrPage } from "../../helpers/historyHelper";
-import { push, getLocation } from 'connected-react-router'
+import { push } from "redux-first-history";
 import { bindActionCreators } from "redux";
 import { searchByMultiCategoryApi } from "../search/searchAsyncActions";
 

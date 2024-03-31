@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Home from '../home/Home';
-import { Switch, Route, Redirect, Link, Router, BrowserRouter } from 'react-router-dom';
+import { Routes, Route, Navigate, Router } from 'react-router-dom';
 import ErrorPage from '../common/ErrorPage';
 import { connect } from 'react-redux'
 import Profile from '../profiles/Profile';
@@ -18,132 +18,165 @@ import UserChannels from '../profiles/UserChannels';
 import * as authAsyncActions from '../../redux/actions/auth/authAsyncActions'
 import { getUserIsOwnerSuccess } from '../../redux/actions/user/userActionsCreators'
 import Loading from '../common/Loading';
-import { Button, Col, Container, Jumbotron, Row } from 'react-bootstrap';
-import { NavLink, withRouter } from 'react-router-dom/cjs/react-router-dom';
-import { isExistsToken } from '../../redux/helpers/localStorageHelper';
+import { Container} from 'react-bootstrap';
 import { ToastContainer } from "react-toastify";
 import { profileFlowState } from '../../redux/constants/constants';
 import ErrorBoundary from '../toolbox/ErrorBoundary';
+import withRouter from '../../redux/helpers/withRouter';
 
 class App extends Component {
 
   componentDidMount() {
-    this.props.actions.getCurrentUser()
+    this.props.actions.getCurrentUser();
+    console.log(this.props)
   }
+
   render() {
-
     return (
-      <div className="App" >
+      <div className="App">
         <Navi />
-        <Container fluid  >
-
-          <Switch >
-            <Route exact path="/" render={(props) => {
-              return <Redirect to="/feed" />
-            }} />
-            <Route exact path="/feed" render={(props) => <ErrorBoundary><Home {...props} /></ErrorBoundary>} />
-            <Route exact path="/feed/:text" render={(props) => <ErrorBoundary><Home {...props} /></ErrorBoundary>} />
-            <Route exact path="/login" render={() => {
-              return this.props.isLogged ? <Redirect to="/" /> : <ErrorBoundary><Login /></ErrorBoundary>
-            }} />
-            <Route exact path="/register" render={() => {
-              return this.props.isLogged ? <Redirect to="/" /> : <ErrorBoundary><Register /></ErrorBoundary>
-            }} />
-            <Route exact path="/errorpage" component={ErrorPage} />
-
-            <Route exact path="/profile/me" render={(props) => {
-              return <Redirect to={"/profile/me/" + profileFlowState.Photos} />
-            }} />
-            <Route exact path="/profile/me/photos" render={(props) => {
-              if (this.props.currentUser.isLoading) {
-                return <Loading />
-              }
-              if (this.props.isLogged) {
-                this.props.actions.getUserIsOwner(true);
-                props.match.params.id = this.props.currentUser.detail.id;
-                return <ErrorBoundary> <Profile to={"/profile/me/" + profileFlowState.Photos} flowState={profileFlowState.Photos} {...props} /></ErrorBoundary>
-              }
-              return <Redirect to="/" />
-            }} />
-            <Route exact path="/profile/me/comments" render={(props) => {
-              if (this.props.currentUser.isLoading) {
-                return <Loading />
-              }
-              if (this.props.isLogged) {
-                this.props.actions.getUserIsOwner(true);
-                props.match.params.id = this.props.currentUser.detail.id;
-                return <ErrorBoundary> <Profile to={"/profile/me/" + profileFlowState.Comments} flowState={profileFlowState.Comments} {...props} /></ErrorBoundary>
-              }
-              return <Redirect to="/" />
-            }} />
-            <Route exact path="/profile/me/likes" render={(props) => {
-              if (this.props.currentUser.isLoading) {
-                return <Loading />
-              }
-              if (this.props.isLogged) {
-                this.props.actions.getUserIsOwner(true);
-                props.match.params.id = this.props.currentUser.detail.id;
-                return <ErrorBoundary> <Profile to={"/profile/me/" + profileFlowState.Likes} flowState={profileFlowState.Likes} {...props} /></ErrorBoundary>
-              }
-              return <Redirect to="/" />
-            }} />
-
-
-            <Route exact path="/profile/:id" render={(props) => {
-              var isMe = this.props.currentUser.detail.id == props.match.params.id;
-              var urlId = isMe ? "me" : props.match.params.id;
-              return <Redirect to={"/profile/" + urlId + "/" + profileFlowState.Photos} />
-            }} />
-
-            <Route exact path="/profile/:id/photos" render={(props) => {
-              var isMe = this.props.currentUser.detail.id == props.match.params.id;
-              this.props.actions.getUserIsOwner(this.props.currentUser.detail.id == props.match.params.id);
-              return isMe ? <Redirect to={"/profile/me/" + profileFlowState.Photos} /> : <ErrorBoundary> <Profile flowState={profileFlowState.Photos} {...props} /></ErrorBoundary>
-            }} />
-            <Route exact path="/profile/:id/comments" render={(props) => {
-              var isMe = this.props.currentUser.detail.id == props.match.params.id;
-              this.props.actions.getUserIsOwner(this.props.currentUser.detail.id == props.match.params.id);
-              return isMe ? <Redirect to={"/profile/me/" + profileFlowState.Comments} /> : <ErrorBoundary> <Profile flowState={profileFlowState.Comments} {...props} /></ErrorBoundary>
-            }} />
-            <Route exact path="/profile/:id/likes" render={(props) => {
-              var isMe = this.props.currentUser.detail.id == props.match.params.id;
-              this.props.actions.getUserIsOwner(this.props.currentUser.detail.id == props.match.params.id);
-              return isMe ? <Redirect to={"/profile/me/" + profileFlowState.Likes} /> : <ErrorBoundary> <Profile flowState={profileFlowState.Likes} {...props} /></ErrorBoundary>
-            }} />
-            <Route exact path="/profile/me/settings" render={(props) => {
-              if (this.props.currentUser.isLoading) {
-                return <Loading />
-              }
-              if (this.props.isLogged) {
-                this.props.actions.getUserIsOwner(true);
-                props.match.params.id = this.props.currentUser.detail.id;
-                return <ErrorBoundary> <ProfileSettings {...props} /></ErrorBoundary>
-              }
-            }
-            } />
-            <Route exact path="/profile/:id/channels" render={(props) => {
-              if (this.props.currentUser.isLoading) {
-                return <Loading />
-              } else {
-                var urlId = props.match.params.id;
-                this.props.actions.getUserIsOwner(this.props.currentUser.detail.id == urlId);
-                return <ErrorBoundary> <UserChannels {...props} /></ErrorBoundary>
-              }
-            }} />
-
-            <Route exact path="/channel/:id" render={(props) => <ErrorBoundary><Channel {...props} /></ErrorBoundary>} />
-            <Route exact path="/channel/:id/settings" render={(props) => <ErrorBoundary><ChannelSettings {...props} /></ErrorBoundary>} />
-            <Route exact path="/notfound" component={NotFound} />
-            <Route exact path="/forbidden" component={Forbid} />
-            <Route exact path="/badrequest" component={BadRequest} />
-            <Route component={NotFound} />
-          </Switch>
-
-        </Container>
-        <ToastContainer autoClose={5000} />
-
-       </div>
-    )
+          <Container fluid>
+          <Routes>
+              <Route
+                exact
+                path="/"
+                element={<Navigate to="/feed" />}
+              />
+              <Route
+                exact
+                path="/feed"
+                element={<ErrorBoundary><Home /></ErrorBoundary>}
+              />
+              <Route
+                exact
+                path="/feed/:text"
+                element={<ErrorBoundary><Home /></ErrorBoundary>}
+              />
+              <Route
+                exact
+                path="/login"
+                element={
+                  this.props.isLogged ? <Navigate to="/" /> : <ErrorBoundary><Login /></ErrorBoundary>
+                }
+              />
+              <Route
+                exact
+                path="/register"
+                element={
+                  this.props.isLogged ? <Navigate to="/" /> : <ErrorBoundary><Register /></ErrorBoundary>
+                }
+              />
+              <Route path="/errorpage" element={<ErrorPage />} />
+              <Route
+                exact
+                path="/profile/me"
+                element={<Navigate to={`/profile/me/${profileFlowState.Photos}`} />}
+              />
+              <Route
+                exact
+                path="/profile/me/photos"
+                element={
+                  this.props.currentUser.isLoading
+                    ? <Loading />
+                    : (
+                      this.props.isLogged
+                        ? <ErrorBoundary><Profile to={`/profile/me/${profileFlowState.Photos}`} flowState={profileFlowState.Photos} /></ErrorBoundary>
+                        : <Navigate to="/" />
+                    )
+                }
+              />
+              <Route
+                exact
+                path="/profile/me/comments"
+                element={
+                  this.props.currentUser.isLoading
+                    ? <Loading />
+                    : (
+                      this.props.isLogged
+                        ? <ErrorBoundary><Profile to={`/profile/me/${profileFlowState.Comments}`} flowState={profileFlowState.Comments} /></ErrorBoundary>
+                        : <Navigate to="/" />
+                    )
+                }
+              />
+              <Route
+                exact
+                path="/profile/me/likes"
+                element={
+                  this.props.currentUser.isLoading
+                    ? <Loading />
+                    : (
+                      this.props.isLogged
+                        ? <ErrorBoundary><Profile to={`/profile/me/${profileFlowState.Likes}`} flowState={profileFlowState.Likes} /></ErrorBoundary>
+                        : <Navigate to="/" />
+                    )
+                }
+              />
+              {/* Other profile routes */}
+              <Route
+                exact
+                path="/profile/:id"
+                element={<Navigate to={`/profile/${this.props.currentUser.detail.id}/${profileFlowState.Photos}`} />}
+              />
+              <Route
+                exact
+                path="/profile/:id/photos"
+                element={
+                  this.props.currentUser.detail.id 
+                    ? <Navigate to={`/profile/me/${profileFlowState.Photos}`} />
+                    : <ErrorBoundary><Profile flowState={profileFlowState.Photos} /></ErrorBoundary>
+                }
+              />
+              <Route
+                exact
+                path="/profile/:id/comments"
+                element={
+                  this.props.currentUser.detail.id
+                    ? <Navigate to={`/profile/me/${profileFlowState.Comments}`} />
+                    : <ErrorBoundary><Profile flowState={profileFlowState.Comments} /></ErrorBoundary>
+                }
+              />
+              <Route
+                exact
+                path="/profile/:id/likes"
+                element={
+                  this.props.currentUser.detail.id
+                    ? <Navigate to={`/profile/me/${profileFlowState.Likes}`} />
+                    : <ErrorBoundary><Profile flowState={profileFlowState.Likes} /></ErrorBoundary>
+                }
+              />
+              <Route
+                exact
+                path="/profile/me/settings"
+                element={
+                  this.props.currentUser.isLoading
+                    ? <Loading />
+                    : (
+                      this.props.isLogged
+                        ? <ErrorBoundary><ProfileSettings /></ErrorBoundary>
+                        : null
+                    )
+                }
+              />
+              <Route
+                exact
+                path="/profile/:id/channels"
+                element={
+                  this.props.currentUser.isLoading
+                    ? <Loading />
+                    : <ErrorBoundary><UserChannels /></ErrorBoundary>
+                }
+              />
+              <Route exact path="/channel/:id" element={<ErrorBoundary><Channel /></ErrorBoundary>} />
+              <Route exact path="/channel/:id/settings" element={<ErrorBoundary><ChannelSettings /></ErrorBoundary>} />
+              <Route exact path="/notfound" element={<NotFound />} />
+              <Route exact path="/forbidden" element={<Forbid />} />
+              <Route exact path="/badrequest" element={<BadRequest />} />
+              <Route exact path="*" element={<NotFound />} />
+            </Routes>
+          </Container>
+          <ToastContainer autoClose={5000} />
+      </div>
+    );
   }
 }
 function mapDispatchToProps(dispatch) {
@@ -161,9 +194,11 @@ function mapStateToProps(state) {
     currentUser: state.currentUserReducer,
     isLoading: state.isLoadingReducer,
     isLogged: state.isLoggedReducer,
-
+    router: state.router,
+    params: state.params
+    
   }
 }
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(App));
 
 

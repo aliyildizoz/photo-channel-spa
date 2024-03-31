@@ -1,11 +1,12 @@
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-FROM node:15.14.0-alpine AS base
+FROM node:20.12.0-alpine AS base
 WORKDIR /app
 RUN npm install --global serve
 RUN apk update && apk add --no-cache git
 ARG REACT_APP_MAIN_URL=localhost:5000
 ENV REACT_APP_MAIN_URL=$REACT_APP_MAIN_URL
+ENV NODE_OPTIONS=--max_old_space_size=2048
 EXPOSE 3000
 
 FROM base AS restore

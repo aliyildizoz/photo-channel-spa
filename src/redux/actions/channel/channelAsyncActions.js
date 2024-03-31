@@ -10,7 +10,7 @@ import { getSubscribersSuccess } from "../subscrib/subsActionCreators"
 import { apiResponse, isLoadingFSuccess, isLoadingTSuccess } from "../common/commonActionsCreators"
 import { getUserChannelsSuccess } from "../user/userActionsCreators"
 import { isLoggedFSuccess, isLoggedTSuccess } from "../auth/authActionsCreators"
-import { push } from 'connected-react-router'
+import { push } from "redux-first-history";
 import { toast } from "react-toastify"
 
 export function getChannelDetailApi(channelId, callBack) {

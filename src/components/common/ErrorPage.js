@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
-import { withRouter } from "react-router";
 import { Container, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import withRouter  from '../../redux/helpers/withRouter';
 
 class ErrorPage extends Component {
     render() {
@@ -15,7 +15,7 @@ class ErrorPage extends Component {
                             <h4><b>Hata mesajı :</b> {this.props.location.state.message}</h4>
                             <h4><b>Hata kodu :</b> {this.props.location.state.status}</h4><br /><br />
                             <p>
-                                Ana sayfaya gitmek için <Link to="/">tıklayın</Link>
+                                Ana sayfaya gitmek için <Link to="/" >tiklayin</Link>
                             </p>
 
                         </Col>

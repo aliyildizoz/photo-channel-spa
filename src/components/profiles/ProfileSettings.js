@@ -2,7 +2,7 @@ import axios from 'axios'
 import React, { Component, useEffect, useRef, useState } from 'react'
 import { Container, Form, FormGroup, Row, Col, Button, Accordion, Alert } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
-import { useHistory } from 'react-router-dom/cjs/react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import SimpleReactValidator from 'simple-react-validator'
 import { getUserDetailSuccess } from '../../redux/actions/user/userActionsCreators'
 import { getUserUrlById, getUpdatePasswordUrl } from '../../redux/actions/user/userEndPoints'
@@ -10,7 +10,6 @@ import { authHeaderObj } from '../../redux/helpers/localStorageHelper'
 import * as localStorageHelper from "../../redux/helpers/localStorageHelper"
 import { redirectErrPage } from '../../redux/helpers/historyHelper'
 import { currentUserClearSuccess, currentUserSuccess, isLoggedFSuccess } from '../../redux/actions/auth/authActionsCreators'
-import { getCurrentUserApi } from '../../redux/actions/auth/authAsyncActions'
 import { toast } from 'react-toastify';
 export default class ProfileSettings extends Component {
 
@@ -31,7 +30,7 @@ function Settings() {
     const passwordValidator = useRef(new SimpleReactValidator({ locale: "tr", autoForceUpdate: { forceUpdate: forceUpdate } }))
 
     const dispatch = useDispatch();
-    const history = useHistory()
+    const navigate = useNavigate()
 
     const currentUser = useSelector(state => state.currentUserReducer.detail)
 
@@ -62,7 +61,7 @@ function Settings() {
             await axios.put(getUserUrlById(currentUser.id), userModel, { headers: authHeaderObj() }).then(res => {
                 dispatch(getUserDetailSuccess(currentUser));
                 localStorageHelper.setToken(res.data)
-            }).then(() => history.push("/profile/" + currentUser.id)).then(() => dispatch(currentUserSuccess(userModel))).then(() => toast.success("Hesap güncellendi.")).catch((err) => setUserResponse(err.response.data))
+            }).then(() => navigate("/profile/" + currentUser.id)).then(() => dispatch(currentUserSuccess(userModel))).then(() => toast.success("Hesap güncellendi.")).catch((err) => setUserResponse(err.response.data))
 
         } else {
             userValidator.current.showMessages();
@@ -75,7 +74,7 @@ function Settings() {
                 await axios.put(getUpdatePasswordUrl(currentUser.id), {
                     oldPassword: passwordModel.oldPasword,
                     newPassword: passwordModel.newPassword
-                }, { headers: authHeaderObj() }).then(() => history.push("/profile/me")).then(() => toast.success("Şifre güncellendi.")).catch((err) => setPasswordResponse(err.response.data))
+                }, { headers: authHeaderObj() }).then(() => navigate("/profile/me")).then(() => toast.success("Şifre güncellendi.")).catch((err) => setPasswordResponse(err.response.data))
                 setEqualMessage("");
             }
             else {
@@ -90,7 +89,7 @@ function Settings() {
             localStorageHelper.removeToken();
             dispatch(isLoggedFSuccess());
             dispatch(currentUserClearSuccess());
-            history.push("/")
+            navigate("/")
         }).catch((err) => redirectErrPage(err, dispatch))
     }
     return <Row className="bg-light" style={{ borderBottomLeftRadius: 50, borderBottomRightRadius: 50 }}>

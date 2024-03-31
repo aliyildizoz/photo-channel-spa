@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 import { Container, Row, Col, ListGroup, Badge, Tabs, Tab, Table } from 'react-bootstrap'
 import { Button } from 'react-bootstrap'
-import { Link, useHistory } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import axios from "axios";
 import { useSelector, useDispatch } from 'react-redux'
 import { SUBS_API_URL, deleteSubsPath } from "../../redux/actions/subscrib/subsEndPoints"
@@ -19,12 +19,12 @@ export function SubsButton({ channelId, subsCount }) {
     const currentUser = useSelector(state => state.currentUserReducer.detail)
     const isSubs = useSelector(state => state.isSubsReducer);
     const [subsCnt, setSubsCnt] = useState(subsCount)
-    const history = useHistory()
+    const navigate = useNavigate()
     const isLogged = useSelector(state => state.isLoggedReducer);
     const dispatch = useDispatch();
     useEffect(() => setSubsCnt(subsCount), [])
     if (!isLogged) {
-        return (<JustSubsButton variant="outline-primary" subsCount={subsCnt} onClick={() => history.push('/login')} text="Abone ol" />)
+        return (<JustSubsButton variant="outline-primary" subsCount={subsCnt} onClick={() => navigate('/login')} text="Abone ol" />)
     }
     const subsThen = () => {
         setSubsCnt(prevState => prevState + 1)
@@ -115,7 +115,7 @@ export function ChannelCategories() {
         <ListGroup.Item>
             {
                 categories.map((c, i) => {
-                    return <h4 className="d-inline-flex mr-2" key={i}><Link to={"/feed/" + c.name.toLowerCase()}><Badge variant="info">
+                    return <h4 className="d-inline-flex m-2" key={i}><Link to={"/feed/" + c.name.toLowerCase()}><Badge style={{backgroundColor:"#54B4D3",color:"white"}} >
                         {c.name}
                     </Badge></Link></h4>
                 })
@@ -123,7 +123,7 @@ export function ChannelCategories() {
         </ListGroup.Item>
         :
         <ListGroup.Item>
-            <h4 className="d-inline-flex mr-2" ><Badge variant="secondary">
+            <h4 className="d-inline-flex mr-2" ><Badge bg="secondary" style={{backgroundColor:"#54B4D3",color:"white"}}>
                 Kategorize edilmemiş
                 </Badge></h4>
         </ListGroup.Item>}
@@ -183,7 +183,7 @@ export function ChannelAbout({ channelId }) {
                 {
                     isOwner ?
                         <h5 className="font-weight-light d-inline-flex  float-right mt-4">
-                            <Link className="text-decoration-none" to={channelId + "/settings"}> <span className="fa fa-cog"></span> Ayarlara git</Link>
+                            <Link className="text-decoration-none" to="settings"> <span className="fa fa-cog"></span> Ayarlara git</Link>
                         </h5> : null
                 }
                 <hr />

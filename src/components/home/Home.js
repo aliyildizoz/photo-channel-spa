@@ -12,6 +12,7 @@ import { homeContent, feedType } from '../../redux/constants/constants'
 import { getFeedSuccess } from '../../redux/actions/home/homeActionCreators';
 import * as categoryActionCreators from '../../redux/actions/category/categoryActionCreators'
 import { Button } from 'bootstrap';
+import withRouter from '../../redux/helpers/withRouter';
 
 class Home extends Component {
     state = {
@@ -19,7 +20,7 @@ class Home extends Component {
         feedType: feedType.Feed
     }
     componentDidMount() {
-        if (this.props.match.params.text) {
+        if (this.props.router.params?.text) {
             this.setState({ ...this.state, homeContentState: homeContent.FilterChannel })
         }
         this.props.actions.getFeed(feedType.Feed);
@@ -27,9 +28,9 @@ class Home extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (this.props.match.params.text !== prevProps.match.params.text) {
-            if (this.props.match.params.text) {
-                var selectedCategories = this.props.match.params.text.includes("-") ? decodeURIComponent(this.props.match.params.text).split("-") : this.props.match.params.text;
+        if (this.props.router.params.text !== prevProps.router.params.text) {
+            if (this.props.router.params.text) {
+                var selectedCategories = this.props.router.params.text.includes("-") ? decodeURIComponent(this.props.router.params.text).split("-") : this.props.router.params.text;
                 var selectedCategoriesDetail = this.props.categories.filter(c => selectedCategories.includes(c.name.toLowerCase()));
                 this.props.actions.setSelectedCategories([...selectedCategoriesDetail])
                 this.props.actions.getByQueryChannels(selectedCategoriesDetail.map(c => c.id))
@@ -140,7 +141,8 @@ function mapStateToProps(state) {
         mostChannels: state.homeReducer.mostChannels,
         isLogged: state.isLoggedReducer,
         selectedCategories: state.selectedCategoriesReducer,
-        categories: state.categoryListReducer
+        categories: state.categoryListReducer,
+        currentUser: state.currentUserReducer
     }
 }
 function mapDispatchToProps(dispatch) {
@@ -171,4 +173,4 @@ function FilterChannel() {
         <h6>Aradığınız kategoride kanal bulunamadı.</h6>
     </Alert>
 }
-export default connect(mapStateToProps, mapDispatchToProps)(Home);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Home));

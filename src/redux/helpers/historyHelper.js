@@ -1,5 +1,6 @@
-import { push } from 'connected-react-router'
 import { toast } from 'react-toastify';
+import { push } from "redux-first-history";
+
 
 export function redirectErrPage(err, dispatch) {
     console.error("response Error --> ", err)

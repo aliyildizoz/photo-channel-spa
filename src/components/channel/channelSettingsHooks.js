@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react"
 import { useSelector, useDispatch } from 'react-redux'
 import { Col, Form, FormGroup, Button, ListGroup, Modal, Accordion, Alert } from "react-bootstrap"
 import { Multiselect } from 'multiselect-react-dropdown';
-import { Link, useHistory } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import axios from "axios";
 import { deleteSubsByOwnerPath } from "../../redux/actions/subscrib/subsEndPoints";
 import { authHeaderObj } from "../../redux/helpers/localStorageHelper";
@@ -24,7 +24,7 @@ export function ChannelUpdate({ channelId }) {
     const channelDetail = useSelector(state => state.channelReducer.channelDetail)
     const apiResponse = useSelector(state => state.apiResponseReducer)
     const dispatch = useDispatch()
-    const history = useHistory()
+    const navigate = useNavigate()
 
     const [, forceUpdate] = useState()
     const validator = useRef(new SimpleReactValidator({ locale: "tr", autoForceUpdate: { forceUpdate: forceUpdate } }))
@@ -43,7 +43,7 @@ export function ChannelUpdate({ channelId }) {
         e.preventDefault();
         if (validator.current.allValid() || files.length > 0) {
             dispatch(channelUpdateApi({ name: name, file: files[0] }, channelId));
-            history.push("/channel/" + channelId);
+            navigate("/channel/" + channelId);
         } else {
             validator.current.showMessages();
         }
@@ -105,14 +105,14 @@ export function CategoryUpdate({ channelId }) {
 }
 export function ChannelDelete({ channelId }) {
 
-    const history = useHistory()
+    const navigate = useNavigate()
     const dispatch = useDispatch()
 
     const onClickHandler = () => {
         console.log(getChannelPathById(channelId));
         axios.delete(getChannelPathById(channelId), {
             headers: authHeaderObj()
-        }).then(() => history.push("/")).then(() => toast.success("Kanal silindi.")).catch(err => redirectErrPage(err, dispatch))
+        }).then(() => navigate("/")).then(() => toast.success("Kanal silindi.")).catch(err => redirectErrPage(err, dispatch))
     }
     return <Col className="mt-2">
         <Accordion>
@@ -144,10 +144,10 @@ export function Subscribers({ channelId }) {
             <ListGroup >
                 {
                     subscribers.map(subs => {
-                        return <ListGroup.Item key={subs.id}>
+                        return <ListGroup.Item key={subs.id} class="d-flex justify-content-between">
 
                             <Link to={"/profile/" + subs.id} className="text-primary text-decoration-none"><span>{subs.firstName + " " + subs.lastName}</span></Link>
-                            <span onClick={() => { setModalShow(true); setDeleteId(subs.id); }} className="removeSubsSpan float-right fas fa-user-minus"></span>
+                            <span onClick={() => { setModalShow(true); setDeleteId(subs.id); }} className="removeSubsSpan fas fa-user-minus"></span>
 
                         </ListGroup.Item>
                     })

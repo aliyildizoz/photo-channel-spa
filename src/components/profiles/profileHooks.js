@@ -2,7 +2,7 @@ import { Transformation, Image } from 'cloudinary-react';
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Badge, Button, Col, ListGroup, Media, Row, Tab, Tabs } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getUserPhotosApi } from "../../redux/actions/photo/photoAsyncActions";
 import PhotoCardHook, { MapPhotoCard } from "../photoCard/photoCardHook";
 import { getSubscriptionsApi, getLikedPhotosApi, getUserCommentsPhotosApi, getUserApi } from "../../redux/actions/user/userAsyncActions";
@@ -10,12 +10,18 @@ import { getIsOwnerSuccess, getLikedPhotosSuccess, getUserCommentsPhotosSuccess,
 import { SubsApi } from "../channel/channelHooks";
 import Loading from "../common/Loading";
 import { profileFlowState } from "../../redux/constants/constants";
+import { useParams } from "react-router-dom";
 
-export function Flow({ renderState, userId }) {
+export function Flow({ renderState }) {
     const [flowState, setFlowState] = useState();
-    const history = useHistory()
+    const navigate = useNavigate()
     useEffect(() => setFlowState(renderState), [renderState])
     const dispatch = useDispatch();
+    const params = useParams();
+    // let navigate = useNavigate();
+    const currentUser = useSelector(state => state.currentUserReducer.detail)
+    const path = useSelector(state => state.router.location.pathname)
+
     return <div>
         <Row>
             <Col md="12">
@@ -24,16 +30,16 @@ export function Flow({ renderState, userId }) {
                     activeKey={flowState}
                     onSelect={(k) => {
                         setFlowState(k)
-                        history.push(k)
+                        navigate("../"+k, { relative: "path" });
                         switch (k) {
                             case profileFlowState.Photos:
-                                dispatch(getUserPhotosApi(userId));
+                                dispatch(getUserPhotosApi(path.includes('me') ? currentUser.id : params.id));
                                 break;
                             case profileFlowState.Likes:
-                                dispatch(getLikedPhotosApi(userId))
+                                dispatch(getLikedPhotosApi(path.includes('me') ? currentUser.id : params.id))
                                 break;
                             case profileFlowState.Comments:
-                                dispatch(getUserCommentsPhotosApi(userId))
+                                dispatch(getUserCommentsPhotosApi(path.includes('me') ? currentUser.id : params.id))
                                 break;
                             default:
                                 break;
@@ -42,17 +48,17 @@ export function Flow({ renderState, userId }) {
                 >
                     <Tab eventKey={profileFlowState.Photos} title="Fotoğraflar" >
                         <Col >
-                            <UserPhotos userId={userId} />
+                            <UserPhotos userId={path.includes('me') ? currentUser.id : params.id} />
                         </Col>
                     </Tab>
                     <Tab eventKey={profileFlowState.Likes} title="Beğeniler">
                         <Col>
-                            <LikedPhotos userId={userId} />
+                            <LikedPhotos userId={path.includes('me') ? currentUser.id : params.id} />
                         </Col>
                     </Tab>
                     <Tab eventKey={profileFlowState.Comments} title="Yorumlar">
                         <Col>
-                            <CommentsPhotos userId={userId} />
+                            <CommentsPhotos userId={path.includes('me') ? currentUser.id : params.id} />
                         </Col>
                     </Tab>
                 </Tabs>
@@ -105,14 +111,16 @@ function UserPhotos({ userId }) {
     </div>
 }
 
-export function Subscriptions({ userId, subsCount }) {
+export function Subscriptions({ subsCount }) {
     const dispatch = useDispatch()
     const [isLoading, setIsLoading] = useState(true)
     const setFalseIsLoading = () => setIsLoading(false);
-
+    const params = useParams();
+    const currentUser = useSelector(state => state.currentUserReducer.detail)
+    const path = useSelector(state => state.router.location.pathname)
     useEffect(() => {
-        dispatch(getSubscriptionsApi(userId, setFalseIsLoading));
-    }, [userId, dispatch])
+        dispatch(getSubscriptionsApi(path.includes('me') ? currentUser.id : params.id, setFalseIsLoading));
+    }, [params, currentUser, path, dispatch])
     const subscriptions = useSelector(state => state.userReducer.subscriptions)
     return <div>
         <Row>
